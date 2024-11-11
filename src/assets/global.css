@@ -11,56 +11,7 @@ header {
 }
 
 /* Sidebar */
-.sidebar {
-  background-color: #0d6efd;
-  width: 400px;
-  min-height: 100vh;
-  color: white;
-  padding: 1rem;
-  transition: transform 0.3s ease-in-out;
-}
 
-.sidebar h2 {
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
-}
-
-.sidebar .nav-item {
-  margin: 10px 0;
-}
-
-.sidebar .nav-link {
-  color: #ffffff;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  transition: background-color 0.3s;
-}
-
-.sidebar .nav-link:hover {
-  background-color: #043c61;
-}
-
-/* Responsividade para Sidebar */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: 400px;
-    top: 0;
-    height: 100%;
-    z-index: 1000;
-    transform: translateX(0);
-  }
-
-  .sidebar.active {
-    transform: translateX(450px);
-  }
-
-  .hamburger {
-    display: block;
-  }
-}
 
 /* Tabela e Formulário */
 .table-container {
@@ -272,7 +223,7 @@ header {
 .tags {
   margin-top: 1rem;
   font-size: 0.9rem;
-  color: #555;
+  color: #555555;
 }
 
 
@@ -294,16 +245,7 @@ header {
   transition: 0.4s;
 }
 
-/* Menu Lateral com opções */
-.bg-dark {
-  --bs-bg-opacity: 1;
-  background-color: #0d6efd !important;
-}
 
-.bg-secondary {
-  --bs-bg-opacity: 1;
-  background-color: #0d6efd !important;
-}
 
 .form-group {
   margin-bottom: 15px;
