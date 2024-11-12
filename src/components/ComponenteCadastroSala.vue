@@ -5,18 +5,22 @@
         <div class="form-group">
           <label for="bloco">Bloco da sala</label>
           <select id="bloco" v-model="novoBlocoId" class="form-control" required>
+            <option value="" disabled>Selecione um bloco</option>
             <option v-for="bloco in blocos" :key="bloco.id" :value="bloco.id">
-              {{ bloco.nome }}
+              {{ bloco.nome_bloco }}
             </option>
           </select>
         </div>
         <div class="form-group">
-          <label for="nome">Nome da sala</label>
-          <input type="text" id="nome" v-model="novoNome" placeholder="Digite o nome da sala" class="form-control" required />
-        </div>
-        <div class="form-group">
           <label for="numero">Número da sala</label>
-          <input type="number" id="numero" v-model="novoNumero" placeholder="Digite o número da sala" class="form-control" required />
+          <input
+            type="text"
+            id="numero"
+            v-model="novoNumero"
+            placeholder="Digite o número da sala"
+            class="form-control"
+            required
+          />
         </div>
         <button type="submit" class="btn btn-primary">Adicionar Sala</button>
       </form>
@@ -25,21 +29,20 @@
   
   <script>
   import axios from "axios";
+  import Swal from "sweetalert2"; // Importando o SweetAlert2
   
   export default {
     name: "ComponenteCadastroSala",
     data() {
       return {
         mostrarCadastroSala: true,
-        novoNome: "",
         novoNumero: "",
         novoBlocoId: null, // ID do bloco selecionado
         blocos: [], // Lista de blocos disponíveis
         salas: []
       };
     },
-    created(event) {
-
+    created() {
       this.carregarBlocos(); // Carregar os blocos existentes ao criar o componente
     },
     methods: {
@@ -47,22 +50,30 @@
       async carregarBlocos() {
         try {
           const token = localStorage.getItem("token");
+          if (!token) {
+            Swal.fire("Erro", "Token não encontrado. Faça login novamente.", "error");
+            return;
+          }
           const resposta = await axios.get("http://localhost:3000/blocos", {
             headers: { Authorization: `Bearer ${token}` }
           });
-          this.blocos = resposta.data; 
+          this.blocos = resposta.data;
         } catch (error) {
-          console.error("Erro ao carregar blocos:", error);
-          alert("Erro ao carregar blocos.");
+          console.error("Erro ao carregar blocos:", error.response ? error.response.data : error.message);
+          Swal.fire("Erro", "Erro ao carregar blocos.", "error");
         }
       },
       // Função para adicionar uma nova sala
       async adicionarSala() {
         const token = localStorage.getItem("token");
+        if (!token) {
+          Swal.fire("Erro", "Token não encontrado. Faça login novamente.", "error");
+          return;
+        }
+  
         const novaSala = {
-          blocoId: this.novoBlocoId, // Associando a sala ao bloco selecionado
-          nome: this.novoNome,
-          numero: this.novoNumero
+          bloco_id: this.novoBlocoId,
+          numero_sala: this.novoNumero
         };
   
         try {
@@ -70,19 +81,30 @@
             headers: { Authorization: `Bearer ${token}` }
           });
           this.salas.push(resposta.data);
+          
+          // Alerta de sucesso usando SweetAlert2
+          Swal.fire("Sucesso!", "Sala cadastrada com sucesso!", "success");
+          
           this.resetarFormulario();
         } catch (error) {
           console.error("Erro ao adicionar sala:", error.response ? error.response.data : error.message);
-          alert("Erro ao cadastrar sala. Tente novamente.");
+  
+          // Exibir detalhes de erro completos
+          const errorMessage = error.response?.data?.message || "Erro desconhecido. Tente novamente mais tarde.";
+          Swal.fire("Erro", `Erro ao cadastrar sala: ${errorMessage}`, "error");
+  
+          if (error.response && error.response.status === 500) {
+            console.log("Erro 500 - Erro Interno do Servidor: Verifique os logs do servidor para mais detalhes.");
+          }
         }
       },
       // Função para resetar o formulário
       resetarFormulario() {
-        this.novoNome = "";
         this.novoNumero = "";
         this.novoBlocoId = null;
       }
     }
   };
   </script>
+  
   
