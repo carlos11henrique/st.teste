@@ -57,6 +57,7 @@ import axios from 'axios';
 
 export default {
   name: "ComponenteControleUsuario",
+  
   data() {
     return {
       mostrarTabelaExibida: true,
@@ -144,6 +145,13 @@ async removerUsuario(id) {
   mounted() {
     this.carregarUsuarios(); // Carrega todos os usuários ao montar o componente
   },
-};
+  props: {
+  filterOcupacao: {
+    type: String,
+    required: false
+  }
+
+}
+}
 </script>
 

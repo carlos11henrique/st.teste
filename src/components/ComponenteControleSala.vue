@@ -128,7 +128,13 @@ export default {
   },
   mounted() {
     this.carregarSalas();
-  }
+  },
+  props: {
+    filterOcupacao: {
+      type: String,
+      required: false,
+    },
+}
 };
 </script>
 
