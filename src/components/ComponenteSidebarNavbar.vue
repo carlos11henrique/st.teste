@@ -24,11 +24,14 @@
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastro'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteCadastro')" href="#">Cadastro usuário</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleSala'}">
-          <a class="nav-link text-white" @click="setComponent('ComponenteControleSala')" href="#">Cadastrar Sala</a>
+        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastroSala'}">
+          <a class="nav-link text-white" @click="setComponent('ComponenteCadastroSala')" href="#">Cadastrar Sala</a>
         </li>
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleUsuario'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteControleUsuario')" href="#">Controle de Usuários</a>
+        </li>
+        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleSala'}">
+          <a class="nav-link text-white" @click="setComponent('ComponenteControleSala')" href="#">Controle de Salas</a>
         </li>
       </ul>
       
@@ -51,10 +54,12 @@ import ComponenteKaban from './ComponenteKaban.vue';
 import ComponenteCadastro from './ComponenteCadastro.vue';
 import ComponenteControleSala from './ComponenteControleSala.vue';
 import ComponenteControleUsuario from './ComponenteControleUsuario.vue';
+import ComponenteCadastroSala from './ComponenteCadastroSala.vue';
 
 export default {
 
   components: {
+    ComponenteCadastroSala,
     ComponenteHome,
     ComponenteKaban,
     ComponenteCadastro,
