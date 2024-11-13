@@ -107,23 +107,31 @@ export default {
 
     // Função para alterar o setor de um chamado
     async alterarSetor(chamado, novoSetor) {
-      chamado.setor = novoSetor; // Altera o setor localmente
+  chamado.setor = novoSetor; // Altera o setor localmente
 
-      try {
-        const token = localStorage.getItem("token");
-        // Envia a atualização para o servidor
-        await axios.put(`http://localhost:3000/chamados/${chamado.id}`, chamado, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        await this.carregarChamados(); // Recarrega os chamados após a alteração
-        Swal.fire('Sucesso!', `O setor foi alterado para ${novoSetor}.`, 'success');
-      } catch (erro) {
-        console.error("Erro ao alterar o setor:", erro);
-        Swal.fire('Erro', 'Não foi possível alterar o setor.', 'error');
-      }
-    },
+  try {
+    const token = localStorage.getItem("token");
+    // Envia a atualização para o servidor
+    await axios.put(`http://localhost:3000/chamados/${chamado.id}`, chamado, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    await this.carregarChamados(); // Recarrega os chamados após a alteração
+    Swal.fire('Sucesso!', `O setor foi alterado para ${novoSetor}.`, 'success');
+  } catch (erro) {
+    // Verifica se há resposta do servidor e exibe o erro detalhado
+    if (erro.response) {
+      // Caso o servidor tenha retornado uma resposta com erro
+      console.error("Erro no servidor:", erro.response.data); // Exibe a resposta de erro do servidor
+      Swal.fire('Erro', `Não foi possível alterar o setor. Detalhes: ${erro.response.data.error || 'Erro desconhecido'}`, 'error');
+    } else {
+      // Caso o erro não tenha resposta (ex: erro de conexão)
+      console.error("Erro desconhecido:", erro);
+      Swal.fire('Erro', 'Não foi possível alterar o setor. Erro desconhecido.', 'error');
+    }
+  }
+},
 
     confirmarRemocao(id) {
       Swal.fire({
