@@ -79,62 +79,62 @@ export default {
   },
   methods: {
     async carregarUsuarios() {
-  const token = localStorage.getItem("token");
-  try {
-    const resposta = await axios.get("http://localhost:3000/usuarios", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    this.usuarios = resposta.data;
-  } catch (error) {
-    console.error("Erro ao carregar usuários:", error.response || error.message);
-  }
-},
-async buscarUsuario(id) {
-  const token = localStorage.getItem("token");
-  try {
-    // Corrigindo a URL para adicionar uma barra entre 'usuarios' e o id
-    const resposta = await axios.get(`http://localhost:3000/usuarios/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    this.usuarioParaEditar = resposta.data;
-  } catch (error) {
-    console.error("Erro ao buscar usuário:", error);
-  }
-},
-async atualizarUsuario() {
-  const token = localStorage.getItem("token");
-  try {
-    // Atualizando a URL para refletir o endpoint correto
-    const resposta = await axios.put(`http://localhost:3000/usuarios/${this.usuarioParaEditar.id}`, this.usuarioParaEditar, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    console.log("Usuário atualizado:", resposta.data);
-    this.usuarioParaEditar = null; // Fecha o formulário de edição
-    await this.carregarUsuarios(); // Recarrega a lista de usuários
-    this.mostrarMensagem("success", "Usuário atualizado com sucesso!");
-  } catch (error) {
-    console.error("Erro ao atualizar usuário:", error);
-    this.mostrarMensagem("danger", "Erro ao atualizar o usuário.");
-  }
-},
-async removerUsuario(id) {
-  const token = localStorage.getItem("token");
-  try {
-    // Corrigindo a URL para refletir o endpoint correto
-    await axios.delete(`http://localhost:3000/usuarios/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log(`Usuário com ID ${id} removido`);
-    await this.carregarUsuarios(); // Recarrega a lista de usuários após remoção
-    this.mostrarMensagem("success", "Usuário removido com sucesso!");
-  } catch (error) {
-    console.error("Erro ao remover usuário:", error);
-    this.mostrarMensagem("danger", "Erro ao remover o usuário.");
-  }
-},
+      const token = localStorage.getItem("token");
+      try {
+        const resposta = await axios.get("http://localhost:3000/usuarios", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.usuarios = resposta.data;
+      } catch (error) {
+        console.error("Erro ao carregar usuários:", error.response || error.message);
+      }
+    },
+    async buscarUsuario(id) {
+      const token = localStorage.getItem("token");
+      try {
+        // Corrigindo a URL para adicionar uma barra entre 'usuarios' e o id
+        const resposta = await axios.get(`http://localhost:3000/usuarios/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.usuarioParaEditar = resposta.data;
+      } catch (error) {
+        console.error("Erro ao buscar usuário:", error);
+      }
+    },
+    async atualizarUsuario() {
+      const token = localStorage.getItem("token");
+      try {
+        // Atualizando a URL para refletir o endpoint correto
+        const resposta = await axios.put(`http://localhost:3000/usuarios/${this.usuarioParaEditar.id}`, this.usuarioParaEditar, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        console.log("Usuário atualizado:", resposta.data);
+        this.usuarioParaEditar = null; // Fecha o formulário de edição
+        await this.carregarUsuarios(); // Recarrega a lista de usuários
+        this.mostrarMensagem("success", "Usuário atualizado com sucesso!");
+      } catch (error) {
+        console.error("Erro ao atualizar usuário:", error);
+        this.mostrarMensagem("danger", "Erro ao atualizar o usuário.");
+      }
+    },
+    async removerUsuario(id) {
+      const token = localStorage.getItem("token");
+      try {
+        // Corrigindo a URL para refletir o endpoint correto
+        await axios.delete(`http://localhost:3000/usuarios/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log(`Usuário com ID ${id} removido`);
+        await this.carregarUsuarios(); // Recarrega a lista de usuários após remoção
+        this.mostrarMensagem("success", "Usuário removido com sucesso!");
+      } catch (error) {
+        console.error("Erro ao remover usuário:", error);
+        this.mostrarMensagem("danger", "Erro ao remover o usuário.");
+      }
+    },
     mostrarMensagem(tipo, texto) {
       this.mensagem = { tipo, texto };
       setTimeout(() => {
@@ -146,12 +146,46 @@ async removerUsuario(id) {
     this.carregarUsuarios(); // Carrega todos os usuários ao montar o componente
   },
   props: {
-  filterOcupacao: {
-    type: String,
-    required: false
+    filterOcupacao: {
+      type: String,
+      required: false
+    }
   }
-
-}
 }
 </script>
 
+<style scoped>
+.table-container {
+  margin: 20px;
+}
+
+/* Estilos para o formulário de edição */
+.edit-form {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.edit-form h3 {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.alert {
+  margin-top: 20px;
+}
+
+.alert.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.alert.danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+</style>

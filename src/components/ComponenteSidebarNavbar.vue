@@ -98,7 +98,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .sidebar {
   width: 250px;
   height: 100vh;
@@ -119,7 +119,7 @@ export default {
 }
 
 .nav-item.active .nav-link {
-  background-color: #0d6efd; /* Cor de destaque para o item ativo */
+  background-color: #0066ff; /* Cor de destaque para o item ativo */
 }
 
 .nav-link {
@@ -127,7 +127,7 @@ export default {
 }
 
 .nav-link:hover {
-  background-color: #0056b3; /* Cor para hover */
+  background-color: #0061c9; /* Cor para hover */
 }
 
 .nav-item.active .nav-link {
