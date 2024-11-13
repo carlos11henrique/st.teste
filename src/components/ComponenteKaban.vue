@@ -10,8 +10,6 @@
       <option value="NOA">ADM</option>
     </select>
   </li>
-
-  <!-- Tabelas do Kanban -->
   <div v-if="role === ROLES.NOA" class="kanban-column">
     <div v-show="mostrarTodosChamados || categoriaVisivel === 'Analise'" id="Análise" @drop="drop($event)" @dragover="allowDrop">
       <h3 class="kanban-header bg-secondary text-white p-2 text-center">Análise</h3>
@@ -24,8 +22,14 @@
         <p><em>Bloco:</em> {{ chamado.bloco }}</p>
         <p><em>Sala:</em> {{ chamado.sala }}</p>
         <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
+
+        <!-- Botões para alterar o setor -->
+        <div class="mt-2">
+          <button class="btn btn-warning btn-sm" @click="alterarSetor(chamado, 'TI')">Alterar para TI</button>
+          <button class="btn btn-warning btn-sm ml-2" @click="alterarSetor(chamado, 'Manutenção')">Alterar para Manutenção</button>
+        </div>
+
         <button class="btn btn-danger btn-sm" @click="confirmarRemocao(chamado.id)">Remover</button>
-        <div class="tags"></div>
       </div>
     </div>
   </div>
@@ -75,7 +79,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
 import { ROLES } from "../util/roles";
@@ -100,6 +103,26 @@ export default {
   methods: {
     async atualizarFiltro(event) {
       await this.carregarChamados();
+    },
+
+    // Função para alterar o setor de um chamado
+    async alterarSetor(chamado, novoSetor) {
+      chamado.setor = novoSetor; // Altera o setor localmente
+
+      try {
+        const token = localStorage.getItem("token");
+        // Envia a atualização para o servidor
+        await axios.put(`http://localhost:3000/chamados/${chamado.id}`, chamado, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        await this.carregarChamados(); // Recarrega os chamados após a alteração
+        Swal.fire('Sucesso!', `O setor foi alterado para ${novoSetor}.`, 'success');
+      } catch (erro) {
+        console.error("Erro ao alterar o setor:", erro);
+        Swal.fire('Erro', 'Não foi possível alterar o setor.', 'error');
+      }
     },
 
     confirmarRemocao(id) {
