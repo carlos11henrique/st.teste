@@ -14,12 +14,7 @@
           <a class="nav-link text-white" @click="setComponent('ComponenteHome')" href="#">Home</a>
         </li>
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteKaban'}">
-          <select v-model="filterOcupacao" class="form-select text-white bg-dark" @change="atualizarFiltro">
-            <option value="TODOS">Todos os Chamados</option>
-            <option value="ESTUDANTE">Alunos</option>
-            <option value="DOCENTE">Docentes</option>
-            <option value="NOA">ADM</option>
-          </select>
+          <a class="nav-link text-white" @click="setComponent('ComponenteKaban')" href="#">Kanban</a>
         </li>
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastro'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteCadastro')" href="#">Cadastro usuário</a>
@@ -40,7 +35,7 @@
           <a class="nav-link text-white" @click="setComponent('ComponenteControleSala')" href="#">Controle de Salas</a>
         </li>
       </ul>
-      
+
       <!-- Botão de Logout -->
       <div class="mt-4 pt-2 border-top">
         <button @click="logout" class="btn btn-danger w-100 custom-logout-button">Sair</button>
@@ -49,7 +44,7 @@
 
     <!-- Conteúdo dinâmico (componente selecionado) -->
     <div class="content-container p-3" style="margin-left: 250px;">
-      <component :is="selectedComponent" :filterOcupacao="filterOcupacao" />
+      <component :is="selectedComponent" />
     </div>
   </div>
 </template>
@@ -77,17 +72,12 @@ export default {
   },
   data() {
     return {
-      selectedComponent: 'ComponenteHome',  // Componente inicial
-      filterOcupacao: 'TODOS'
+      selectedComponent: 'ComponenteHome'  // Componente inicial
     };
   },
   methods: {
     setComponent(componentName) {
       this.selectedComponent = componentName;
-    },
-    atualizarFiltro() {
-      console.log(`Filtro Atualizado: ${this.filterOcupacao}`);
-      this.selectedComponent = 'ComponenteKaban';
     },
     logout() {
       console.log('Logout efetuado');

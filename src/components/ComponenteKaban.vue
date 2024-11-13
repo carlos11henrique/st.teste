@@ -1,64 +1,79 @@
 <template>
   <!-- Tabelas do Kanban -->
-  <div v-show="mostrarTodosChamados || categoriaVisivel === 'Analise'" id="Análise" class="kanban-column"
-    @drop="drop($event)" @dragover="allowDrop($event)">
-    <h3 class="kanban-header bg-warning text-white p-2 text-center">
-      ANÁLISE
-    </h3>
-    <div v-for="chamado in chamadosAnalise" :key="chamado.id" :id="chamado.id" class="kanban-item bg-light p-3 my-2"
-      draggable="true" @dragstart="drag($event, chamado)">
-      <p><strong>Setor:</strong> {{ chamado.setor }}</p>
-      <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-      <p><strong>Ocupação:</strong> {{ chamado.ocupacao }}</p>
-      <p><strong>Problema:</strong> {{ chamado.problema }}</p>
-      <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
-      <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
-      <p><strong>Sala:</strong> {{ chamado.sala }}</p>
-      <p v-if="chamado.maquinas.length >= 1"><em>Máquina(s):</em> {{ chamado.maquinas.join(", ") }}</p>
-      <button class="btn btn-danger btn-sm" @click="confirmarRemocao(chamado.id)">Remover</button>
-      <div class="tags"></div>
+  <li class="nav-item">
+    <select v-model="filterOcupacao" class="form-select text-white bg-dark" aria-label="Chamados Ti" @change="atualizarFiltro" @click="chamadosTi">
+      <option value="TODOS" selected>Todos os Chamados</option>
+      <option value="ESTUDANTE">Alunos</option>
+      <option value="DOCENTE">Docentes</option>
+      <option value="MANUTENCAO">Manutenção</option>
+      <option value="TI">Técnico de TI</option>
+      <option value="NOA">ADM</option>
+    </select>
+  </li>
+
+  <!-- Tabelas do Kanban -->
+  <div v-if="role === ROLES.NOA" class="kanban-column">
+    <div v-show="mostrarTodosChamados || categoriaVisivel === 'Analise'" id="Análise" @drop="drop($event)" @dragover="allowDrop">
+      <h3 class="kanban-header bg-secondary text-white p-2 text-center">Análise</h3>
+      <div v-for="chamado in chamadosAnalise" :key="chamado.id" :id="chamado.id" class="kanban-item bg-light p-3 my-2" draggable="true" @dragstart="drag($event, chamado)">
+        <p><strong>Nome:</strong> {{ chamado.nome_usuario }}</p>
+        <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
+        <p><em>Problema:</em> {{ chamado.problema }}</p>
+        <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
+        <p><em>Bloco:</em> {{ chamado.bloco }}</p>
+        <p><em>Sala:</em> {{ chamado.sala }}</p>
+        <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
+        <button class="btn btn-danger btn-sm" @click="confirmarRemocao(chamado.id)">Remover</button>
+        <div class="tags"></div>
+      </div>
     </div>
   </div>
-<div v-show="mostrarTodosChamados || categoriaVisivel === 'TI'" id="Pendentes" class="kanban-column" 
-    @drop="drop($event)" @dragover="allowDrop($event)">
-  <h3 class="kanban-header bg-danger text-white p-2 text-center">
-    TI
-  </h3>
-  <div v-for="chamado in chamadosPendentes" :key="chamado.id" class="kanban-item bg-light p-3 my-2" 
-      draggable="true" @dragstart="drag($event, chamado)">
-    <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-    <p><strong>Ocupação:</strong> {{ chamado.ocupacao }}</p>
-    <p><strong>Problema:</strong> {{ chamado.problema }}</p>
-    <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
-    <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
-    <p><strong>Sala:</strong> {{ chamado.sala }}</p>
-    <p v-if="chamado.maquinas.length >= 1"><em>Máquina(s):</em> {{ chamado.maquinas.join(", ") }}</p>
-  </div>
-</div>
 
-<!-- Coluna Em Andamento -->
-<div v-show="mostrarTodosChamados || categoriaVisivel === 'Andamento'" id="Em Andamento" class="kanban-column" 
-    @drop="drop($event)" @dragover="allowDrop($event)">
-  <h3 class="kanban-header bg-primary text-white p-2 text-center">
-    MANUTENÇÃO
-  </h3>
-  <div v-for="chamado in chamadosAndamento" :key="chamado.id" class="kanban-item bg-light p-3 my-2" 
-    draggable="true" @dragstart="drag($event, chamado)">
-    <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-    <p><strong>Ocupação:</strong> {{ chamado.ocupacao }}</p>
-    <p><strong>Problema:</strong> {{ chamado.problema }}</p>
-    <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
-    <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
-    <p><strong>Sala:</strong> {{ chamado.sala }}</p>
-    <p v-if="chamado.maquinas.length >= 1"><em>Máquina(s):</em> {{ chamado.maquinas.join(", ") }}</p>
+  <div v-show="mostrarTodosChamados || categoriaVisivel === 'Pendente'" id="Pendentes" class="kanban-column" @drop="drop($event)" @dragover="allowDrop">
+    <h3 class="kanban-header bg-danger text-white p-2 text-center">Pendente</h3>
+    <div v-for="chamado in chamadosPendentes" :key="chamado.id" class="kanban-item bg-light p-3 my-2" draggable="true" @dragstart="drag($event, chamado)">
+      <p><strong>Nome:</strong> {{ chamado.nome_usuario }}</p>
+      <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
+      <p><em>Problema:</em> {{ chamado.problema }}</p>
+      <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
+      <p><em>Bloco:</em> {{ chamado.bloco }}</p>
+      <p><em>Sala:</em> {{ chamado.sala }}</p>
+      <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
+    </div>
   </div>
-</div>
-  <!-- Outras colunas aqui (Pendentes, Em Andamento, etc) -->
 
+  <div v-show="mostrarTodosChamados || categoriaVisivel === 'Andamento'" id="Em Andamento" class="kanban-column" @drop="drop($event)" @dragover="allowDrop">
+    <h3 class="kanban-header bg-primary text-white p-2 text-center">Andamento</h3>
+    <div v-for="chamado in chamadosAndamento" :key="chamado.id" class="kanban-item bg-light p-3 my-2" draggable="true" @dragstart="drag($event, chamado)">
+      <p><strong>Setor:</strong> {{ chamado.setor }}</p>
+      <p><strong>Nome:</strong> {{ chamado.nome_usuario }}</p>
+      <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
+      <p><em>Problema:</em> {{ chamado.problema }}</p>
+      <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
+      <p><em>Bloco:</em> {{ chamado.bloco }}</p>
+      <p><em>Sala:</em> {{ chamado.sala }}</p>
+      <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
+    </div>
+  </div>
+
+  <div v-show="mostrarTodosChamados || categoriaVisivel === 'Concluído'" id="Concluido" class="kanban-column" @drop="drop($event)" @dragover="allowDrop">
+    <h3 class="kanban-header bg-success text-white p-2 text-center">Concluído</h3>
+    <div v-for="chamado in chamadosConcluidos" :key="chamado.id" class="kanban-item bg-light p-3 my-2" draggable="true" @dragstart="drag($event, chamado)">
+      <p><strong>Nome:</strong> {{ chamado.nome_usuario }}</p>
+      <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
+      <p><em>Problema:</em> {{ chamado.problema }}</p>
+      <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
+      <p><em>Bloco:</em> {{ chamado.bloco }}</p>
+      <p><em>Sala:</em> {{ chamado.sala }}</p>
+      <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
+      <button class="btn btn-danger btn-sm" @click="confirmarRemocao(chamado.id)">Remover</button>
+    </div>
+  </div>
 </template>
 
 <script>
 import axios from 'axios';
+import { ROLES } from "../util/roles";
 import Swal from 'sweetalert2';  // Certifique-se de importar o SweetAlert2
 
 export default {
@@ -67,16 +82,21 @@ export default {
     return {
       filterOcupacao: "TODOS",
       chamadosAnalise: [],
+      ROLES,
       chamadosAndamento: [],
       chamadosConcluidos: [],
       chamadosPendentes: [],
       chamados: [],
-      categoriaVisivel: '', // Controle da categoria visível
-      mostrarTodosChamados: true, // Para exibir todos os chamados
+      categoriaVisivel: '', 
+      mostrarTodosChamados: true, 
+      role: localStorage.getItem('role') || null,
     };
   },
   methods: {
-    // Função para confirmar remoção de um chamado
+    async atualizarFiltro(event) {
+      await this.carregarChamados();
+    },
+
     confirmarRemocao(id) {
       Swal.fire({
         title: 'Tem certeza que deseja deletar?',
@@ -94,18 +114,11 @@ export default {
       });
     },
 
-    // Função que deleta o chamado
     deletarChamado(id) {
       this.chamadosAnalise = this.chamadosAnalise.filter(chamado => chamado.id !== id);
       Swal.fire('Deletado!', 'O chamado foi removido.', 'success');
     },
 
-    // Atualiza a lista de chamados
-    async atualizarFiltro() {
-      await this.carregarChamados();
-    },
-
-    // Carrega os chamados da API
     async carregarChamados() {
       try {
         const token = localStorage.getItem("token");
@@ -114,92 +127,83 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-
         this.chamados = resposta.data;
+        console.log(this.chamados);
 
-        // Filtra os chamados conforme o filtro de ocupação
         this.chamados = this.filterOcupacao !== "TODOS"
           ? this.chamados.filter((chamado) => chamado.ocupacao === this.filterOcupacao)
           : this.chamados;
-
-        // Classifica os chamados por status
         this.chamadosAnalise = this.chamados.filter((chamado) => chamado.status === "Análise");
         this.chamadosAndamento = this.chamados.filter((chamado) => chamado.status === "Em Andamento");
         this.chamadosConcluidos = this.chamados.filter((chamado) => chamado.status === "Concluido");
         this.chamadosPendentes = this.chamados.filter((chamado) => chamado.status === "Pendentes");
-
       } catch (erro) {
         console.error("Erro ao carregar os chamados:", erro);
       }
     },
 
-    // Função chamada quando o componente é montado
-    mounted() {
-      this.carregarChamados();
-      this.atualizarChamados();
-    },
-
-    // Atualiza a lista de chamados a cada 60 segundos
     atualizarChamados() {
       setInterval(() => {
         this.carregarChamados();
       }, 1000 * 60);
     },
 
-    // Permite o drop de um item
     allowDrop(event) {
       event.preventDefault();
     },
 
-    // Função chamada quando o item é arrastado
     drag(event, chamado) {
       event.dataTransfer.setData("chamado", JSON.stringify(chamado));
     },
 
-    // Função chamada ao soltar o item
     async drop(event) {
       const statusMap = {
-        'Pendentes': document.getElementById("Pendentes"),
-        'Análise': document.getElementById("Análise"),
-        'Concluido': document.getElementById("Concluido"),
-        'Em Andamento': document.getElementById("Em Andamento")
+        Pendentes: document.getElementById("Pendentes"),
+        Análise: document.getElementById("Análise"),
+        Concluido: document.getElementById("Concluido"),
+        "Em Andamento": document.getElementById("Em Andamento"),
       };
 
-      let status = '';
-      for (const [key, element] of Object.entries(statusMap)) {
-        if (element === event.target || element.contains(event.target)) {
-          status = key;
-          break;
-        }
-      }
+      let status = Object.keys(statusMap).find((key) =>
+        statusMap[key] === event.target || statusMap[key].contains(event.target)
+      );
 
-      event.preventDefault();
-      const chamado = JSON.parse(event.dataTransfer.getData("chamado"));
-
-      const result = await Swal.fire({
-        title: "Você tem certeza?",
-        text: "Você deseja mudar o status do chamado?",
-        showCancelButton: true,
-        icon: "question",
-      });
-
-      if (!result.isConfirmed) {
+      if (!status) {
         return;
       }
 
+      const chamado = JSON.parse(event.dataTransfer.getData("chamado"));
       chamado.status = status;
-      const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:3000/chamados/${chamado.id}`, chamado, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+
+      const result = await Swal.fire({
+        title: `Mover para ${status}?`,
+        text: `Você deseja mudar o status do chamado para "${status}"?`,
+        icon: "question",
+        showCancelButton: true,
       });
-      await this.carregarChamados();
+
+      if (result.isConfirmed) {
+        try {
+          const token = localStorage.getItem("token");
+          await axios.put(`http://localhost:3000/chamados/${chamado.id}`, chamado, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          await this.carregarChamados();
+        } catch (erro) {
+          console.error("Erro ao atualizar o chamado:", erro);
+        }
+      }
     },
+  },
+  mounted() {
+    this.carregarChamados();
+    this.atualizarChamados();
   },
 };
 </script>
 
-<style>
+<style scoped>
 
 </style>
