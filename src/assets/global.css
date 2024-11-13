@@ -12,7 +12,7 @@ header {
 
 /* Sidebar */
 .sidebar {
-  background-color: #0d6efd;
+  background-color: #0099ff;
   width: 400px;
   min-height: 100vh;
   color: white;
@@ -94,16 +94,16 @@ header {
   border-collapse: separate;
   border-spacing: 0;
   font-weight: bold;
-/* box-shadow: 0 4px 12px rgba(33, 33, 33, 0.292);
+box-shadow: 0 4px 12px rgba(33, 33, 33, 0.292);
   border-radius: 12px;
   transition: transform 0.3s ease; 
-  transition: transform 0.3s ease; Adiciona uma transição suave */
+  transition: transform 0.3s ease;
 }
 
 /* Efeito hover na tabela */
 
 .table thead th {
-  background-color: #007bff;
+  background-color: #037dff;
   color: white;
   text-align: center;
   
@@ -173,106 +173,11 @@ header {
 .form-container button[type="submit"]:hover {
   background-color: #0056b3;
 }
-
-.kanban-column{
-  width: 32%;
-  margin: 0.5rem;
-  display: inline-block;
-  vertical-align: top;
-  min-height: 300px;
-  border-radius: 0.5rem;
-  background-color: #f8f9fa;
-  padding: 1rem;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-}
-
-.kanban-header {
-  padding: 0.75rem;
-  border-radius: 0.25rem;
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.kanban-item {
-  background-color: #fff;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  padding: 1rem;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  cursor: grab;
-  transition: transform 0.2s ease-in-out;
-}
-
-.kanban-item:hover {
-  transform: translateY(-5px);
-}
-
-.kanban-item p {
-  margin: 0.5rem 0;
-}
-
-.kanban-item button {
-  margin-top: 1rem;
-}
-
-/* Cores para cada categoria */
-.bg-warning {
-  background-color: #ffcc00 !important;
-}
-
-.bg-danger {
-  background-color: #f44336 !important;
-}
-
-.bg-primary {
-  background-color: #2196f3 !important;
-}
-
-/* Responsividade */
-@media (max-width: 1024px) {
-  .kanban-column {
-    width: 48%;
-  }
-}
-
-@media (max-width: 768px) {
-  .kanban-column {
-    width: 100%;
-    margin: 0.5rem 0;
-  }
-
-  .kanban-header {
-    font-size: 1.25rem;
-    padding: 0.5rem;
-  }
-
-  .kanban-item {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .kanban-item p {
-    font-size: 0.9rem;
-  }
-}
-
-/* Drag and Drop */
-.kanban-column {
-  position: relative;
-  padding-bottom: 2rem;
-}
-
-.kanban-item[draggable="true"]:hover {
-  cursor: grabbing;
-}
-
 /* Outros ajustes */
 .tags {
   margin-top: 1rem;
   font-size: 0.9rem;
-  color: #555;
+  color: #008dce;
 }
 
 
@@ -345,127 +250,4 @@ header {
   transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
-/* Cartões de resumo */
-.dashboard-summary {
-  display: flex;  
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
-  margin-bottom: 40px;
-  margin-left: 90px;
-}
-
-.summary-card {
-  background-color: #fff;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  
-  transition: transform 0.3s ease;
-}
-
-.summary-card:hover {
-  transform: translateY(-10px);
-}
-
-.summary-card h3 {
-  font-size: 18px;
-  color: #666;
-  margin-bottom: 10px;
-  
-}
-
-.summary-card p {
-  font-size: 32px;
-  font-weight: bold;
-  color: #0e85bd;
-}
-
-/* Gráficos */
-.charts-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-left: 95px;
-
-}
-
-.chart-card {
-  background-color: #fff;
-  padding: 20px;
-  width: calc(50% - 20px);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(33, 33, 33, 0.292);
-  transition: transform 0.3s ease;
-  
-}
-
-.chart-card:hover {
-  transform: translateY(-10px);
-}
-
-.chart-card h3 {
-  font-size: 20px;
-  color: #333;
-  margin-bottom: 15px;
-}
-
-/* Gráficos específicos */
-canvas {
-  width: 100%;
-  height: 200px;
-}
-
-/* Responsividade */
-@media (max-width: 1200px) {
-  .dashboard-summary {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .chart-card {
-    width: calc(50% - 20px);
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-container {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 400%;
-  }
-
-  .content {
-    margin-left: 0;
-  }
-
-  .dashboard-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-card {
-    width: 100%;
-  }
-}
-.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
-    margin-top: 10px;
-    margin-left: 10px;
-    margin-bottom: 5px;
-    font-weight: 500;
-    line-height: 1.2;
-    color: var(--bs-heading-color);
-}
-.custom-logout-button {
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.custom-logout-button:hover {
-  background-color: #c82333; /* Cor mais escura ao passar o mouse */
-}
-.bg-primary[data-v-6dec5f19] {
-    background-color: #0d6efd !important;
-}
 

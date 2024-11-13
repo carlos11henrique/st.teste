@@ -206,4 +206,98 @@ export default {
 
 <style scoped>
 
+.kanban-column{
+  width: 32%;
+  margin: 0.5rem;
+  display: inline-block;
+  vertical-align: top;
+  min-height: 300px;
+  border-radius: 0.5rem;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.kanban-header {
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.kanban-item {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+  transition: transform 0.2s ease-in-out;
+}
+
+.kanban-item:hover {
+  transform: translateY(-5px);
+}
+
+.kanban-item p {
+  margin: 0.5rem 0;
+}
+
+.kanban-item button {
+  margin-top: 1rem;
+}
+
+/* Cores para cada categoria */
+.bg-warning {
+  background-color: #ffcc00 !important;
+}
+
+.bg-danger {
+  background-color: #f44336 !important;
+}
+
+.bg-primary {
+  background-color: #2196f3 !important;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .kanban-column {
+    width: 48%;
+  }
+}
+
+@media (max-width: 768px) {
+  .kanban-column {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+
+  .kanban-header {
+    font-size: 1.25rem;
+    padding: 0.5rem;
+  }
+
+  .kanban-item {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .kanban-item p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Drag and Drop */
+.kanban-column {
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.kanban-item[draggable="true"]:hover {
+  cursor: grabbing;
+}
+
 </style>

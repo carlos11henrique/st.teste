@@ -43,6 +43,18 @@
             placeholder="Digite mais detalhes sobre o problema"
           ></b-form-input>
         </b-form-group>
+        
+        <b-form-group
+  label="Código do Equipamento"
+  label-for="codigoEquipamento"
+  v-if="problemas.some(p => p.id === problema && ['Computadores e Periféricos', 'Softwares e Programas Específicos', 'outros'].includes(p.descricao))"
+>
+  <b-form-input
+    v-model="codigoEquipamento"
+    id="codigoEquipamento"
+    placeholder="Digite o código do equipamento"
+  ></b-form-input>
+</b-form-group>
 
         <b-form-group label="Bloco da sala*" label-for="blocodasala">
           <b-form-select
@@ -85,26 +97,9 @@
         </div>
       </div>
 
-      <div v-if="problemas.some(p => (p.descricao === 'Computadores e Periféricos' || p.descricao === 'Softwares e Programas Específicos') && (p.id === problema))">
-        <h2>Selecione as Máquinas</h2>
-        <b-button @click="showModal" variant="info">Selecionar Máquinas</b-button>
-      </div>
 
       <!-- Modal para selecionar máquinas -->
-      <b-modal v-model="isModalVisible" title="Selecione as Máquinas">
-        <div class="rooms-grid">
-          <div
-            class="room-card"
-            v-for="room in rooms"
-            :key="room"
-            @click="toggleRoomSelection(room)"
-            :class="{ selected: selectedRooms.includes(room) }"
-          >
-            Maquina {{ room }}
-          </div>
-        </div>
-        <b-button variant="primary" @click="saveSelectedRooms">Confirmar Seleção</b-button>
-      </b-modal>
+      
 
     </div>
   </div>
