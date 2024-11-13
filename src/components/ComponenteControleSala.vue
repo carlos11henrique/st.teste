@@ -1,5 +1,10 @@
-<template> 
-  <!-- Formulário para cadastro de sala -->
+uer outro estilo que você prefira para criar um efeito de pop-up.
+Aqui está como você pode modificar o código:
+
+html
+Copiar código
+<template>
+  <!-- Tabela de Salas -->
   <div v-if="mostrarTabelaSalas" class="table-container p-3">
     <h2>Tabela de salas cadastradas</h2>
     <input type="text" v-model="filtroPesquisa" placeholder="Pesquisa por salas ou laboratórios cadastrados" class="form-control mb-3" />
@@ -30,23 +35,33 @@
     </table>
   </div>
 
-  <!-- Formulário de edição -->
-  <div v-if="salaEmEdicao" class="edit-container p-3">
-    <h2>Editar Sala</h2>
-    <form @submit.prevent="salvarEdicao">
-      <div class="form-group">
-        <label for="editBloco">Bloco</label>
-        <input type="text" id="editBloco" v-model="salaEmEdicao.bloco_id" class="form-control" />
+  <!-- Modal de Edição -->
+  <div v-if="salaEmEdicao" class="modal" tabindex="-1" role="dialog" style="display: block;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Sala</h5>
+          <button type="button" class="close" @click="cancelarEdicao">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="salvarEdicao">
+            <div class="form-group">
+              <label for="editBloco">Bloco</label>
+              <input type="text" id="editBloco" v-model="salaEmEdicao.bloco_id" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="editNumero">Nome / Número da Sala</label>
+              <input type="text" id="editNumero" v-model="salaEmEdicao.numero_sala" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-success">Salvar</button>
+            <button type="button" class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
+          </form>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="editNumero">Nome / Número da Sala</label>
-        <input type="text" id="editNumero" v-model="salaEmEdicao.numero_sala" class="form-control" />
-      </div>
-      <button type="submit" class="btn btn-success">Salvar</button>
-      <button type="button" class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
-    </form>
+    </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -142,7 +157,48 @@ export default {
 .table-container {
   margin: 20px;
 }
-.edit-container {
-  margin: 20px;
+
+/* Estilos para o modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-dialog {
+  max-width: 500px;
+  width: 100%;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 15px;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 15px;
+}
+
+.close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 </style>
