@@ -299,5 +299,8 @@ export default {
 .kanban-item[draggable="true"]:hover {
   cursor: grabbing;
 }
-
+.bg-dark {
+    --bs-bg-opacity: 1;
+    background-color: #007bff !important;
+}
 </style>
