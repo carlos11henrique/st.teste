@@ -1,5 +1,4 @@
 <template>
-  <!-- Tabelas do Kanban -->
   <li class="nav-item">
     <select v-model="filterOcupacao" class="form-select text-white bg-dark" aria-label="Chamados Ti" @change="atualizarFiltro" @click="chamadosTi">
       <option value="TODOS" selected>Todos os Chamados</option>
@@ -10,6 +9,9 @@
       <option value="NOA">ADM</option>
     </select>
   </li>
+  <div class="kanban-container">
+  <!-- Tabelas do Kanban -->
+
   <div v-if="role === ROLES.NOA" class="kanban-column">
     <div v-show="mostrarTodosChamados || categoriaVisivel === 'Analise'" id="Análise" @drop="drop($event)" @dragover="allowDrop">
       <h3 class="kanban-header bg-secondary text-white p-2 text-center">Análise</h3>
@@ -78,6 +80,7 @@
       <button class="btn btn-danger btn-sm" @click="confirmarRemocao(chamado.id)">Remover</button>
     </div>
   </div>
+</div>
 </template>
 <script>
 import axios from 'axios';
@@ -240,20 +243,65 @@ export default {
 };
 </script>
 
-
 <style scoped>
+/* Estilo para o seletor de filtro acima das colunas */
+.filter-container {
+  display: flex;
+  justify-content: center; /* Centraliza o seletor horizontalmente */
+  margin-bottom: 1rem; /* Espaçamento entre o seletor e as colunas do Kanban */
+}
 
-.kanban-column{
-  width: 32%;
-  margin: 0.5rem;
-  display: inline-block;
-  vertical-align: top;
+.nav-item {
+  list-style-type: none; /* Remove os marcadores de lista */
+  margin: 0 0.5rem; /* Espaçamento lateral */
+}
+
+.form-select {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ced4da; /* Cor de borda leve */
+  border-radius: 0.25rem;
+  background-color: #343a40; /* Fundo escuro consistente */
+  color: #ffffff; /* Texto branco */
+  transition: all 0.2s ease-in-out;
+}
+
+.form-select:hover,
+.form-select:focus {
+  border-color: #007bff; /* Muda a borda ao focar */
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Efeito de foco */
+}
+
+.form-select option {
+  color: #000; /* Torna o texto das opções em preto */
+}
+
+.form-select.text-white {
+  color: #ffffff; /* Mantém o texto branco no seletor */
+}
+
+/* Estilos do Kanban */
+.kanban-container {
+  display: flex;
+  flex-wrap: nowrap; /* Impede que as colunas quebrem para a próxima linha */
+  overflow-x: auto; /* Adiciona a barra de rolagem horizontal */
+  gap: 10px; /* Adiciona espaçamento entre as colunas */
+  padding: 1rem; /* Adiciona espaçamento interno */
+
+}
+
+.kanban-column {
+  flex: 1 1 32%;
+  min-width: 300px;
   min-height: 300px;
   border-radius: 0.5rem;
   background-color: #f8f9fa;
   padding: 1rem;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+  margin: 0; /* Remove margin lateral adicional */
+
 }
 
 .kanban-header {
@@ -265,12 +313,11 @@ export default {
 }
 
 .kanban-item {
+  margin-bottom: 1rem;
   background-color: #fff;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
+  border-radius: 5px;
   padding: 1rem;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  cursor: grab;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease-in-out;
 }
 
@@ -336,8 +383,11 @@ export default {
 .kanban-item[draggable="true"]:hover {
   cursor: grabbing;
 }
+
+/* Estilo adicional */
 .bg-dark {
-    --bs-bg-opacity: 1;
-    background-color: #007bff !important;
+  --bs-bg-opacity: 1;
+  background-color: #007bff !important;
 }
 </style>
+
