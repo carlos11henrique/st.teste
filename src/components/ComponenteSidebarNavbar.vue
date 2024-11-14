@@ -38,7 +38,7 @@
 
       <!-- Botão de Logout -->
       <div class="mt-4 pt-2 border-top">
-        <button @click="logout" class="btn btn-danger w-100 custom-logout-button">Sair</button>
+        <button @click="confirmLogout" class="btn btn-danger w-100 custom-logout-button">Sair</button>
       </div>
     </div>
 
@@ -58,6 +58,7 @@ import ComponenteControleUsuario from './ComponenteControleUsuario.vue';
 import ComponenteCadastroSala from './ComponenteCadastroSala.vue';
 import ComponenteCadastroEquipamento from './ComponenteCadastroEquipamento.vue';
 import ComponenteControleEquipamento from './ComponenteControleEquipamento.vue';
+import Swal from 'sweetalert2';
 
 export default {
   components: {
@@ -79,9 +80,26 @@ export default {
     setComponent(componentName) {
       this.selectedComponent = componentName;
     },
+    confirmLogout() {
+      // Exibe o pop-up de confirmação
+      Swal.fire({
+        title: 'Tem certeza?',
+        text: "Você deseja realmente sair da sua conta?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, sair!',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Se o usuário confirmar, chama a função logout
+          this.logout();
+        }
+      });
+    },
     logout() {
       console.log('Logout efetuado');
-      localStorage.removeItem('authToken');
+      localStorage.removeItem('authToken'); // Remove o token do localStorage
       this.$router.push('/login'); // Redireciona para a página de login
     }
   }
@@ -106,6 +124,7 @@ export default {
 
 .custom-logout-button {
   font-weight: bold;
+  font-size: 1.1rem;
 }
 
 .nav-item.active .nav-link {
