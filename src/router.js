@@ -3,6 +3,7 @@ import "./assets/global.css";
 import ComponenteSidebarNavbar from './components/ComponenteSidebarNavbar.vue';
 import LoginPage from './components/LoginPage.vue';
 import OpenTicketPage from './components/OpenTicketPage.vue';
+import axios from "axios";
 
 
 const routes = [
