@@ -19,19 +19,19 @@
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastro'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteCadastro')" href="#">Cadastro usuário</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastroSala'}">
+        <li v-if="role === ROLES.NOA" class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastroSala'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteCadastroSala')" href="#">Cadastrar Sala</a>
         </li>
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastroEquipamento'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteCadastroEquipamento')" href="#">Cadastrar Equipamento</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleUsuario'}">
+        <li v-if="role === ROLES.NOA" class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleUsuario'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteControleUsuario')" href="#">Controle de Usuários</a>
         </li>
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleEquipamento'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteControleEquipamento')" href="#">Controle de Equipamentos</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleSala'}">
+        <li v-if="role === ROLES.NOA" class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleSala'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteControleSala')" href="#">Controle de Salas</a>
         </li>
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteHistoricoChamados'}">
@@ -53,6 +53,7 @@
 </template>
 
 <script>
+import { ROLES } from '../util/roles';
 import ComponenteHome from './ComponenteHome.vue';
 import ComponenteKaban from './ComponenteKaban.vue';
 import ComponenteCadastro from './ComponenteCadastro.vue';
@@ -74,43 +75,52 @@ export default {
     ComponenteControleSala,
     ComponenteControleUsuario,
     ComponenteCadastroEquipamento,
-    ComponenteControleEquipamento,
-    ComponenteHistoricoChamados
+    ComponenteControleEquipamento
   },
   data() {
     return {
-      selectedComponent: 'ComponenteHome'  // Componente inicial
+      ROLES,
+      role: null, // Inicialize como null ou com o valor padrão
+      selectedComponent: 'ComponenteHome', // Componente inicial
     };
+  },
+  created() {
+    // Simulação de carregamento de role, substitua com chamada real
+    this.role = localStorage.getItem('role') || ROLES.USER; // Por exemplo, "NOA"
   },
   methods: {
     setComponent(componentName) {
       this.selectedComponent = componentName;
     },
     confirmLogout() {
-      // Exibe o pop-up de confirmação
       Swal.fire({
         title: 'Tem certeza?',
-        text: "Você deseja realmente sair da sua conta?",
+        text: 'Você deseja realmente sair da sua conta?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sim, sair!',
         cancelButtonText: 'Cancelar',
-        reverseButtons: true
+        reverseButtons: true,
       }).then((result) => {
         if (result.isConfirmed) {
-          // Se o usuário confirmar, chama a função logout
           this.logout();
         }
       });
     },
     logout() {
-      console.log('Logout efetuado');
       localStorage.removeItem('authToken'); // Remove o token do localStorage
       this.$router.push('/login'); // Redireciona para a página de login
-    }
-  }
+    },
+  },
+  watch: {
+    role(newRole) {
+      console.log(`Role atualizada: ${newRole}`);
+    },
+  },
 };
 </script>
+
+
 
 <style scoped>
 .sidebar {
