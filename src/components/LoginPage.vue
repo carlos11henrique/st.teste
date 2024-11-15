@@ -108,7 +108,7 @@ export default {
             response.data.ocupacao.endsWith("MANUTENCAO") ||
             response.data.ocupacao.endsWith("TI")
           ) {
-            this.$router.push("/Kaban");
+            this.$router.push("/");
           } else if (
             response.data.ocupacao.endsWith("NOA")) {
             this.$router.push("/");
