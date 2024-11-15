@@ -75,7 +75,8 @@ export default {
     ComponenteControleSala,
     ComponenteControleUsuario,
     ComponenteCadastroEquipamento,
-    ComponenteControleEquipamento
+    ComponenteControleEquipamento,
+    ComponenteHistoricoChamados
   },
   data() {
     return {
