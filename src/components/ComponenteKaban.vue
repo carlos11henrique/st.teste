@@ -111,7 +111,6 @@ export default {
 
     // Função para alterar o setor de um chamado
     async alterarSetor(chamado, novoSetor) {
-      console.log(chamado,novoSetor)
   chamado.setor_id = novoSetor; // Altera o setor localmente
 
   try {
@@ -169,7 +168,6 @@ export default {
           },
         });
         this.chamados = resposta.data;
-        console.log(this.chamados);
 
         this.chamados = this.filterOcupacao !== "TODOS"
           ? this.chamados.filter((chamado) => chamado.ocupacao === this.filterOcupacao)
