@@ -57,7 +57,6 @@
       
       <p><strong>Setor:</strong> {{ chamado.setor }}</p>
       <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-      <p><strong>Nome:</strong> {{ chamado.nome_usuario }}</p>
       <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
       <p><em>Problema:</em> {{ chamado.problema }}</p>
       <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
