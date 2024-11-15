@@ -27,8 +27,8 @@
 
         <!-- Botões para alterar o setor -->
         <div class="mt-2">
-          <button class="btn btn-warning btn-sm" @click="alterarSetor(chamado, 'TI')">Alterar para TI</button>
-          <button class="btn btn-warning btn-sm ml-2" @click="alterarSetor(chamado, 'Manutenção')">Alterar para Manutenção</button>
+          <button class="btn btn-warning btn-sm" @click="alterarSetor(chamado, 2)">Alterar para TI</button>
+          <button class="btn btn-warning btn-sm ml-2" @click="alterarSetor(chamado, 3)">Alterar para Manutenção</button>
         </div>
 
         <button class="btn btn-danger btn-sm" @click="confirmarRemocao(chamado.id)">Remover</button>
@@ -110,12 +110,13 @@ export default {
 
     // Função para alterar o setor de um chamado
     async alterarSetor(chamado, novoSetor) {
-  chamado.setor = novoSetor; // Altera o setor localmente
+      console.log(chamado,novoSetor)
+  chamado.setor_id = novoSetor; // Altera o setor localmente
 
   try {
     const token = localStorage.getItem("token");
     // Envia a atualização para o servidor
-    await axios.put(`http://localhost:3000/chamados/${chamado.id}`, chamado, {
+   const res =  await axios.put(`http://localhost:3000/chamados/${chamado.id}`, chamado, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
