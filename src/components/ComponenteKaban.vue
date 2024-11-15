@@ -29,9 +29,10 @@
         <div class="mt-2">
           <button class="btn btn-warning btn-sm" @click="alterarSetor(chamado, 2)">Alterar para TI</button>
           <button class="btn btn-warning btn-sm ml-2" @click="alterarSetor(chamado, 3)">Alterar para Manutenção</button>
-        </div>
 
+        </div>
         <button class="btn btn-danger btn-sm" @click="confirmarRemocao(chamado.id)">Remover</button>
+
       </div>
     </div>
   </div>
@@ -336,7 +337,7 @@ export default {
 
 /* Cores para cada categoria */
 .bg-warning {
-  background-color: #ffcc00 !important;
+  background-color: #ffee00 !important;
 }
 
 .bg-danger {
@@ -390,5 +391,36 @@ export default {
   --bs-bg-opacity: 1;
   background-color: #007bff !important;
 }
+.mt-2 {
+  margin-top: 8px;
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-warning {
+  background-color: #039ef7;
+  border: 1px solid #fff;
+  color: #fff;
+}
+
+.btn-warning:hover {
+  background-color: #0855bb;
+  color: #000;
+}
+
+.btn-sm {
+  font-size: 0.875rem;
+  padding: 6px 10px;
+}
+
+.ml-2 {
+  margin-left: 8px;
+}
+
 </style>
 

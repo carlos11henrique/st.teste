@@ -34,6 +34,9 @@
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleSala'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteControleSala')" href="#">Controle de Salas</a>
         </li>
+        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteHistoricoChamados'}">
+          <a class="nav-link text-white" @click="setComponent('ComponenteHistoricoChamados')" href="#">Historico de Chamados</a>
+        </li>
       </ul>
 
       <!-- Botão de Logout -->
@@ -58,6 +61,8 @@ import ComponenteControleUsuario from './ComponenteControleUsuario.vue';
 import ComponenteCadastroSala from './ComponenteCadastroSala.vue';
 import ComponenteCadastroEquipamento from './ComponenteCadastroEquipamento.vue';
 import ComponenteControleEquipamento from './ComponenteControleEquipamento.vue';
+import ComponenteHistoricoChamados from './ComponenteHistoricoChamados.vue';
+
 import Swal from 'sweetalert2';
 
 export default {
@@ -69,7 +74,8 @@ export default {
     ComponenteControleSala,
     ComponenteControleUsuario,
     ComponenteCadastroEquipamento,
-    ComponenteControleEquipamento
+    ComponenteControleEquipamento,
+    ComponenteHistoricoChamados
   },
   data() {
     return {
