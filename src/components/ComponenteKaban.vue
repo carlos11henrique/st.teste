@@ -23,7 +23,8 @@
         <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
         <p><em>Bloco:</em> {{ chamado.bloco }}</p>
         <p><em>Sala:</em> {{ chamado.sala }}</p>
-        <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
+        <p><em>Maquinas:</em> {{ chamado.maquina }}</p>
+
 
         <!-- Botões para alterar o setor -->
         <div class="mt-2">
@@ -47,7 +48,6 @@
       <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
       <p><em>Bloco:</em> {{ chamado.bloco }}</p>
       <p><em>Sala:</em> {{ chamado.sala }}</p>
-      <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
     </div>
   </div>
 
@@ -62,7 +62,6 @@
       <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
       <p><em>Bloco:</em> {{ chamado.bloco }}</p>
       <p><em>Sala:</em> {{ chamado.sala }}</p>
-      <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
     </div>
   </div>
 
@@ -76,7 +75,6 @@
       <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
       <p><em>Bloco:</em> {{ chamado.bloco }}</p>
       <p><em>Sala:</em> {{ chamado.sala }}</p>
-      <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
       <button class="btn btn-danger btn-sm" @click="confirmarRemocao(chamado.id)">Remover</button>
     </div>
   </div>
@@ -118,7 +116,9 @@ export default {
    const res =  await axios.put(`http://localhost:3000/chamados/${chamado.id}`, chamado, {
       headers: {
         Authorization: `Bearer ${token}`,
+        
       },
+      
     });
     await this.carregarChamados(); // Recarrega os chamados após a alteração
     Swal.fire('Sucesso!', `O setor foi alterado para ${novoSetor}.`, 'success');
@@ -176,6 +176,8 @@ export default {
         this.chamadosConcluidos = this.chamados.filter((chamado) => chamado.status === "Concluido");
         this.chamadosPendentes = this.chamados.filter((chamado) => chamado.status === "Pendentes");
       } catch (erro) {
+        console.log(this.chamados);
+
         console.error("Erro ao carregar os chamados:", erro);
       }
     },

@@ -115,7 +115,6 @@ export default {
   },
   watch: {
     role(newRole) {
-      console.log(`Role atualizada: ${newRole}`);
     },
   },
 };
