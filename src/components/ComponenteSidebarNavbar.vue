@@ -16,22 +16,22 @@
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteKaban'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteKaban')" href="#">Kanban</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastro'}">
+        <li v-if="this.role === this.ROLES.NOA" class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastro'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteCadastro')" href="#">Cadastro usuário</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastroSala'}">
+        <li v-if="this.role === this.ROLES.NOA" class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastroSala'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteCadastroSala')" href="#">Cadastrar Sala</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastroEquipamento'}">
+        <li  class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastroEquipamento'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteCadastroEquipamento')" href="#">Cadastrar Equipamento</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleUsuario'}">
+        <li v-if="this.role === this.ROLES.NOA" class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleUsuario'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteControleUsuario')" href="#">Controle de Usuários</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleEquipamento'}">
+        <li  class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleEquipamento'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteControleEquipamento')" href="#">Controle de Equipamentos</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleSala'}">
+        <li v-if="this.role === this.ROLES.NOA" class="nav-item" :class="{'active': selectedComponent === 'ComponenteControleSala'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteControleSala')" href="#">Controle de Salas</a>
         </li>
       </ul>
@@ -50,6 +50,7 @@
 </template>
 
 <script>
+import { ROLES } from "../util/roles";
 import ComponenteHome from './ComponenteHome.vue';
 import ComponenteKaban from './ComponenteKaban.vue';
 import ComponenteCadastro from './ComponenteCadastro.vue';
@@ -73,6 +74,7 @@ export default {
   },
   data() {
     return {
+      ROLES: ROLES,
       selectedComponent: 'ComponenteHome'  // Componente inicial
     };
   },

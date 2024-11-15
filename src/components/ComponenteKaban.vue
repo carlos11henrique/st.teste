@@ -108,7 +108,7 @@ export default {
       await this.carregarChamados();
     },
 
-    // Função para alterar o setor de um chamado
+    
     async alterarSetor(chamado, novoSetor) {
       console.log(chamado,novoSetor)
   chamado.setor_id = novoSetor; // Altera o setor localmente
