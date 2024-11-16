@@ -15,69 +15,56 @@
     <div class="right-side">
       <div class="login-box">
         <h2>Olá, Informe seu problema</h2>
-        <b-form-group>
-          <b-form-select
-            v-model="problema"
-            id="problema"
-            @change="updateProblemas($event)"
-          >
-            <option value="" disabled>Selecione um problema</option>
-            <option
-              v-for="(problema, index) in problemas"
-              :key="index"
-              :value="problema.id"
-            >
-              {{ problema.descricao }}
-            </option>
-          </b-form-select>
-        </b-form-group>
-        
+
+        <!-- Seletor de problema -->
+        <b-form-select v-model="problema" id="problema">
+  <option value="" disabled>Selecione um problema</option>
+  <option v-for="(problema, index) in problemas" :key="index" :value="problema.id">
+    {{ problema.descricao }}
+  </option>
+</b-form-select>
+
+        <!-- Descrição do problema -->
         <b-form-group
           v-if="problemas.some(p => (p.descricao === 'outros' || p.descricao === 'Computadores e Periféricos' || p.descricao === 'Softwares e Programas Específicos') && (p.id === problema))"
           label="Descreva o problema específico"
-          label-for="descricaoProblema"
-        >
-          <b-form-input
-            v-model="descricaoProblema"
-            id="descricaoProblema"
-            placeholder="Digite mais detalhes sobre o problema"
-          ></b-form-input>
+          label-for="descricaoProblema">
+          <b-form-input v-model="descricaoProblema" id="descricaoProblema" placeholder="Digite mais detalhes sobre o problema"></b-form-input>
         </b-form-group>
-        
-        <b-form-group
-  label="Código do Equipamento"
-  label-for="codigoEquipamento"
-  v-if="problemas.some(p => p.id === problema && ['Computadores e Periféricos', 'Softwares e Programas Específicos', 'outros'].includes(p.descricao))"
->
-  <b-form-input
-    v-model="codigoEquipamento"
-    id="codigoEquipamento"
-    placeholder="Digite o código do equipamento"
-  ></b-form-input>
-</b-form-group>
 
-        <b-form-group label="Bloco da sala*" label-for="blocodasala">
-          <b-form-select
-            v-model="blocodaSala"
-            id="blocodasala"
-            @change="updateSalas($event)"
-          >
-            <option value="" disabled>Selecione um Bloco da sala</option>
-            <option
-              v-for="(bloco, index) in blocos"
-              :key="index"
-              :value="bloco.id"
+        <!-- Caixa de pesquisa para código do Equipamento -->
+        <b-form-group label="Código do Equipamento" label-for="codigoEquipamento">
+          <b-form-input
+            v-model="codigoEquipamento"
+            id="codigoEquipamento"
+            type="text"
+            placeholder="Digite o código ou nome da máquina"
+            @input="filterEquipamentos"
+          />
+          <b-list-group v-if="filteredEquipamentos.length > 0" class="mt-2">
+            <b-list-group-item
+              v-for="equipamento in filteredEquipamentos"
+              :key="equipamento.numero_maquina"
+              @click="selectEquipamento(equipamento)"
+              class="clickable-item"
             >
+              {{ equipamento.numero_maquina }} - {{ equipamento.descricao }}
+            </b-list-group-item>
+          </b-list-group>
+        </b-form-group>
+
+        <!-- Seletor de Bloco da sala -->
+        <b-form-group label="Bloco da sala*" label-for="blocodasala">
+          <b-form-select v-model="blocodaSala" id="blocodasala" @change="updateSalas($event)">
+            <option value="" disabled>Selecione um Bloco da sala</option>
+            <option v-for="(bloco, index) in blocos" :key="index" :value="bloco.id">
               {{ bloco.nome_bloco }}
             </option>
           </b-form-select>
         </b-form-group>
 
-        <b-form-group
-          v-if="blocodaSala"
-          label="Selecionar sala*"
-          label-for="sala"
-        >
+        <!-- Seletor de Sala -->
+        <b-form-group v-if="blocodaSala" label="Selecionar sala*" label-for="sala">
           <b-form-select v-model="numerodaSala" id="sala">
             <option value="" disabled>Selecione a Sala</option>
             <option v-for="sala in salas" :key="sala.id" :value="sala.id">
@@ -86,21 +73,15 @@
           </b-form-select>
         </b-form-group>
 
-        <b-button type="submit" variant="primary" @click="reportProblem">
+        <!-- Botão de submissão -->
+        <b-button type="submit" variant="primary" class="w-100 my-3" @click="reportProblem">
           Relatar Problema
         </b-button>
 
         <div class="text-center mt-3">
-          <router-link to="/" class="btn btn-link"
-            >Voltar à página inicial</router-link
-          >
+          <router-link to="/" class="btn btn-link">Voltar à página inicial</router-link>
         </div>
       </div>
-
-
-      <!-- Modal para selecionar máquinas -->
-      
-
     </div>
   </div>
 </template>
@@ -112,31 +93,42 @@ import axios from "axios";
 export default {
   data() {
     return {
-      rooms: Array.from({ length: 43 }, (_, i) => i + 1), // Gera um array de 1 a 43 para as máquinas
-      selectedRooms: [], // Lista de salas selecionadas
-      isModalVisible: false, // Controle da exibição do modal
       problema: "",
       problemas: [],
       blocodaSala: "",
       numerodaSala: "",
+      codigoEquipamento: "", // Código da máquina
       salas: [],
       blocos: [],
       descricaoProblema: "",
+      equipamentos: [],
+      filteredEquipamentos: [],
+      setor_id: "1", // Setor fixo como ADMINISTRACAO
     };
   },
   mounted() {
     this.fetchBlocos();
     this.exibirProblema();
+    this.carregarEquipamentos();
   },
   methods: {
+    async carregarEquipamentos() {
+      const token = localStorage.getItem("token");
+      try {
+        const resposta = await axios.get("http://localhost:3000/maquinas", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.equipamentos = resposta.data;
+      } catch (error) {
+        console.error("Erro ao carregar equipamentos:", error);
+        Swal.fire("Erro", "Não foi possível carregar as máquinas.", "error");
+      }
+    },
     fetchBlocos() {
-      const apiEndpointBlocos = "http://localhost:3000/blocos/com/salas";
       const token = localStorage.getItem("token");
       axios
-        .get(apiEndpointBlocos, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        .get("http://localhost:3000/blocos/com/salas", {
+          headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
           this.blocos = response.data;
@@ -146,45 +138,44 @@ export default {
           Swal.fire("Erro", "Não foi possível carregar os blocos.", "error");
         });
     },
-    toggleRoomSelection(room) {
-      const index = this.selectedRooms.indexOf(room);
-      if (index === -1) {
-        this.selectedRooms.push(room);
-      } else {
-        this.selectedRooms.splice(index, 1);
-      }
-    },
-    showModal() {
-      this.isModalVisible = true;
-    },
-    saveSelectedRooms() {
-      this.maquina = this.selectedRooms;
-      this.isModalVisible = false;
-    },
     updateSalas(value) {
-      const blocodaSala = value;
-      const bloco = this.blocos.find((bloco) => bloco.id === blocodaSala);
-      this.salas = bloco.salas;
+      const bloco = this.blocos.find((bloco) => bloco.id === value);
+      this.salas = bloco ? bloco.salas : [];
       this.numerodaSala = "";
-    },
-    updateProblemas(value) {
-      const problema = value;
     },
     async exibirProblema() {
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get(
-          "http://localhost:3000/problemas", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get("http://localhost:3000/problemas", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         this.problemas = response.data;
       } catch (error) {
         console.error("Erro ao exibir problema:", error);
         Swal.fire("Erro", "Não foi possível exibir o problema.", "error");
       }
+    },
+    filterEquipamentos() {
+      const searchTerm = this.codigoEquipamento.toLowerCase();
+      this.filteredEquipamentos = searchTerm
+        ? this.equipamentos.filter(
+            (equipamento) =>
+              equipamento.numero_maquina.toLowerCase().includes(searchTerm) ||
+              equipamento.descricao.toLowerCase().includes(searchTerm)
+          )
+        : [];
+    },
+    selectEquipamento(equipamento) {
+      this.codigoEquipamento = equipamento.numero_maquina;
+      this.filteredEquipamentos = [];
+    },
+    limparFormulario() {
+      this.problema = "";
+      this.blocodaSala = "";
+      this.numerodaSala = "";
+      this.codigoEquipamento = "";
+      this.descricaoProblema = "";
+      this.filteredEquipamentos = [];
     },
     async cadastrarChamado() {
       const token = localStorage.getItem("token");
@@ -192,36 +183,34 @@ export default {
         problema_id: this.problema,
         bloco_id: this.blocodaSala,
         sala_id: this.numerodaSala,
-        descricao: this.descricaoProblema,
-        maquinas: this.selectedRooms,
+        descricao: this.descricaoProblema || "",
+        maquina_id: this.codigoEquipamento,
+        setor_id: this.setor_id,
       };
 
       try {
-        const response = await axios.post(
-          "http://localhost:3000/chamados",
-          chamado,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log("Chamado cadastrado:", response.data);
+        await axios.post("http://localhost:3000/chamados", chamado, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         Swal.fire("Sucesso", "Chamado cadastrado com sucesso!", "success");
+        this.limparFormulario();
       } catch (error) {
         console.error("Erro ao cadastrar chamado:", error);
         Swal.fire("Erro", "Não foi possível cadastrar o chamado.", "error");
       }
     },
     reportProblem() {
-      if (this.blocodaSala && this.numerodaSala && this.problema) {
+      // Logs para verificar os valores dos campos
+      console.log("Problema:", this.problema);
+      console.log("Bloco da Sala:", this.blocodaSala);
+      console.log("Sala:", this.numerodaSala);
+      console.log("Código do Equipamento:", this.codigoEquipamento);
+
+      // Verificação dos campos obrigatórios
+      if (this.blocodaSala && this.numerodaSala && this.problema && this.codigoEquipamento) {
         this.cadastrarChamado();
       } else {
-        Swal.fire(
-          "Erro",
-          "Por favor, preencha todos os campos obrigatórios.",
-          "error"
-        );
+        Swal.fire("Erro", "Preencha todos os campos obrigatórios.", "error");
       }
     },
   },
@@ -563,6 +552,13 @@ button:hover {
   border: 1px solid #007bff;
   border-radius: 5px;
   background-color: #e9f7fe;
+}
+/* Estilos para a caixa de pesquisa */
+.clickable-item {
+  cursor: pointer;
+}
+.clickable-item:hover {
+  background-color: #f1f1f1;
 }
 
 </style>
