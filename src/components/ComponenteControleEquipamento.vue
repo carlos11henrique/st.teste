@@ -27,7 +27,7 @@
         <tr v-for="equipamento in equipamentosFiltrados" :key="equipamento.id">
           <td>{{ equipamento.numero_maquina }}</td>
           <td>{{ equipamento.id }}</td>
-          <td>{{ equipamento.localizacao || 'Sem localização' }}</td> <!-- Ajuste para exibir localização -->
+          <td>{{ equipamento.numero_sala || 'Sem localização' }}</td> <!-- Ajuste para exibir localização -->
           <td>
             <button class="btn btn-warning btn-sm" @click="editarEquipamento(equipamento)">Editar</button>
             <button class="btn btn-danger btn-sm" @click="removerEquipamento(equipamento.id)">Remover</button>
