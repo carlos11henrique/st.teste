@@ -5,12 +5,17 @@
     <!-- Conteúdo Principal com cartões resumo e gráficos -->
     <div class="content">
       <h2>Resumo Geral</h2>
+      <!-- Exibição de erro se houver -->
+      <div v-if="erro" class="alert alert-danger">
+        {{ erro }}
+      </div>
+
       <div class="dashboard-summary">
-        <div class="summary-card"><h3>Total de Chamados Abertos</h3><p>150</p></div>
-        <div class="summary-card"><h3>Total de Chamados Finalizados</h3><p>120</p></div>
-        <div class="summary-card"><h3>Total de Chamados Em Andamento</h3><p>30</p></div>
-        <div class="summary-card"><h3>Tempo Médio de Resolução</h3><p>4h 30m</p></div>
-        <div class="summary-card"><h3>Problemas Mais Recorrentes</h3><p>Impressoras, Rede</p></div>
+        <div class="summary-card"><h3>Total de Chamados Pendentes</h3><p>{{ totalPendentes }}</p></div>
+        <div class="summary-card"><h3>Total de Chamados Em Andamento</h3><p>{{ totalAndamento }}</p></div>
+        <div class="summary-card"><h3>Total de Chamados Concluídos</h3><p>{{ totalConcluidos }}</p></div>
+        <div class="summary-card"><h3>Tempo Médio de Resolução</h3><p>{{ tempoMedioResolucao }}</p></div>
+        <div class="summary-card"><h3>Problemas Mais Recorrentes</h3><p>{{ problemasRecorrentes }}</p></div>
       </div>
 
       <!-- Gráficos -->
@@ -45,16 +50,24 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import { onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import axios from 'axios';
 import Chart from 'chart.js/auto';
 
 export default {
   name: 'ComponenteHome',
   setup() {
+    // Dados de resumo
+    const totalPendentes = ref(0);
+    const totalAndamento = ref(0);
+    const totalConcluidos = ref(0);
+    const tempoMedioResolucao = ref('0h 0m');
+    const problemasRecorrentes = ref('');
+    const erro = ref(null); // Propriedade para armazenar erros
+
+    // Gráficos
     let pieChart, barChart, lineChart, stepChart;
 
-    // Função reutilizável para criação de gráficos
     const createChart = (ctx, type, data, options) => {
       return new Chart(ctx, {
         type,
@@ -63,50 +76,127 @@ export default {
       });
     };
 
+    const fetchData = async () => {
+      erro.value = null; 
+      try {
+        const baseURL = 'http://localhost:3000/home';
+        
+        const token = localStorage.getItem("token");
+
+        const resPendentes = await axios.get(`${baseURL}/total-pendentes`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        totalPendentes.value = resPendentes.data.total;
+
+        const resAndamento = await axios.get(`${baseURL}/total-andamento`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        totalAndamento.value = resAndamento.data.total;
+
+        const resConcluidos = await axios.get(`${baseURL}/total-concluidos`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        totalConcluidos.value = resConcluidos.data.total;
+
+        const resTempo = await axios.get(`${baseURL}/tempo-medio-resolucao`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        tempoMedioResolucao.value = `${Math.floor(resTempo.data.tempo_medio_resolucao / 60)}h ${resTempo.data.tempo_medio_resolucao % 60}m`;
+
+        const resProblemas = await axios.get(`${baseURL}/problemas-recorrentes`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        problemasRecorrentes.value = resProblemas.data.map(item => item.nome_problema).join(', ');
+
+        // Gráfico de Pizza
+        const resDistribuicao = await axios.get(`${baseURL}/distribuicao-categoria`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (resDistribuicao.data) {
+          pieChart = createChart(document.getElementById('pieChart'), 'pie', {
+            labels: resDistribuicao.data.map(item => item.nome_setor),
+            datasets: [{
+              data: resDistribuicao.data.map(item => item.total_chamados),
+              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0']
+            }]
+          });
+        }
+
+        // Gráfico de Barra
+        const resMeses = await axios.get(`${baseURL}/chamados-por-mes`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (resMeses.data) {
+          barChart = createChart(document.getElementById('barChart'), 'bar', {
+            labels: resMeses.data.map(item => item.mes),
+            datasets: [{
+              label: 'Chamados por Mês',
+              data: resMeses.data.map(item => item.total_chamados),
+              backgroundColor: '#4BC0C0'
+            }]
+          });
+        }
+
+        // Gráfico de Linha
+        const resEvolucao = await axios.get(`${baseURL}/evolucao-chamados`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (resEvolucao.data) {
+          lineChart = createChart(document.getElementById('lineChart'), 'line', {
+            labels: resEvolucao.data.map(item => item.mes),
+            datasets: [{
+              label: 'Evolução dos Chamados',
+              data: resEvolucao.data.map(item => item.total_chamados),
+              borderColor: '#36A2EB',
+              fill: false
+            }]
+          });
+        }
+
+        // Gráfico de Degrau
+        const resDegrau = await axios.get(`${baseURL}/chamados-degrau`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (resDegrau.data) {
+          stepChart = createChart(document.getElementById('stepChart'), 'line', {
+            labels: resDegrau.data.map(item => item.mes),
+            datasets: [{
+              label: 'Chamados em Degrau',
+              data: resDegrau.data.map(item => item.total_chamados),
+              borderColor: '#FF6384',
+              stepped: true,
+              fill: false
+            }]
+          });
+        }
+
+      } catch (error) {
+        console.error('Erro ao buscar dados:', error);
+        erro.value = "Erro ao carregar os dados. Tente novamente mais tarde."; 
+      }
+    };
+
     // Montagem do componente (onMounted)
     onMounted(() => {
-      pieChart = createChart(document.getElementById('pieChart'), 'pie', {
-        labels: ['TI', 'Manutenção', 'Outros'],
-        datasets: [{
-          data: [20, 30, 20],
-          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
-        }]
-      });
-
-      barChart = createChart(document.getElementById('barChart'), 'bar', {
-        labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho'],
-        datasets: [{
-          label: 'Chamados por Mês',
-          data: [20, 30, 40, 25, 35, 45],
-          backgroundColor: '#4BC0C0'
-        }]
-      }, {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true }
-        }
-      });
-
-      lineChart = createChart(document.getElementById('lineChart'), 'line', {
-        labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho'],
-        datasets: [{
-          label: 'Evolução dos Chamados',
-          data: [15, 25, 35, 45, 55, 65],
-          borderColor: '#36A2EB',
-          fill: false
-        }]
-      });
-
-      stepChart = createChart(document.getElementById('stepChart'), 'line', {
-        labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho'],
-        datasets: [{
-          label: 'Chamados em Degrau',
-          data: [10, 15, 20, 30, 40, 50],
-          borderColor: '#FF6384',
-          stepped: true,
-          fill: false
-        }]
-      });
+      fetchData();
     });
 
     // Desmontagem do componente (onUnmounted) para liberar recursos
@@ -116,6 +206,15 @@ export default {
       if (lineChart) lineChart.destroy();
       if (stepChart) stepChart.destroy();
     });
+
+    return {
+      totalPendentes,
+      totalAndamento,
+      totalConcluidos,
+      tempoMedioResolucao,
+      problemasRecorrentes,
+      erro
+    };
   }
 };
 </script>
