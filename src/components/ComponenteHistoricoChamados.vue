@@ -1,36 +1,20 @@
 <template>
-    <li class="nav-item">
-      <select v-model="filterOcupacao" class="form-select text-white bg-dark" aria-label="Chamados Ti" @change="atualizarFiltro" @click="chamadosTi">
-        <option value="TODOS" selected>Todos os Chamados</option>
-        <option value="ESTUDANTE">Alunos</option>
-        <option value="DOCENTE">Docentes</option>
-        <option value="MANUTENCAO">Manutenção</option>
-        <option value="TI">Técnico de TI</option>
-        <option value="NOA">ADM</option>
-      </select>
-    </li>
-    <div class="kanban-container">
-      <!-- Seção Análise - sem drag e drop -->
-      <div v-if="role === ROLES.NOA" class="kanban-column">
-        <div v-show="mostrarTodosChamados || categoriaVisivel === 'Analise'" id="Análise">
-          <h3 class="kanban-header bg-secondary text-white p-2 text-center">Análise</h3>
-          <div v-for="chamado in chamadosAnalise" :key="chamado.id" class="kanban-item bg-light p-3 my-2">
-            <p><strong>Setor:</strong> {{ chamado.setor }}</p>
-            <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-            <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
-            <p><em>Problema:</em> {{ chamado.problema }}</p>
-            <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
-            <p><em>Bloco:</em> {{ chamado.bloco }}</p>
-            <p><em>Sala:</em> {{ chamado.sala }}</p>
-            <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
-          </div>
-        </div>
-      </div>
-  
-      <!-- Seção Concluído - sem drag e drop -->
-      <div v-show="mostrarTodosChamados || categoriaVisivel === 'Concluído'" id="Concluido" class="kanban-column">
-        <h3 class="kanban-header bg-success text-white p-2 text-center">Concluído</h3>
-        <div v-for="chamado in chamadosConcluidos" :key="chamado.id" class="kanban-item bg-light p-3 my-2">
+  <li class="nav-item">
+    <select v-model="filterOcupacao" class="form-select text-white bg-dark" aria-label="Chamados Ti" @change="atualizarFiltro" @click="chamadosTi">
+      <option value="TODOS" selected>Todos os Chamados</option>
+      <option value="ESTUDANTE">Alunos</option>
+      <option value="DOCENTE">Docentes</option>
+      <option value="MANUTENCAO">Manutenção</option>
+      <option value="TI">Técnico de TI</option>
+      <option value="NOA">ADM</option>
+    </select>
+  </li>
+  <div class="kanban-container">
+    <!-- Seção Análise -->
+    <div v-if="role === ROLES.NOA" class="kanban-column">
+      <div v-show="mostrarTodosChamados || categoriaVisivel === 'Analise'" id="Análise">
+        <h3 class="kanban-header bg-secondary text-white p-2 text-center">Invalido</h3>
+        <div v-for="chamado in chamadosAnalise" :key="chamado.id" class="kanban-item bg-light p-3 my-2">
           <p><strong>Setor:</strong> {{ chamado.setor }}</p>
           <p><strong>E-mail:</strong> {{ chamado.email }}</p>
           <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
@@ -38,195 +22,154 @@
           <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
           <p><em>Bloco:</em> {{ chamado.bloco }}</p>
           <p><em>Sala:</em> {{ chamado.sala }}</p>
-          <p v-if="chamado.maquinas.length >= 1"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
-          <button class="btn btn-success btn-sm" @click="ativarChamado(chamado.id)">Ativar</button>
-
+          <p v-if="Array.isArray(chamado.maquinas) && chamado.maquinas.length > 0"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
+          <!-- Botão para mudar o status para "Análise" -->
+          <button class="btn btn-primary btn-sm mt-2" :disabled="isUpdating(chamado.id)" @click="mudarStatusParaAnalise(chamado.id)">Mover para Análise</button>
         </div>
-
       </div>
-
-      
     </div>
-  </template>
- <script>
- import axios from 'axios';
- import { ROLES } from "../util/roles";
- import Swal from 'sweetalert2';  // Certifique-se de importar o SweetAlert2
- 
- export default {
-   name: "ComponenteKaban",
-   data() {
-     return {
-       filterOcupacao: "TODOS",
-       chamadosAnalise: [],
-       ROLES,
-       chamadosAndamento: [],
-       chamadosConcluidos: [],
-       chamadosPendentes: [],
-       chamados: [],
-       categoriaVisivel: '', 
-       mostrarTodosChamados: true, 
-       role: localStorage.getItem('role') || null,
-     };
-   },
-   methods: {
-     async atualizarFiltro(event) {
-       await this.carregarChamados();
-     },
- 
-     // Função para alterar o setor de um chamado
-     async alterarSetor(chamado, novoSetor) {
-       chamado.setor_id = novoSetor; // Altera o setor localmente
-       try {
-         const token = localStorage.getItem("token");
-         // Envia a atualização para o servidor
-         await axios.put(`http://localhost:3000/chamados/${chamado.id}`, chamado, {
-           headers: {
-             Authorization: `Bearer ${token}`,
-           },
-         });
-         await this.carregarChamados(); // Recarrega os chamados após a alteração
-         Swal.fire('Sucesso!', `O setor foi alterado para ${novoSetor}.`, 'success');
-       } catch (erro) {
-         if (erro.response) {
-           console.error("Erro no servidor:", erro.response.data);
-           Swal.fire('Erro', `Não foi possível alterar o setor. Detalhes: ${erro.response.data.error || 'Erro desconhecido'}`, 'error');
-         } else {
-           console.error("Erro desconhecido:", erro);
-           Swal.fire('Erro', 'Não foi possível alterar o setor. Erro desconhecido.', 'error');
-         }
-       }
-     },
- 
-     confirmarRemocao(id) {
-       Swal.fire({
-         title: 'Tem certeza que deseja deletar?',
-         text: "Esta ação não pode ser desfeita!",
-         icon: 'warning',
-         showCancelButton: true,
-         confirmButtonColor: '#d33',
-         cancelButtonColor: '#3085d6',
-         confirmButtonText: 'Sim, deletar',
-         cancelButtonText: 'Cancelar'
-       }).then((result) => {
-         if (result.isConfirmed) {
-           this.deletarChamado(id);
-         }
-       });
-     },
- 
-     deletarChamado(id) {
-       this.chamadosAnalise = this.chamadosAnalise.filter(chamado => chamado.id !== id);
-       Swal.fire('Deletado!', 'O chamado foi removido.', 'success');
-     },
- 
-     async carregarChamados() {
-       try {
-         const token = localStorage.getItem("token");
-         const resposta = await axios.get('http://localhost:3000/chamados', {
-           headers: {
-             Authorization: `Bearer ${token}`,
-           },
-         });
-         this.chamados = resposta.data;
-         console.log(this.chamados);
- 
-         this.chamados = this.filterOcupacao !== "TODOS"
-           ? this.chamados.filter((chamado) => chamado.ocupacao === this.filterOcupacao)
-           : this.chamados;
-         this.chamadosAnalise = this.chamados.filter((chamado) => chamado.status === "Análise");
-         this.chamadosAndamento = this.chamados.filter((chamado) => chamado.status === "Em Andamento");
-         this.chamadosConcluidos = this.chamados.filter((chamado) => chamado.status === "Concluido");
-         this.chamadosPendentes = this.chamados.filter((chamado) => chamado.status === "Pendentes");
-       } catch (erro) {
-         console.error("Erro ao carregar os chamados:", erro);
-       }
-     },
- 
-     atualizarChamados() {
-       setInterval(() => {
-         this.carregarChamados();
-       }, 1000 * 60);
-     },
- 
-     allowDrop(event) {
-       event.preventDefault();
-     },
- 
-     drag(event, chamado) {
-       event.dataTransfer.setData("chamado", JSON.stringify(chamado));
-     },
- 
-     async drop(event) {
-       const statusMap = {
-         Pendentes: document.getElementById("Pendentes"),
-         Análise: document.getElementById("Análise"),
-         Concluido: document.getElementById("Concluido"),
-         "Em Andamento": document.getElementById("Em Andamento"),
-       };
- 
-       let status = Object.keys(statusMap).find((key) =>
-         statusMap[key] === event.target || statusMap[key].contains(event.target)
-       );
- 
-       if (!status) {
-         return;
-       }
- 
-       const chamado = JSON.parse(event.dataTransfer.getData("chamado"));
-       chamado.status = status;
- 
-       const result = await Swal.fire({
-         title: `Mover para ${status}?`,
-         text: `Você deseja mudar o status do chamado para "${status}"?`,
-         icon: "question",
-         showCancelButton: true,
-       });
- 
-       if (result.isConfirmed) {
-         try {
-           const token = localStorage.getItem("token");
-           await axios.put(`http://localhost:3000/chamados/${chamado.id}`, chamado, {
-             headers: {
-               Authorization: `Bearer ${token}`,
-             },
-           });
-           await this.carregarChamados();
-         } catch (erro) {
-           console.error("Erro ao atualizar o chamado:", erro);
-         }
-       }
-     },
 
-     // Função para ativar um chamado, movendo-o de "Concluído" para "Em Andamento"
-     ativarChamado(id) {
-       const chamadoParaAtivar = this.chamadosConcluidos.find(chamado => chamado.id === id);
-       if (chamadoParaAtivar) {
-         chamadoParaAtivar.status = "Em Andamento";
-         this.chamadosConcluidos = this.chamadosConcluidos.filter(chamado => chamado.id !== id);
-         this.chamadosAndamento.push(chamadoParaAtivar);
-         Swal.fire('Sucesso!', 'Chamado ativado e movido para Em Andamento.', 'success');
-         // Se necessário, faça uma atualização no servidor:
-         // try {
-         //   const token = localStorage.getItem("token");
-         //   await axios.put(`http://localhost:3000/chamados/${id}`, chamadoParaAtivar, {
-         //     headers: {
-         //       Authorization: `Bearer ${token}`,
-         //     },
-         //   });
-         // } catch (erro) {
-         //   console.error("Erro ao ativar o chamado:", erro);
-         //   Swal.fire('Erro', 'Não foi possível ativar o chamado.', 'error');
-         // }
-       }
-     }
-   },
-   mounted() {
-     this.carregarChamados();
-     this.atualizarChamados();
-   }
- };
+    <!-- Seção Concluído -->
+    <div v-show="mostrarTodosChamados || categoriaVisivel === 'Concluído'" id="Concluido" class="kanban-column">
+      <h3 class="kanban-header bg-success text-white p-2 text-center">Concluído</h3>
+      <div v-for="chamado in chamadosConcluidos" :key="chamado.id" class="kanban-item bg-light p-3 my-2">
+        <p><strong>Setor:</strong> {{ chamado.setor }}</p>
+        <p><strong>E-mail:</strong> {{ chamado.email }}</p>
+        <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
+        <p><em>Problema:</em> {{ chamado.problema }}</p>
+        <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
+        <p><em>Bloco:</em> {{ chamado.bloco }}</p>
+        <p><em>Sala:</em> {{ chamado.sala }}</p>
+        <p v-if="Array.isArray(chamado.maquinas) && chamado.maquinas.length > 0"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
+        <!-- Botão para mudar o status para "Concluído" -->
+        <button class="btn btn-success btn-sm mt-2" :disabled="isUpdating(chamado.id)" @click="mudarStatusParaConcluido(chamado.id)">Mover para Concluído</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+import { ROLES } from "../util/roles";
+import Swal from 'sweetalert2';  
+
+export default {
+  name: "ComponenteKaban",
+  data() {
+    return {
+      filterOcupacao: "TODOS",
+      chamadosAnalise: [],
+      ROLES,
+      chamadosAndamento: [],
+      chamadosConcluidos: [],
+      chamadosPendentes: [],
+      chamados: [],
+      categoriaVisivel: '', 
+      mostrarTodosChamados: true, 
+      role: localStorage.getItem('role') || null,
+      updatingStatusIds: [],  // Guarda os chamados que estão sendo atualizados
+    };
+  },
+  methods: {
+    async atualizarFiltro(event) {
+      await this.carregarChamados();
+    },
+
+    // Função para verificar se o chamado está sendo atualizado
+    isUpdating(chamadoId) {
+      return this.updatingStatusIds.includes(chamadoId);
+    },
+
+    // Função para mudar o status para "Invalido" (Análise)
+    async mudarStatusParaAnalise(chamadoId) {
+      if (this.isUpdating(chamadoId)) return;  // Evitar chamadas simultâneas para o mesmo chamado
+
+      try {
+        this.updatingStatusIds.push(chamadoId);  // Adiciona o id à lista de atualizações em andamento
+        const token = localStorage.getItem("token");
+        await axios.put(`http://localhost:3000/chamados/${chamadoId}`, 
+        { status: "Invalido" },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // Atualizar a lista de chamados após a alteração
+        this.carregarChamados();
+        Swal.fire('Status Atualizado!', 'Chamado movido para Análise.', 'success');
+      } catch (error) {
+        console.error("Erro ao mudar o status para Análise:", error);
+        Swal.fire('Erro!', 'Não foi possível atualizar o status para Análise.', 'error');
+      } finally {
+        this.updatingStatusIds = this.updatingStatusIds.filter(id => id !== chamadoId);  // Remove da lista de atualizações em andamento
+      }
+    },
+
+    // Função para mudar o status para "Finalizado" (Concluído)
+    async mudarStatusParaConcluido(chamadoId) {
+      if (this.isUpdating(chamadoId)) return;  // Evitar chamadas simultâneas para o mesmo chamado
+
+      try {
+        this.updatingStatusIds.push(chamadoId);  // Adiciona o id à lista de atualizações em andamento
+        const token = localStorage.getItem("token");
+        await axios.put(`http://localhost:3000/chamados/${chamadoId}`, 
+        { status: "Finalizado" },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // Atualizar a lista de chamados após a alteração
+        this.carregarChamados();
+        Swal.fire('Status Atualizado!', 'Chamado movido para Concluído.', 'success');
+      } catch (error) {
+        console.error("Erro ao mudar o status para Concluído:", error);
+        Swal.fire('Erro!', 'Não foi possível atualizar o status para Concluído.', 'error');
+      } finally {
+        this.updatingStatusIds = this.updatingStatusIds.filter(id => id !== chamadoId);  // Remove da lista de atualizações em andamento
+      }
+    },
+
+    async carregarChamados() {
+      try {
+        const token = localStorage.getItem("token");
+        const resposta = await axios.get('http://localhost:3000/chamados', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.chamados = Array.isArray(resposta.data) ? resposta.data : [];
+
+        this.chamados = this.filterOcupacao !== "TODOS"
+          ? this.chamados.filter((chamado) => chamado.ocupacao === this.filterOcupacao)
+          : this.chamados;
+
+        this.chamadosAnalise = this.chamados.filter((chamado) => chamado.status === "Invalido");
+        this.chamadosConcluidos = this.chamados.filter((chamado) => chamado.status === "Finalizado");
+        this.chamadosAndamento = this.chamados.filter((chamado) => chamado.status === "Em Andamento");
+        this.chamadosPendentes = this.chamados.filter((chamado) => chamado.status === "Pendentes");
+      } catch (erro) {
+        console.error("Erro ao carregar os chamados:", erro);
+      }
+    },
+
+    atualizarChamados() {
+      setInterval(() => {
+        this.carregarChamados();
+      }, 1000 * 60);
+    },
+  },
+
+  created() {
+    this.carregarChamados();
+    this.atualizarChamados();
+  },
+};
 </script>
+
 
   <style scoped>
   /* Estilo para o seletor de filtro acima das colunas */

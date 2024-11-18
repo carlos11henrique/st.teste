@@ -72,7 +72,7 @@
         <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
         <p><em>Bloco:</em> {{ chamado.bloco }}</p>
         <p><em>Sala:</em> {{ chamado.sala }}</p>
-        <button class="btn btn-danger btn-sm" @click="confirmarRemocao(chamado.id)">Remover</button>
+        <button class="btn btn-danger btn-sm" @click="confirmarFinalizacao(chamado.id, chamado.status)">Remover</button>
       </div>
     </div>
   </div>
@@ -121,39 +121,76 @@ export default {
     },
 
     confirmarRemocao(chamadoId) {
-      Swal.fire({
-        title: 'Tem certeza que deseja finalizar?',
-        text: "Esta ação moverá o chamado para o status 'naoValido'.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sim, finalizar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.mudarParaConcluido(chamadoId);
-        }
-      });
-    },
-
-    async mudarParaConcluido(chamadoId) {
-      const chamado = this.chamados.find(ch => ch.id === chamadoId);
-      if (chamado) {
-        chamado.status = "Concluido";
-        try {
-          const token = localStorage.getItem("token");
-          await axios.put(`http://localhost:3000/chamados/${chamadoId}`, chamado, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          await this.carregarChamados();
-          Swal.fire('Concluído!', 'O chamado foi movido para concluído.', 'success');
-        } catch (erro) {
-          console.error("Erro ao mover para concluído:", erro);
-          Swal.fire('Erro', 'Erro ao mover para concluído.', 'error');
-        }
+    Swal.fire({
+      title: 'Tem certeza que deseja finalizar?',
+      text: "Esta ação moverá o chamado para o status 'Inválido'.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sim, finalizar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.mudarStatus(chamadoId, 'Inválido');
       }
-    },
+    });
+  },
+
+  async mudarStatus(chamadoId, novoStatus) {
+    const chamado = this.chamados.find(ch => ch.id === chamadoId);
+    if (chamado) {
+      chamado.status = novoStatus;
+      try {
+        const token = localStorage.getItem("token");
+        await axios.put(`http://localhost:3000/chamados/${chamadoId}`, chamado, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        await this.carregarChamados();
+        Swal.fire('Status Atualizado!', `O chamado foi movido para "${novoStatus}".`, 'success');
+      } catch (erro) {
+        console.error(`Erro ao mover para ${novoStatus}:`, erro);
+        Swal.fire('Erro', `Erro ao mover para ${novoStatus}.`, 'error');
+      }
+    }
+  },
+  confirmarFinalizacao(chamadoId, statusAtual) {
+    const novoStatus = statusAtual === "Concluído" ? "Finalizado" : "Finalizado";
+    
+    Swal.fire({
+      title: 'Tem certeza que deseja finalizar?',
+      text: `Esta ação moverá o chamado para o status '${novoStatus}'.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sim, finalizar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.mudarStatus(chamadoId, novoStatus);
+      }
+    });
+  },
+
+  async mudarStatus(chamadoId, novoStatus) {
+    const chamado = this.chamados.find(ch => ch.id === chamadoId);
+    if (chamado) {
+      chamado.status = novoStatus;
+      try {
+        const token = localStorage.getItem("token");
+        await axios.put(`http://localhost:3000/chamados/${chamadoId}`, chamado, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        await this.carregarChamados();
+        Swal.fire('Status Atualizado!', `O chamado foi movido para "${novoStatus}".`, 'success');
+      } catch (erro) {
+        console.error(`Erro ao mover para ${novoStatus}:`, erro);
+        Swal.fire('Erro', `Erro ao mover para ${novoStatus}.`, 'error');
+      }
+    }
+  },
+
 
     async carregarChamados() {
       try {

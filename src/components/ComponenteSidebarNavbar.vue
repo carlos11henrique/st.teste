@@ -54,6 +54,7 @@
 
 <script>
 import { ROLES } from '../util/roles';
+
 import ComponenteHome from './ComponenteHome.vue';
 import ComponenteKaban from './ComponenteKaban.vue';
 import ComponenteCadastro from './ComponenteCadastro.vue';
