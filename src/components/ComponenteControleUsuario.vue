@@ -54,6 +54,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default {
   name: "ComponenteControleUsuario",
@@ -92,7 +93,6 @@ export default {
     async buscarUsuario(id) {
       const token = localStorage.getItem("token");
       try {
-        // Corrigindo a URL para adicionar uma barra entre 'usuarios' e o id
         const resposta = await axios.get(`http://localhost:3000/usuarios/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -104,7 +104,6 @@ export default {
     async atualizarUsuario() {
       const token = localStorage.getItem("token");
       try {
-        // Atualizando a URL para refletir o endpoint correto
         const resposta = await axios.put(`http://localhost:3000/usuarios/${this.usuarioParaEditar.id}`, this.usuarioParaEditar, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -122,6 +121,21 @@ export default {
     },
     async removerUsuario(id) {
       const token = localStorage.getItem("token");
+      
+      // Usando SweetAlert2 para exibir o alerta de confirmação
+      const { isConfirmed } = await Swal.fire({
+        title: 'Tem certeza?',
+        text: "Você não poderá reverter esta ação!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, remover!',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (!isConfirmed) return; // Se o usuário cancelar, a remoção não ocorre
+
       try {
         // Corrigindo a URL para refletir o endpoint correto
         await axios.delete(`http://localhost:3000/usuarios/${id}`, {
