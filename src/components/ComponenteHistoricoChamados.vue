@@ -24,7 +24,7 @@
           <p><em>Sala:</em> {{ chamado.sala }}</p>
           <p v-if="Array.isArray(chamado.maquinas) && chamado.maquinas.length > 0"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
           <!-- Botão para mudar o status para "Análise" -->
-          <button class="btn btn-primary btn-sm mt-2" :disabled="isUpdating(chamado.id)" @click="mudarStatusParaAnalise(chamado.id)">Mover para Análise</button>
+          <button class="btn btn-primary btn-sm mt-2" :disabled="isUpdating(chamado.id)" @click="confirmarRemocao(chamado.id)">Mover para Análise</button>
         </div>
       </div>
     </div>
@@ -42,7 +42,12 @@
         <p><em>Sala:</em> {{ chamado.sala }}</p>
         <p v-if="Array.isArray(chamado.maquinas) && chamado.maquinas.length > 0"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
         <!-- Botão para mudar o status para "Concluído" -->
-        <button class="btn btn-success btn-sm mt-2" :disabled="isUpdating(chamado.id)" @click="mudarStatusParaConcluido(chamado.id)">Mover para Concluído</button>
+        <button class="btn btn-success btn-sm mt-2" 
+        :disabled="isUpdating(chamado.id)" 
+        @click="mudarStatus(chamado.id, 'Concluido')">
+  Mover para Concluído
+</button>
+
       </div>
     </div>
   </div>
@@ -80,58 +85,75 @@ export default {
       return this.updatingStatusIds.includes(chamadoId);
     },
 
-    // Função para mudar o status para "Invalido" (Análise)
-    async mudarStatusParaAnalise(chamadoId) {
-      if (this.isUpdating(chamadoId)) return;  // Evitar chamadas simultâneas para o mesmo chamado
-
-      try {
-        this.updatingStatusIds.push(chamadoId);  // Adiciona o id à lista de atualizações em andamento
-        const token = localStorage.getItem("token");
-        await axios.put(`http://localhost:3000/chamados/${chamadoId}`, 
-        { status: "Invalido" },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        // Atualizar a lista de chamados após a alteração
-        this.carregarChamados();
-        Swal.fire('Status Atualizado!', 'Chamado movido para Análise.', 'success');
-      } catch (error) {
-        console.error("Erro ao mudar o status para Análise:", error);
-        Swal.fire('Erro!', 'Não foi possível atualizar o status para Análise.', 'error');
-      } finally {
-        this.updatingStatusIds = this.updatingStatusIds.filter(id => id !== chamadoId);  // Remove da lista de atualizações em andamento
+    confirmarRemocao(chamadoId) {
+    Swal.fire({
+      title: 'Tem certeza que deseja finalizar?',
+      text: "Esta ação moverá o chamado para o status 'Análise'.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sim, finalizar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.mudarStatus(chamadoId, 'Análise');
       }
-    },
+    });
+  },
 
-    // Função para mudar o status para "Finalizado" (Concluído)
-    async mudarStatusParaConcluido(chamadoId) {
-      if (this.isUpdating(chamadoId)) return;  // Evitar chamadas simultâneas para o mesmo chamado
-
+  async mudarStatus(chamadoId, novoStatus) {
+    const chamado = this.chamados.find(ch => ch.id === chamadoId);
+    if (chamado) {
+      chamado.status = novoStatus;
       try {
-        this.updatingStatusIds.push(chamadoId);  // Adiciona o id à lista de atualizações em andamento
         const token = localStorage.getItem("token");
-        await axios.put(`http://localhost:3000/chamados/${chamadoId}`, 
-        { status: "Finalizado" },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        await axios.put(`http://localhost:3000/chamados/${chamadoId}`, chamado, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        // Atualizar a lista de chamados após a alteração
-        this.carregarChamados();
-        Swal.fire('Status Atualizado!', 'Chamado movido para Concluído.', 'success');
-      } catch (error) {
-        console.error("Erro ao mudar o status para Concluído:", error);
-        Swal.fire('Erro!', 'Não foi possível atualizar o status para Concluído.', 'error');
-      } finally {
-        this.updatingStatusIds = this.updatingStatusIds.filter(id => id !== chamadoId);  // Remove da lista de atualizações em andamento
+        await this.carregarChamados();
+        Swal.fire('Status Atualizado!', `O chamado foi movido para "${novoStatus}".`, 'success');
+      } catch (erro) {
+        console.error(`Erro ao mover para ${novoStatus}:`, erro);
+        Swal.fire('Erro', `Erro ao mover para ${novoStatus}.`, 'error');
       }
-    },
-
+    }
+  },
+  confirmarFinalizacao(chamadoId, statusAtual) {
+    const novoStatus = statusAtual === "Finalizado" ? "Concluido" : "Concluido";
+    
+    Swal.fire({
+      title: 'Tem certeza que deseja finalizar?',
+      text: `Esta ação moverá o chamado para o status '${novoStatus}'.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sim, finalizar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.mudarStatus(chamadoId, novoStatus);
+      }
+    });
+  },
+  async mudarStatus(chamadoId, novoStatus) {
+  const chamado = this.chamados.find(ch => ch.id === chamadoId);
+  if (chamado) {
+    chamado.status = novoStatus;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(`http://localhost:3000/chamados/${chamadoId}`, chamado, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await this.carregarChamados();
+      Swal.fire('Status Atualizado!', `O chamado foi movido para "${novoStatus}".`, 'success');
+    } catch (erro) {
+      console.error(`Erro ao mover para ${novoStatus}:`, erro);
+      Swal.fire('Erro', `Erro ao mover para ${novoStatus}.`, 'error');
+    }
+  }
+},
     async carregarChamados() {
       try {
         const token = localStorage.getItem("token");
@@ -149,8 +171,7 @@ export default {
 
         this.chamadosAnalise = this.chamados.filter((chamado) => chamado.status === "Invalido");
         this.chamadosConcluidos = this.chamados.filter((chamado) => chamado.status === "Finalizado");
-        this.chamadosAndamento = this.chamados.filter((chamado) => chamado.status === "Em Andamento");
-        this.chamadosPendentes = this.chamados.filter((chamado) => chamado.status === "Pendentes");
+       
       } catch (erro) {
         console.error("Erro ao carregar os chamados:", erro);
       }
