@@ -150,7 +150,7 @@ export default {
       const doc = new jsPDF();
       doc.text(`Equipamento: ${equipamento.numero_maquina}`, 10, 10);
       doc.text(`ID: ${equipamento.id}`, 10, 20);
-      doc.text(`Localização: ${equipamento.localizacao || 'Sem localização'}`, 10, 30); // Ajuste no texto
+      doc.text(`Localização: ${equipamento.numero_sala }`, 10, 30); // Ajuste no texto
       doc.save(`equipamento_${equipamento.id}.pdf`);
     },
   },
