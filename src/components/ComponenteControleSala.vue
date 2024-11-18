@@ -1,14 +1,14 @@
-uer outro estilo que você prefira para criar um efeito de pop-up.
-Aqui está como você pode modificar o código:
-
-html
-Copiar código
 <template>
   <!-- Tabela de Salas -->
   <div v-if="mostrarTabelaSalas" class="table-container p-3">
     <h2>Tabela de salas cadastradas</h2>
-    <input type="text" v-model="filtroPesquisa" placeholder="Pesquisa por salas ou laboratórios cadastrados" class="form-control mb-3" />
-    
+    <input
+      type="text"
+      v-model="filtroPesquisa"
+      placeholder="Buscar por bloco ou número da sala..."
+      class="form-control mb-3"
+    />
+
     <table class="table table-striped">
       <thead>
         <tr>
@@ -17,9 +17,9 @@ Copiar código
           <th>Ações</th>
         </tr>
       </thead>
-      <tbody v-if="salas.length > 0">
+      <tbody v-if="salasFiltradas.length > 0">
         <tr v-for="sala in salasFiltradas" :key="sala.id">
-          <td>{{ sala.bloco_id }}</td>
+          <td>{{ sala.nome_bloco }}</td>
           <td>{{ sala.numero_sala }}</td>
           <td>
             <button class="btn btn-warning btn-sm" @click="editarSala(sala)">Editar</button>
@@ -29,7 +29,7 @@ Copiar código
       </tbody>
       <tbody v-else>
         <tr>
-          <td colspan="4">Nenhuma sala encontrada</td>
+          <td colspan="3">Nenhuma sala encontrada</td>
         </tr>
       </tbody>
     </table>
@@ -47,11 +47,24 @@ Copiar código
           <form @submit.prevent="salvarEdicao">
             <div class="form-group">
               <label for="editBloco">Bloco</label>
-              <input type="text" id="editBloco" v-model="salaEmEdicao.bloco_id" class="form-control" />
+              <input
+                type="text"
+                id="editBloco"
+                v-model="salaEmEdicao.nome_bloco"
+                class="form-control"
+                required
+              />
             </div>
             <div class="form-group">
               <label for="editNumero">Nome / Número da Sala</label>
-              <input type="text" id="editNumero" v-model="salaEmEdicao.numero_sala" class="form-control" />
+              <input
+                type="text"
+                id="editNumero"
+                v-model="salaEmEdicao.numero_sala"
+                class="form-control"
+                required
+                maxlength="50"
+              />
             </div>
             <button type="submit" class="btn btn-success">Salvar</button>
             <button type="button" class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
@@ -62,30 +75,30 @@ Copiar código
   </div>
 </template>
 
-
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
-  name: 'ComponenteControleUsuario',
+  name: "ComponenteControleSala",
   data() {
     return {
       mostrarCadastroSala: true,
       mostrarTabelaSalas: true,
-      filtroPesquisa: '',
+      filtroPesquisa: "",
       salas: [],
       salaEmEdicao: null,
     };
   },
   computed: {
     salasFiltradas() {
+      if (!Array.isArray(this.salas)) return []; // Verifica se 'salas' é um array
       return this.salas.filter((sala) => {
-        const bloco = sala.bloco_id ? String(sala.bloco_id) : ''; 
-        const numero = sala.numero_sala ? String(sala.numero_sala) : ''; 
+        const bloco = sala.nome_bloco ? String(sala.nome_bloco).toLowerCase() : "";
+        const numero = sala.numero_sala ? String(sala.numero_sala).toLowerCase() : "";
 
         return (
-          bloco.toLowerCase().includes(this.filtroPesquisa.toLowerCase()) ||
-          numero.toLowerCase().includes(this.filtroPesquisa.toLowerCase())
+          bloco.includes(this.filtroPesquisa.toLowerCase()) ||
+          numero.includes(this.filtroPesquisa.toLowerCase())
         );
       });
     },
@@ -95,9 +108,14 @@ export default {
       const token = localStorage.getItem("token");
       try {
         const resposta = await axios.get("http://localhost:3000/salas", {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
-        this.salas = resposta.data;
+        // Verifica se a resposta é um array e o define corretamente
+        if (Array.isArray(resposta.data)) {
+          this.salas = resposta.data;
+        } else {
+          console.error("Dados de salas não estão no formato esperado");
+        }
       } catch (error) {
         console.error("Erro ao carregar salas:", error);
       }
@@ -111,11 +129,18 @@ export default {
       const token = localStorage.getItem("token");
       try {
         // Requisição PUT para atualizar a sala
-        await axios.put(`http://localhost:3000/salas/${this.salaEmEdicao.id}`, this.salaEmEdicao, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const resposta = await axios.put(
+          `http://localhost:3000/salas/${this.salaEmEdicao.id}`,
+          this.salaEmEdicao,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        console.log("Sala editada com sucesso:", resposta.data); // Verifique se a sala foi editada com sucesso
         // Atualiza a lista de salas
-        const index = this.salas.findIndex(sala => sala.id === this.salaEmEdicao.id);
+        const index = this.salas.findIndex(
+          (sala) => sala.id === this.salaEmEdicao.id
+        );
         if (index !== -1) {
           this.salas[index] = { ...this.salaEmEdicao }; // Atualiza a sala editada
         }
@@ -133,9 +158,10 @@ export default {
       const token = localStorage.getItem("token");
       try {
         await axios.delete(`http://localhost:3000/salas/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
-        this.salas = this.salas.filter(sala => sala.id !== id);
+        console.log(`Sala com ID ${id} removida com sucesso`);
+        this.salas = this.salas.filter((sala) => sala.id !== id);
       } catch (error) {
         console.error("Erro ao remover sala:", error);
       }
@@ -144,14 +170,9 @@ export default {
   mounted() {
     this.carregarSalas();
   },
-  props: {
-    filterOcupacao: {
-      type: String,
-      required: false,
-    },
-}
 };
 </script>
+
 
 <style scoped>
 .table-container {

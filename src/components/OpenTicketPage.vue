@@ -124,7 +124,7 @@ export default {
         Swal.fire("Erro", "Não foi possível carregar as máquinas.", "error");
       }
     },
-    fetchBlocos() {
+    fetchBlocos(event) {
       const token = localStorage.getItem("token");
       axios
         .get("http://localhost:3000/blocos/com/salas", {

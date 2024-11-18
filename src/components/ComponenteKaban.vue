@@ -123,7 +123,7 @@ export default {
     confirmarRemocao(chamadoId) {
       Swal.fire({
         title: 'Tem certeza que deseja finalizar?',
-        text: "Esta ação moverá o chamado para o status 'Concluído'.",
+        text: "Esta ação moverá o chamado para o status 'naoValido'.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#28a745',
