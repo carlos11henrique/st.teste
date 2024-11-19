@@ -13,6 +13,8 @@
           <tr>
             <th>Nome</th>
             <th>Email</th>
+            <th>Ocupacão</th>
+
             <th>Ações</th>
           </tr>
         </thead>
@@ -20,6 +22,8 @@
           <tr v-for="usuario in usuariosFiltrados" :key="usuario.id">
             <td data-label="Nome">{{ usuario.nome_completo }}</td>
             <td data-label="Email">{{ usuario.email }}</td>
+            <td data-label="Email">{{ usuario.ocupacao }}</td>
+
             <td data-label="Ações">
               <button class="btn btn-warning btn-sm" @click="buscarUsuario(usuario.id)">Editar</button>
               <button class="btn btn-danger btn-sm" @click="removerUsuario(usuario.id)">Remover</button>
