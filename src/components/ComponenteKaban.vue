@@ -238,7 +238,7 @@ export default {
       let status = Object.keys(statusMap).find((key) =>
       statusMap[key] &&
       (statusMap[key] === event.target || statusMap[key].contains(event.target))
-       );
+      );
 
 
       if (!status) return;

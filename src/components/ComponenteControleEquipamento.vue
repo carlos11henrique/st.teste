@@ -44,27 +44,55 @@
   </div>
 
   <!-- Formulário de edição -->
-  <div v-if="equipamentoEmEdicao" class="edit-container p-3">
-    <h2>Editar Equipamento</h2>
-    <form @submit.prevent="salvarEdicao">
-      <div class="form-group">
-        <label for="editId">ID</label>
-        <input type="text" id="editId" v-model="equipamentoEmEdicao.id" class="form-control" disabled />
+  <div v-if="equipamentoEmEdicao" class="modal" tabindex="-1" role="dialog" style="display: block;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Equipamento</h5>
+        <button type="button" class="close" @click="cancelarEdicao">&times;</button>
       </div>
-      <div class="form-group">
-        <label for="editNome">Nome do Equipamento</label>
-        <input type="text" id="editNome" v-model="equipamentoEmEdicao.numero_maquina" class="form-control" required />
+      <div class="modal-body">
+        <form @submit.prevent="salvarEdicao">
+          <div class="form-group">
+            <label for="editId">ID</label>
+            <input
+              type="text"
+              id="editId"
+              v-model="equipamentoEmEdicao.id"
+              class="form-control"
+              disabled
+            />
+          </div>
+          <div class="form-group">
+            <label for="editNome">Nome do Equipamento</label>
+            <input
+              type="text"
+              id="editNome"
+              v-model="equipamentoEmEdicao.numero_maquina"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editLocalizacao">Localização</label>
+            <input
+              type="text"
+              id="editLocalizacao"
+              v-model="equipamentoEmEdicao.numero_sala"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="form-group text-right">
+            <button type="submit" class="btn btn-success">Salvar</button>
+            <button type="button" class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
+          </div>
+        </form>
       </div>
-      <div class="form-group">
-        <label for="editLocalizacao">Localização</label>
-        <input type="text" id="editLocalizacao" v-model="equipamentoEmEdicao.numero_sala" class="form-control" required /> <!-- Ajuste para localização -->
-      </div>
-      <div class="form-group text-right">
-        <button type="submit" class="btn btn-success">Salvar</button>
-        <button type="button" class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
-      </div>
-    </form>
+    </div>
   </div>
+</div>
+
 </template>
 
 <script>
@@ -230,5 +258,47 @@ const height = 155 * 2.83465; // Altura em mm convertido para pontos (≈ 155.91
   .btn-sm {
     margin-right: 5px;
   }
+  .modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-dialog {
+  max-width: 500px;
+  width: 100%;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 15px;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  padding: 15px;
+}
+
+.close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
   </style>
   
