@@ -4,7 +4,6 @@
     <div class="login-container">
       <div class="left-side">
         <img src="/images/ST.png" alt="Logotipo" />
-        <img src="/images/circulos.png" alt="Circles" class="corner-img" />
 
         <!-- Bubbles Animation (opcional) -->
         <div class="bubbles">
@@ -133,8 +132,6 @@ export default {
 </script>
 
 
-
-
 <style scoped>
 /* Reset básico */
 body,
@@ -143,7 +140,8 @@ html {
   padding: 0;
   width: 100%;
   height: 100%;
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f7fc;
 }
 
 /* Container de login */
@@ -151,6 +149,7 @@ html {
   display: flex;
   height: 100vh;
   position: relative;
+  flex-wrap: wrap; /* Permite o layout quebrar em dispositivos menores */
 }
 
 /* Lado esquerdo - Imagem com gradiente */
@@ -161,63 +160,79 @@ html {
   justify-content: center;
   align-items: center;
   position: relative;
+  padding: 1px;
+  box-sizing: border-box;
+}
+
+.left-side img {
+  max-width: 100%;
+  height: auto;
 }
 
 /* Lado direito - Formulário de login */
 .right-side {
   flex: 2;
-  background-color: white;
+  background-color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 /* Caixa de login */
 .login-box {
-  width: 85%;
+  width: 100%;
   max-width: 400px;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Estilo do título */
 .login-box h2 {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   text-align: center;
   color: #0738b3;
+  font-weight: 600;
+  font-size: 1.5rem;
 }
 
 /* Estilo dos inputs */
 .login-box input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #b2b0b0;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
   border-radius: 15px;
   box-sizing: border-box;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
-.login-box input:hover {
-  border-color: #0056b3;
-  box-shadow: 0 0 5px rgba(0, 86, 179, 0.5);
+.login-box input:focus {
+  border-color: #0575e6;
+  outline: none;
+  box-shadow: 0 0 8px rgba(5, 117, 230, 0.3);
 }
 
 /* Botão de login */
 .login-box button {
   width: 100%;
-  padding: 11px;
+  padding: 12px;
   background-color: #02298a;
-  color: rgb(255, 255, 255);
+  color: white;
   border: none;
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-size: 1rem;
 }
 
-/* Efeito de hover no botão */
 .login-box button:hover {
   background-color: #2059ea;
 }
@@ -229,12 +244,18 @@ html {
   left: 0;
   width: 750px;
   height: auto;
+  opacity: 0.2;
+  transition: opacity 0.3s ease;
+}
+
+.corner-img:hover {
+  opacity: 0.4;
 }
 
 /* Ícone do olho */
 .eye-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
 }
 
@@ -245,19 +266,66 @@ html {
   }
 
   .left-side {
-    display: none;
+    flex: 1;
+    display: block;
+    height: 50vh; /* Reduzindo a altura da imagem no mobile */
   }
 
   .right-side {
     flex: 1;
+    padding: 15px;
+  }
+
+  .login-box {
+    padding: 20px;
+    max-width: 100%;
   }
 
   .corner-img {
-    display: none;
+    display: block;
+    width: 100%;
+    height: auto;
+    opacity: 0.3;
+    position: relative;
+    bottom: 0;
+    left: 0;
+  }
+
+  .corner-img:hover {
+    opacity: 0.5;
   }
 }
+
+@media (max-width: 480px) {
+  .login-box {
+    width: 100%;
+    padding: 15px;
+  }
+
+  .login-box input {
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+
+  .login-box button {
+    padding: 14px;
+  }
+
+  .eye-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .corner-img {
+    width: 120%; /* Aumentando um pouco para cobrir mais espaço em telas pequenas */
+    opacity: 0.4;
+  }
+}
+
+/* Container da senha */
 .password-container {
   position: relative;
+  width: 100%;
 }
 
 .password-icon {
@@ -269,13 +337,13 @@ html {
 }
 
 .eye-icon {
-  width: 20px;
-  height: 20px;
-  transition: transform 0.3s ease, opacity 0.3s ease; /* Transição suave */
+  width: 22px;
+  height: 22px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .password-icon:hover .eye-icon {
-  transform: scale(1.2); /* Efeito de zoom ao passar o mouse */
+  transform: scale(1.3);
   opacity: 0.8;
 }
 
@@ -293,47 +361,40 @@ html {
 .bubble {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  animation: bubble 5s infinite;
+  background: rgba(255, 255, 255, 0.3);
+  animation: bubble 6s infinite;
+  pointer-events: none;
 }
 
 .bubble:nth-child(1) {
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   left: 10%;
-  bottom: -100px;
+  bottom: -120px;
   animation-duration: 7s;
 }
 
 .bubble:nth-child(2) {
   width: 100px;
   height: 100px;
-  left: 30%;
+  left: 35%;
   bottom: -150px;
   animation-duration: 9s;
 }
 
 .bubble:nth-child(3) {
-  width: 80px;
-  height: 80px;
-  left: 50%;
+  width: 90px;
+  height: 90px;
+  left: 60%;
   bottom: -200px;
-  animation-duration: 6s;
+  animation-duration: 8s;
 }
 
 .bubble:nth-child(4) {
   width: 120px;
   height: 120px;
-  left: 70%;
-  bottom: -250px;
-  animation-duration: 8s;
-}
-
-.bubble:nth-child(5) {
-  width: 90px;
-  height: 90px;
   left: 80%;
-  bottom: -300px;
+  bottom: -250px;
   animation-duration: 10s;
 }
 

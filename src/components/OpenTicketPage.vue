@@ -9,7 +9,6 @@
         <div class="bubble"></div>
       </div>
       <img src="/images/ST.png" alt="Logotipo" />
-      <img src="/images/circulos.png" alt="Circles" class="corner-img" />
     </div>
 
     <div class="right-side">
@@ -200,23 +199,35 @@ export default {
       }
     },
     reportProblem() {
-      // Logs para verificar os valores dos campos
-      console.log("Problema:", this.problema);
-      console.log("Bloco da Sala:", this.blocodaSala);
-      console.log("Sala:", this.numerodaSala);
-      console.log("Código do Equipamento:", this.codigoEquipamento);
-
-      // Verificação dos campos obrigatórios
-      if (this.blocodaSala && this.numerodaSala && this.problema && this.codigoEquipamento) {
+  // Verificação dos campos obrigatórios
+  if (this.blocodaSala && this.numerodaSala && this.problema && this.codigoEquipamento) {
+    // Exibe o resumo do chamado antes da confirmação
+    Swal.fire({
+      title: 'Revise seu Chamado',
+      html: `
+        <p><strong>Problema:</strong> ${this.problema}</p>
+        <p><strong>Bloco da Sala:</strong> ${this.blocodaSala}</p>
+        <p><strong>Sala:</strong> ${this.numerodaSala}</p>
+        <p><strong>Código do Equipamento:</strong> ${this.codigoEquipamento}</p>
+        <p><strong>Descrição do Problema:</strong> ${this.descricaoProblema || 'Nenhuma descrição fornecida'}</p>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmar Chamado',
+      cancelButtonText: 'Editar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Se o usuário confirmar, chama o método para cadastrar o chamado
         this.cadastrarChamado();
-      } else {
-        Swal.fire("Erro", "Preencha todos os campos obrigatórios.", "error");
       }
-    },
+    });
+  } else {
+    Swal.fire("Erro", "Preencha todos os campos obrigatórios.", "error");
+  }
+},
   },
 };
 </script>
-
 
 
 <style scoped>
@@ -374,21 +385,47 @@ html {
 }
 
 /* Responsividade adicional */
-@media (max-width: 768px) {
+@media (max-width: 1968px) {
   .login-container {
     flex-direction: column;
+    padding: 0 0px; /* Adiciona padding para não deixar o conteúdo colado nas bordas */
   }
 
   .left-side {
-    height: 30vh;
+    height: 40vh; /* Ajusta a altura da área esquerda */
+    position: static;
+    flex: 1; /* Garante que a área de animação ocupe menos espaço */
   }
 
   .right-side {
-    height: auto;
+    flex: 1;
+    width: 100%; /* Garante que o lado direito ocupe 100% da largura */
+    padding: 20px; /* Adiciona padding para maior espaçamento */
   }
 
   .login-box {
-    width: 90%;
+    width: 100%;
+    max-width: 450px; /* Ajusta o tamanho máximo da caixa de login */
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .login-box h2 {
+    font-size: 1.5rem; /* Ajusta o tamanho da fonte do título */
+  }
+
+  /* Ajusta os tamanhos dos inputs e botões */
+  .login-box input,
+  .login-box select,
+  .login-box button {
+    padding: 8px;
+    font-size: 1rem; /* Tamanho de fonte adequado para telas pequenas */
+  }
+
+  /* Ajusta o tamanho das bolhas */
+  .bubble {
+    width: 50px;
+    height: 50px;
   }
 }
 

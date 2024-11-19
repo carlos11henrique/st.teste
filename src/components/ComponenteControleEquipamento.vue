@@ -167,15 +167,29 @@ export default {
       }
     },
 
-    // Gerar PDF
+    // Gerar PDF com tamanho de cartão de crédito
     gerarPDF(equipamento) {
-      const doc = new jsPDF();
-      doc.text(`Equipamento: ${equipamento.numero_maquina}`, 10, 10);
-      doc.text(`ID: ${equipamento.id}`, 10, 20);
-      doc.text(`Localização: ${equipamento.numero_sala }`, 10, 30); // Ajuste no texto
+      // Dimensões do cartão de crédito em pontos
+      // Dimensões do ingresso em pontos
+const width = 200 * 2.83465; // Largura em mm convertido para pontos (≈ 396.85 pontos)
+const height = 155 * 2.83465; // Altura em mm convertido para pontos (≈ 155.91 pontos)
+
+      // Criando o PDF com o tamanho personalizado
+      const doc = new jsPDF({
+        unit: 'pt',
+        format: [width, height]
+      });
+
+      // Adicionando informações ao PDF
+      doc.text(`Equipamento: ${equipamento.numero_maquina}`, 10, 20); // Ajustado para caber melhor
+      doc.text(`ID: ${equipamento.id}`, 10, 40);
+      doc.text(`Localização: ${equipamento.numero_sala}`, 10, 60);
+
+      // Salvando o PDF
       doc.save(`equipamento_${equipamento.id}.pdf`);
     },
   },
+  
   mounted() {
     this.carregarEquipamentos();
   },
