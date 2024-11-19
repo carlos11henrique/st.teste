@@ -235,10 +235,11 @@ export default {
         Concluido: document.getElementById("Concluido"),
         "Em Andamento": document.getElementById("Em Andamento"),
       };
-
       let status = Object.keys(statusMap).find((key) =>
-        statusMap[key] === event.target || statusMap[key].contains(event.target)
-      );
+      statusMap[key] &&
+      (statusMap[key] === event.target || statusMap[key].contains(event.target))
+       );
+
 
       if (!status) return;
 
