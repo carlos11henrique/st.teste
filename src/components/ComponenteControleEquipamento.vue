@@ -48,16 +48,16 @@
     <h2>Editar Equipamento</h2>
     <form @submit.prevent="salvarEdicao">
       <div class="form-group">
-        <label for="editNome">Nome do Equipamento</label>
-        <input type="text" id="editNome" v-model="equipamentoEmEdicao.numero_maquina" class="form-control" required />
-      </div>
-      <div class="form-group">
         <label for="editId">ID</label>
         <input type="text" id="editId" v-model="equipamentoEmEdicao.id" class="form-control" disabled />
       </div>
       <div class="form-group">
+        <label for="editNome">Nome do Equipamento</label>
+        <input type="text" id="editNome" v-model="equipamentoEmEdicao.numero_maquina" class="form-control" required />
+      </div>
+      <div class="form-group">
         <label for="editLocalizacao">Localização</label>
-        <input type="text" id="editLocalizacao" v-model="equipamentoEmEdicao.localizacao" class="form-control" required /> <!-- Ajuste para localização -->
+        <input type="text" id="editLocalizacao" v-model="equipamentoEmEdicao.numero_sala" class="form-control" required /> <!-- Ajuste para localização -->
       </div>
       <div class="form-group text-right">
         <button type="submit" class="btn btn-success">Salvar</button>
