@@ -70,6 +70,7 @@
 <script>
 import axios from 'axios';
 import jsPDF from 'jspdf';
+import Swal from 'sweetalert2'; // Importe o SweetAlert2
 
 export default {
   name: 'ComponenteControleEquipamento',
@@ -133,14 +134,35 @@ export default {
     // Remover equipamento
     async removerEquipamento(id) {
       const token = localStorage.getItem("token");
-      if (confirm("Tem certeza de que deseja remover este equipamento?")) {
+
+      // Usando SweetAlert2 para confirmação e exibição de alerta bonito
+      const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: "Você não poderá reverter essa ação!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, remover!',
+        cancelButtonText: 'Cancelar',
+      });
+
+      if (result.isConfirmed) {
         try {
           await axios.delete(`http://localhost:3000/maquinas/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           this.carregarEquipamentos();
+          Swal.fire(
+            'Removido!',
+            'O equipamento foi removido com sucesso.',
+            'success'
+          );
         } catch (error) {
           console.error("Erro ao remover equipamento:", error);
+          Swal.fire(
+            'Erro!',
+            'Ocorreu um erro ao tentar remover o equipamento.',
+            'error'
+          );
         }
       }
     },
@@ -159,7 +181,6 @@ export default {
   },
 };
 </script>
-
 
   
   <style scoped>

@@ -13,7 +13,7 @@
     <!-- Seção Análise -->
     <div v-if="role === ROLES.NOA" class="kanban-column">
       <div v-show="mostrarTodosChamados || categoriaVisivel === 'Analise'" id="Análise">
-        <h3 class="kanban-header bg-secondary text-white p-2 text-center">Invalido</h3>
+        <h3 class="kanban-header bg-secondary text-white p-2 text-center">Inválido</h3>
         <div v-for="chamado in chamadosAnalise" :key="chamado.id" class="kanban-item bg-light p-3 my-2">
           <p><strong>Setor:</strong> {{ chamado.setor }}</p>
           <p><strong>E-mail:</strong> {{ chamado.email }}</p>

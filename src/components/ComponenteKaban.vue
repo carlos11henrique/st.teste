@@ -72,7 +72,7 @@
         <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
         <p><em>Bloco:</em> {{ chamado.bloco }}</p>
         <p><em>Sala:</em> {{ chamado.sala }}</p>
-        <button class="btn btn-danger btn-sm" @click="confirmarFinalizacao(chamado.id, chamado.status)">Remover</button>
+        <button class="btn btn-danger btn-sm" @click="confirmarFinalizacao(chamado.id, chamado.status)">Finalizar</button>
       </div>
     </div>
   </div>

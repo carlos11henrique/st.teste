@@ -23,7 +23,7 @@
           <td>{{ sala.numero_sala }}</td>
           <td>
             <button class="btn btn-warning btn-sm" @click="editarSala(sala)">Editar</button>
-            <button class="btn btn-danger btn-sm" @click="removerSala(sala.id)">Remover</button>
+            <button class="btn btn-danger btn-sm" @click="confirmarRemoverSala(sala.id)">Remover</button>
           </td>
         </tr>
       </tbody>
@@ -77,6 +77,7 @@
 
 <script>
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default {
   name: "ComponenteControleSala",
@@ -136,7 +137,7 @@ export default {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        console.log("Sala editada com sucesso:", resposta.data); // Verifique se a sala foi editada com sucesso
+        console.log("Sala editada com sucesso:", resposta.data); 
         // Atualiza a lista de salas
         const index = this.salas.findIndex(
           (sala) => sala.id === this.salaEmEdicao.id
@@ -154,6 +155,28 @@ export default {
       this.salaEmEdicao = null; // Cancela a edição
     },
 
+    async confirmarRemoverSala(id) {
+      const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: "Você não poderá reverter essa ação!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, remover!',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        background: '#f4f4f9',
+        customClass: {
+          title: 'swal-title-custom',
+          content: 'swal-content-custom',
+        },
+      });
+
+      if (result.isConfirmed) {
+        this.removerSala(id);
+      }
+    },
+
     async removerSala(id) {
       const token = localStorage.getItem("token");
       try {
@@ -166,13 +189,13 @@ export default {
         console.error("Erro ao remover sala:", error);
       }
     },
+    
   },
   mounted() {
     this.carregarSalas();
   },
 };
 </script>
-
 
 <style scoped>
 .table-container {
