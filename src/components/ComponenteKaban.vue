@@ -132,7 +132,7 @@ export default {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.mudarStatus(chamadoId, 'Inválido');
+        this.mudarStatus(chamadoId, 'Invalido');
       }
     });
   },
