@@ -11,11 +11,26 @@
       </div>
 
       <div class="dashboard-summary">
-        <div class="summary-card"><h3>Total de Chamados Pendentes</h3><p>{{ totalPendentes }}</p></div>
-        <div class="summary-card"><h3>Total de Chamados Em Andamento</h3><p>{{ totalAndamento }}</p></div>
-        <div class="summary-card"><h3>Total de Chamados Concluídos</h3><p>{{ totalConcluidos }}</p></div>
-        <div class="summary-card"><h3>Tempo Médio de Resolução</h3><p>{{ tempoMedioResolucao }}</p></div>
-        <div class="summary-card"><h3>Problemas Mais Recorrentes</h3><p>{{ problemasRecorrentes }}</p></div>
+        <div class="summary-card">
+          <h3>Total de Chamados Pendentes</h3>
+          <p>{{ totalPendentes }}</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total de Chamados Em Andamento</h3>
+          <p>{{ totalAndamento }}</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total de Chamados Concluídos</h3>
+          <p>{{ totalConcluidos }}</p>
+        </div>
+        <div class="summary-card">
+          <h3>Tempo Médio de Resolução</h3>
+          <p>{{ tempoMedioResolucao }}</p>
+        </div>
+        <div class="summary-card">
+          <h3>Problemas Mais Recorrentes</h3>
+          <p>{{ problemasRecorrentes }}</p>
+        </div>
       </div>
 
       <!-- Gráficos -->
@@ -77,10 +92,9 @@ export default {
     };
 
     const fetchData = async () => {
-      erro.value = null; 
+      erro.value = null;
       try {
         const baseURL = 'http://localhost:3000/home';
-        
         const token = localStorage.getItem("token");
 
         const resPendentes = await axios.get(`${baseURL}/total-pendentes`, {
@@ -103,13 +117,23 @@ export default {
           }
         });
         totalConcluidos.value = resConcluidos.data.total;
-
         const resTempo = await axios.get(`${baseURL}/tempo-medio-resolucao`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        tempoMedioResolucao.value = `${Math.floor(resTempo.data.tempo_medio_resolucao / 60)}h ${resTempo.data.tempo_medio_resolucao % 60}m`;
+
+        if (resTempo.data && resTempo.data.tempo_medio_resolucao_minutos !== undefined) {
+          const tempoMedioMinutos = resTempo.data.tempo_medio_resolucao_minutos;
+
+          if (tempoMedioMinutos < 1) {
+            tempoMedioResolucao.value = `${Math.floor(tempoMedioMinutos * 60)}m`; // Caso o tempo seja inferior a 1 minuto
+          } else {
+            tempoMedioResolucao.value = `${Math.floor(tempoMedioMinutos / 60)}h ${Math.round(tempoMedioMinutos % 60)}m`;
+          }
+        } else {
+          erro.value = "Erro ao carregar o tempo médio de resolução";
+        }
 
         const resProblemas = await axios.get(`${baseURL}/problemas-recorrentes`, {
           headers: {
@@ -190,7 +214,7 @@ export default {
 
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
-        erro.value = "Erro ao carregar os dados. Tente novamente mais tarde."; 
+        erro.value = "Erro ao carregar os dados. Tente novamente mais tarde.";
       }
     };
 
@@ -199,7 +223,7 @@ export default {
       fetchData();
     });
 
-    // Desmontagem do componente (onUnmounted) para liberar recursos
+    // Desmontagem do componente (onUnmounted)
     onUnmounted(() => {
       if (pieChart) pieChart.destroy();
       if (barChart) barChart.destroy();
@@ -219,11 +243,11 @@ export default {
 };
 </script>
 
-<style scoped>
 
+<style scoped>
 /* Cartões de resumo */
 .dashboard-summary {
-  display: flex;  
+  display: flex;
   grid-template-columns: repeat(3, 1fr);
   gap: 25px;
   margin-bottom: 40px;
@@ -236,7 +260,7 @@ export default {
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
-  
+
   transition: transform 0.3s ease;
 }
 
@@ -248,7 +272,7 @@ export default {
   font-size: 18px;
   color: #666;
   margin-bottom: 10px;
-  
+
 }
 
 .summary-card p {
@@ -273,7 +297,7 @@ export default {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(33, 33, 33, 0.292);
   transition: transform 0.3s ease;
-  
+
 }
 
 .chart-card:hover {
@@ -325,14 +349,25 @@ canvas {
   }
 }
 
-.h1, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
-    margin-top: 10px;
-    margin-left: 10px;
-    margin-bottom: 5px;
-    font-weight: 500;
-    line-height: 1.2;
-    color: var(--bs-heading-color);
+.h1,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-bottom: 5px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--bs-heading-color);
 }
+
 .custom-logout-button {
   border-radius: 5px;
   font-weight: bold;
@@ -340,13 +375,11 @@ canvas {
 }
 
 .custom-logout-button:hover {
-  background-color: #c82333; /* Cor mais escura ao passar o mouse */
+  background-color: #c82333;
+  /* Cor mais escura ao passar o mouse */
 }
+
 .bg-primary[data-v-6dec5f19] {
-    background-color: #0d6efd !important;
+  background-color: #0d6efd !important;
 }
-
 </style>
-
-
-
