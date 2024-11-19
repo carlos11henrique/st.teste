@@ -17,7 +17,7 @@
           <a class="nav-link text-white" @click="setComponent('ComponenteKaban')" href="#">Kanban</a>
         </li>
         <li  v-if="role === ROLES.NOA" class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastro'}">
-          <a class="nav-link text-white" @click="setComponent('ComponenteCadastro')" href="#">Cadastro usuário</a>
+          <a class="nav-link text-white" @click="setComponent('ComponenteCadastro')" href="#">Cadastrar usuário</a>
         </li>
         <li v-if="role === ROLES.NOA" class="nav-item" :class="{'active': selectedComponent === 'ComponenteCadastroSala'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteCadastroSala')" href="#">Cadastrar Sala</a>
