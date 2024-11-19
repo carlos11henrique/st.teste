@@ -78,7 +78,7 @@
         </b-button>
 
         <div class="text-center mt-3">
-          <router-link to="/" class="btn btn-link">Voltar à página inicial</router-link>
+          <router-link to="/login" class="btn btn-link">Voltar à página inicial</router-link>
         </div>
       </div>
     </div>
