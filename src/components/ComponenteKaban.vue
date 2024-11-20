@@ -1,7 +1,7 @@
 <template>
   <li class="nav-item">
     <select v-model="filterOcupacao" class="form-select text-white bg-dark" aria-label="Chamados Ti" @change="atualizarFiltro" @click="chamadosTi">
-      <option value="TODOS" selected>Todos os Chamados</option>
+      <option value="TODOS" selected><strong>Todos os Chamados</strong></option>
       <option value="ESTUDANTE">Alunos</option>
       <option value="DOCENTE">Docentes</option>
       <option value="MANUTENCAO">Manutenção</option>
@@ -19,12 +19,12 @@
         <div v-for="chamado in chamadosAnalise" :key="chamado.id" :id="chamado.id" class="kanban-item bg-light p-3 my-2" draggable="true" @dragstart="drag($event, chamado)">
           <p><strong>Setor:</strong> {{ chamado.setor }}</p>
           <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-          <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
-          <p><em>Problema:</em> {{ chamado.problema }}</p>
-          <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
-          <p><em>Bloco:</em> {{ chamado.bloco }}</p>
-          <p><em>Sala:</em> {{ chamado.sala }}</p>
-          <p><em>Máquinas:</em> {{ chamado.maquina }}</p>
+          <p><strong>Ocupação:</strong> {{ chamado.ocupacao }}</p>
+          <p><strong>Problema:</strong> {{ chamado.problema }}</p>
+          <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
+          <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
+          <p><strong>Sala:</strong> {{ chamado.sala }}</p>
+          <p><strong>Máquinas:</strong> {{ chamado.maquina }}</p>
 
           <!-- Botões para alterar o setor -->
           <div class="mt-2">
@@ -41,11 +41,11 @@
       <div v-for="chamado in chamadosPendentes" :key="chamado.id" class="kanban-item bg-light p-3 my-2" draggable="true" @dragstart="drag($event, chamado)">
         <p><strong>Setor:</strong> {{ chamado.setor }}</p>
         <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-        <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
-        <p><em>Problema:</em> {{ chamado.problema }}</p>
-        <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
-        <p><em>Bloco:</em> {{ chamado.bloco }}</p>
-        <p><em>Sala:</em> {{ chamado.sala }}</p>
+        <p><strong>Ocupação:</strong> {{ chamado.ocupacao }}</p>
+        <p><strong>Problema:</strong> {{ chamado.problema }}</p>
+        <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
+        <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
+        <p><strong>Sala:</strong> {{ chamado.sala }}</p>
       </div>
     </div>
 
@@ -54,11 +54,11 @@
       <div v-for="chamado in chamadosAndamento" :key="chamado.id" class="kanban-item bg-light p-3 my-2" draggable="true" @dragstart="drag($event, chamado)">
         <p><strong>Setor:</strong> {{ chamado.setor }}</p>
         <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-        <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
-        <p><em>Problema:</em> {{ chamado.problema }}</p>
-        <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
-        <p><em>Bloco:</em> {{ chamado.bloco }}</p>
-        <p><em>Sala:</em> {{ chamado.sala }}</p>
+        <p><strong>Ocupação:</strong> {{ chamado.ocupacao }}</p>
+        <p><strong>Problema:</strong> {{ chamado.problema }}</p>
+        <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
+        <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
+        <p><strong>Sala:</strong> {{ chamado.sala }}</p>
       </div>
     </div>
 
@@ -67,11 +67,11 @@
       <div v-for="chamado in chamadosConcluidos" :key="chamado.id" class="kanban-item bg-light p-3 my-2" draggable="true" @dragstart="drag($event, chamado)">
         <p><strong>Setor:</strong> {{ chamado.setor }}</p>
         <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-        <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
-        <p><em>Problema:</em> {{ chamado.problema }}</p>
-        <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
-        <p><em>Bloco:</em> {{ chamado.bloco }}</p>
-        <p><em>Sala:</em> {{ chamado.sala }}</p>
+        <p><strong>Ocupação:</strong> {{ chamado.ocupacao }}</p>
+        <p><strong>Problema:</strong> {{ chamado.problema }}</p>
+        <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
+        <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
+        <p><strong>Sala:</strong> {{ chamado.sala }}</p>
         <button class="btn btn-danger btn-sm" @click="confirmarFinalizacao(chamado.id, chamado.status)">Finalizar</button>
       </div>
     </div>
