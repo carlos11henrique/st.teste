@@ -1,9 +1,6 @@
 <template>
   <!-- Cabeçalho -->
-  <header class="bg-primary text-white p-3">
-    <!-- Cabeçalho do Dashboard -->
-  </header>
-
+  
   <!-- Estrutura principal com o Dashboard e Kanban -->
   <div class="d-flex">
     <!-- Sidebar (Dashboard) -->
@@ -124,14 +121,64 @@ export default {
 
 
 <style scoped>
+/* Estilo principal */
 .sidebar {
-  width: 250px;
+  width: 250px; /* Largura da sidebar em telas grandes */
   height: 100vh;
   position: fixed; /* Fixa a sidebar na tela */
   top: 0;
   left: 0;
   bottom: 0;
   z-index: 1000; /* Garante que a sidebar fique acima do conteúdo */
+  background-color: #f8f9fa; /* Cor de fundo */
+  overflow-y: auto; /* Permite rolagem se o conteúdo exceder a altura */
+  transition: transform 0.3s ease, width 0.3s ease; /* Transição suave */
+}
+
+/* Para telas médias e pequenas */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px; /* Reduz a largura da sidebar em telas médias */
+  }
+
+  .content-container {
+    margin-left: 200px; /* Ajusta a margem do conteúdo */
+  }
+}
+
+/* Para dispositivos menores, como celulares */
+@media (max-width: 576px) {
+  .sidebar {
+    width: 100%; /* Sidebar ocupa toda a largura da tela */
+    height: auto; /* Ajusta a altura ao conteúdo */
+    position: static; /* Remove a posição fixa em telas pequenas */
+    margin-bottom: 20px; /* Adiciona margem inferior para separar da parte inferior da tela */
+  }
+
+  .content-container {
+    margin-left: 0; /* Remove a margem da sidebar */
+    padding-top: 20px; /* Ajuste o padding superior para não colidir com o conteúdo da sidebar */
+  }
+
+  /* Opcionalmente, esconda a sidebar em dispositivos muito pequenos se necessário */
+  .sidebar.hide {
+    display: none; /* Esconde a sidebar se necessário */
+  }
+}
+
+/* Estilo adicional para dispositivos muito pequenos */
+@media (max-width: 480px) {
+  .sidebar {
+    padding: 10px; /* Adiciona padding para melhorar a estética */
+  }
+
+  .custom-logout-button {
+    font-size: 1rem; /* Ajusta o tamanho do botão de logout */
+  }
+
+  .nav-link {
+    font-size: 0.9rem; /* Ajusta o tamanho dos links */
+  }
 }
 
 .content-container {
@@ -160,4 +207,5 @@ export default {
   background-color: #0d6efd; /* Cor de fundo para item ativo */
   font-weight: bold; /* Destaca o texto do item ativo */
 }
+
 </style>

@@ -230,6 +230,7 @@ export default {
 </script>
 
 
+
 <style scoped>
 /* Reset básico */
 body,
@@ -385,47 +386,21 @@ html {
 }
 
 /* Responsividade adicional */
-@media (max-width: 1968px) {
+@media (max-width: 768px) {
   .login-container {
     flex-direction: column;
-    padding: 0 0px; /* Adiciona padding para não deixar o conteúdo colado nas bordas */
   }
 
   .left-side {
-    height: 40vh; /* Ajusta a altura da área esquerda */
-    position: static;
-    flex: 1; /* Garante que a área de animação ocupe menos espaço */
+    height: 30vh;
   }
 
   .right-side {
-    flex: 1;
-    width: 100%; /* Garante que o lado direito ocupe 100% da largura */
-    padding: 20px; /* Adiciona padding para maior espaçamento */
+    height: auto;
   }
 
   .login-box {
-    width: 100%;
-    max-width: 450px; /* Ajusta o tamanho máximo da caixa de login */
-    padding: 20px;
-    box-sizing: border-box;
-  }
-
-  .login-box h2 {
-    font-size: 1.5rem; /* Ajusta o tamanho da fonte do título */
-  }
-
-  /* Ajusta os tamanhos dos inputs e botões */
-  .login-box input,
-  .login-box select,
-  .login-box button {
-    padding: 8px;
-    font-size: 1rem; /* Tamanho de fonte adequado para telas pequenas */
-  }
-
-  /* Ajusta o tamanho das bolhas */
-  .bubble {
-    width: 50px;
-    height: 50px;
+    width: 90%;
   }
 }
 
@@ -589,13 +564,6 @@ button:hover {
   border: 1px solid #007bff;
   border-radius: 5px;
   background-color: #e9f7fe;
-}
-/* Estilos para a caixa de pesquisa */
-.clickable-item {
-  cursor: pointer;
-}
-.clickable-item:hover {
-  background-color: #f1f1f1;
 }
 
 </style>

@@ -28,9 +28,10 @@
           <p>{{ tempoMedioResolucao }}</p>
         </div>
         <div class="summary-card">
-          <h3>Problemas Mais Recorrentes</h3>
-          <p>{{ problemasRecorrentes }}</p>
-        </div>
+  <h3>Problemas Mais Recorrentes</h3>
+  <p class="problemas-recorrentes">{{ problemasRecorrentes }}</p>
+</div>
+
       </div>
 
       <!-- Gráficos -->
@@ -243,7 +244,6 @@ export default {
 };
 </script>
 
-
 <style scoped>
 /* Cartões de resumo */
 .dashboard-summary {
@@ -260,7 +260,8 @@ export default {
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
-
+  position: relative;
+  overflow: hidden;
   transition: transform 0.3s ease;
 }
 
@@ -272,13 +273,31 @@ export default {
   font-size: 18px;
   color: #666;
   margin-bottom: 10px;
-
 }
 
 .summary-card p {
-  font-size: 32px;
+  font-size: 16px;
   font-weight: bold;
   color: #0e85bd;
+}
+
+/* Animação de rolagem para a parte de Problemas Mais Recorrentes */
+@keyframes scrollProblemas {
+  0% {
+    transform: translateX(100%); /* Começa fora da tela à direita */
+  }
+  100% {
+    transform: translateX(-100%); /* Move até fora da tela à esquerda */
+  }
+}
+
+/* Aplica a animação apenas à parte de "Problemas Mais Recorrentes" */
+.problemas-recorrentes {
+  display: inline-block;
+  white-space: nowrap; /* Impede que o texto quebre */
+  animation: scrollProblemas 10s linear infinite; /* Animação de rolagem contínua */
+  font-size: 18px; /* Tamanho da fonte */
+  color: #0e85bd; /* Cor do texto */
 }
 
 /* Gráficos */
@@ -287,7 +306,6 @@ export default {
   flex-wrap: wrap;
   gap: 20px;
   margin-left: 95px;
-
 }
 
 .chart-card {
@@ -297,7 +315,6 @@ export default {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(33, 33, 33, 0.292);
   transition: transform 0.3s ease;
-
 }
 
 .chart-card:hover {

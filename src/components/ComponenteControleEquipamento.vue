@@ -55,33 +55,15 @@
         <form @submit.prevent="salvarEdicao">
           <div class="form-group">
             <label for="editId">ID</label>
-            <input
-              type="text"
-              id="editId"
-              v-model="equipamentoEmEdicao.id"
-              class="form-control"
-              disabled
-            />
+            <input type="text" id="editId" v-model="equipamentoEmEdicao.id" class="form-control" disabled />
           </div>
           <div class="form-group">
             <label for="editNome">Nome do Equipamento</label>
-            <input
-              type="text"
-              id="editNome"
-              v-model="equipamentoEmEdicao.numero_maquina"
-              class="form-control"
-              required
-            />
+            <input type="text" id="editNome" v-model="equipamentoEmEdicao.numero_maquina" class="form-control" required />
           </div>
           <div class="form-group">
             <label for="editLocalizacao">Localização</label>
-            <input
-              type="text"
-              id="editLocalizacao"
-              v-model="equipamentoEmEdicao.numero_sala"
-              class="form-control"
-              required
-            />
+            <input type="text" id="editLocalizacao" v-model="equipamentoEmEdicao.numero_sala" class="form-control" required />
           </div>
           <div class="form-group text-right">
             <button type="submit" class="btn btn-success">Salvar</button>
@@ -92,6 +74,7 @@
     </div>
   </div>
 </div>
+
 
 </template>
 
@@ -147,17 +130,25 @@ export default {
 
     // Salvar edição do equipamento
     async salvarEdicao() {
-      const token = localStorage.getItem("token");
-      try {
-        const resposta = await axios.put(`http://localhost:3000/maquinas/${this.equipamentoEmEdicao.id}`, this.equipamentoEmEdicao, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        this.carregarEquipamentos();
-        this.equipamentoEmEdicao = null;
-      } catch (error) {
-        console.error("Erro ao salvar edição:", error);
-      }
-    },
+  console.log("Método salvarEdicao chamado");
+  console.log("Equipamento em edição:", this.equipamentoEmEdicao);
+
+  const token = localStorage.getItem("token");
+  try {
+    const resposta = await axios.put(
+      `http://localhost:3000/maquinas/${this.equipamentoEmEdicao.id}`,
+      this.equipamentoEmEdicao,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    console.log("Resposta da API:", resposta.data);
+    this.carregarEquipamentos();
+    this.equipamentoEmEdicao = null;
+  } catch (error) {
+    console.error("Erro ao salvar edição:", error);
+  }
+},
+
 
     // Remover equipamento
     async removerEquipamento(id) {
@@ -224,41 +215,45 @@ const height = 155 * 2.83465; // Altura em mm convertido para pontos (≈ 155.91
 };
 </script>
 
-  
-  <style scoped>
-  .table-container {
-    margin: 20px;
-  }
-  
-  .edit-container {
-    margin: 20px;
-  }
-  
-  .table-bordered {
-    border: 1px solid #ddd;
-  }
-  
-  .table-bordered th, .table-bordered td {
-    border: 1px solid #ddd;
-  }
-  
-  .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f9f9f9;
-  }
-  
-  .text-right {
-    text-align: right;
-  }
-  
-  .thead-dark {
-    background-color: #343a40;
-    color: white;
-  }
-  
-  .btn-sm {
-    margin-right: 5px;
-  }
-  .modal {
+<style scoped>
+.table-container {
+  margin: 20px;
+}
+
+.edit-container {
+  margin: 20px;
+}
+
+.table-bordered {
+  border: 1px solid #ddd;
+  width: 100%;
+  table-layout: auto;
+}
+
+.table-bordered th, .table-bordered td {
+  border: 1px solid #ddd;
+  word-wrap: break-word;
+  padding: 8px;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.thead-dark {
+  background-color: #343a40;
+  color: white;
+}
+
+.btn-sm {
+  margin-right: 5px;
+}
+
+.modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -272,7 +267,7 @@ const height = 155 * 2.83465; // Altura em mm convertido para pontos (≈ 155.91
 
 .modal-dialog {
   max-width: 500px;
-  width: 100%;
+  width: 90%;
 }
 
 .modal-content {
@@ -300,5 +295,40 @@ const height = 155 * 2.83465; // Altura em mm convertido para pontos (≈ 155.91
   font-size: 1.5rem;
   cursor: pointer;
 }
-  </style>
-  
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .table-container, .edit-container {
+    margin: 10px;
+  }
+
+  .table-bordered th, .table-bordered td {
+    padding: 6px;
+    font-size: 0.9rem;
+  }
+
+  .modal-dialog {
+    max-width: 90%;
+    padding: 10px;
+  }
+
+  .modal-content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .table-container, .edit-container {
+    margin: 5px;
+  }
+
+  .table-bordered th, .table-bordered td {
+    font-size: 0.8rem;
+  }
+
+  .modal-dialog {
+    width: 100%;
+    margin: 5px;
+  }
+}
+</style>

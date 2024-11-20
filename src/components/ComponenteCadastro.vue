@@ -1,6 +1,6 @@
 <template>
   <div v-if="mostrarFormulario" class="form-container">
-    <h2>Cadastrar usuário</h2>
+  <h2>  <strong>Cadastrar usuário</strong></h2>
     <form @submit.prevent="cadastrarAluno">
       <!-- Campos do formulário -->
       <div class="form-group">
@@ -21,7 +21,7 @@
       </div>
 
       <div class="form-group">
-        <label for="email">Email:</label>
+        <label for="email">E-mail:</label>
         <input
           type="email"
           id="email"
@@ -31,7 +31,7 @@
       </div>
 
       <div class="form-group">
-        <label for="confirmar-email">Confirmar Email:</label>
+        <label for="confirmar-email">Confirmar E-mail:</label>
         <input
           type="email"
           id="confirmar-email"

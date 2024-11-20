@@ -179,10 +179,11 @@ export default {
 
 <style scoped>
 .form-container {
-  max-width: 400px;
+  max-width: 1500px;
   margin: 0 auto;
 }
 textarea {
   width: 100%;
 }
+
 </style>
