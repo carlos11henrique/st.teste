@@ -200,12 +200,15 @@ export default {
 }
 
 .nav-link:hover {
-  background-color: #0061c9; /* Cor para hover */
+  background-color: #044e9c; /* Cor para hover */
 }
 
 .nav-item.active .nav-link {
-  background-color: #0d6efd; /* Cor de fundo para item ativo */
+  background-color: #0000003b; /* Cor de fundo para item ativo */
   font-weight: bold; /* Destaca o texto do item ativo */
 }
-
+.bg-primary {
+    --bs-bg-opacity: 1;
+     background: linear-gradient(to bottom, #0575e6, #02298a, #021b79);;
+}
 </style>

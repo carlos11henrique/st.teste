@@ -1,6 +1,6 @@
 <template>
   <div v-if="mostrarFormulario" class="form-container">
-  <h2>  <strong>Cadastrar usuário</strong></h2>
+    <h2><strong>Cadastrar usuário</strong></h2>
     <form @submit.prevent="cadastrarAluno">
       <!-- Campos do formulário -->
       <div class="form-group">
@@ -39,51 +39,56 @@
           required
         />
       </div>
-      <div class="form-group">
-  <label for="senha">Senha:</label>
-  <input
-    type="password"
-    id="senha"
-    v-model="novoAluno.senha"
-    required
-    minlength="8"
-  />
-  <small
-    v-if="senhaInvalida"
-    class="form-text text-danger"
-  >
-    A senha deve ter pelo menos 8 caracteres.
-  </small>
-</div>
-
-<div class="form-group">
-  <label for="confirmar-senha">Confirmar Senha:</label>
-  <input
-    type="password"
-    id="confirmar-senha"
-    v-model="novoAluno.confirmarSenha"
-    required
-  />
-</div>
-
 
       <div class="form-group">
-  <label for="tipoUsuario">Tipo de Usuário:</label>
-  <select id="tipoUsuario" v-model="novoAluno.tipoUsuario" class="form-control">
-    <option value="ESTUDANTE">Estudante</option>
-    <option value="TI">Técnico de TI</option>
-    <option value="DOCENTE">Docente</option>
-    <option value="MANUTENCAO">Técnico de Manutenção</option>
-    <option value="NOA">NOA</option>
-  </select>
-</div>
+        <label for="senha">Senha:</label>
+        <input
+          type="password"
+          id="senha"
+          v-model="novoAluno.senha"
+          required
+          minlength="8"
+        />
+        <small
+          v-if="senhaInvalida"
+          class="form-text text-danger"
+        >
+          A senha deve ter pelo menos 8 caracteres.
+        </small>
+      </div>
 
+      <div class="form-group">
+        <label for="confirmar-senha">Confirmar Senha:</label>
+        <input
+          type="password"
+          id="confirmar-senha"
+          v-model="novoAluno.confirmarSenha"
+          required
+        />
+        <small
+          v-if="senhasNaoCoincidem"
+          class="form-text text-danger"
+        >
+          As senhas não coincidem.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="tipoUsuario">Tipo de Usuário:</label>
+        <select id="tipoUsuario" v-model="novoAluno.tipoUsuario" class="form-control">
+          <option value="" disabled>Selecione um tipo</option>
+          <option value="ESTUDANTE">Estudante</option>
+          <option value="TI">Técnico de TI</option>
+          <option value="DOCENTE">Docente</option>
+          <option value="MANUTENCAO">Técnico de Manutenção</option>
+          <option value="NOA">NOA</option>
+        </select>
+      </div>
 
       <button type="submit" class="btn btn-primary"><strong>Cadastrar</strong></button>
     </form>
   </div>
 </template>
-
 <script>
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -105,14 +110,21 @@ export default {
     };
   },
   computed: {
-  senhaInvalida() {
-    return this.novoAluno.senha && this.novoAluno.senha.length < 8;
-  }
-},
+    senhaInvalida() {
+      return this.novoAluno.senha && this.novoAluno.senha.length < 8;
+    },
+    senhasNaoCoincidem() {
+      return (
+        this.novoAluno.senha &&
+        this.novoAluno.confirmarSenha &&
+        this.novoAluno.senha !== this.novoAluno.confirmarSenha
+      );
+    },
+  },
 
   methods: {
     formatarTelefone(event) {
-      let telefone = this.novoAluno.telefone.replace(/\D/g, '');
+      let telefone = this.novoAluno.telefone.replace(/\D/g, "");
 
       if (telefone.length <= 10) {
         this.novoAluno.telefone = `(${telefone.slice(0, 2)}) ${telefone.slice(2, 6)}-${telefone.slice(6, 10)}`;
@@ -185,3 +197,11 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+button {
+  display: block;
+  width: 20%;
+  margin-top: 25px;
+}
+</style>

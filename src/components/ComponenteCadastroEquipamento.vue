@@ -24,6 +24,8 @@
           <option value="Ar-condicionado">Ar-condicionado</option>
           <option value="Teclado">Teclado</option>
           <option value="Mouse">Mouse</option>
+          <option value="CaixadeSom">Caixa de Som</option>
+          <option value="Projetores">Projetores</option>
         </select>
       </div>
 

@@ -31,7 +31,7 @@
 
     <!-- Seção Concluído -->
     <div v-show="mostrarTodosChamados || categoriaVisivel === 'Concluído'" id="Concluido" class="kanban-column">
-      <h3 class="kanban-header bg-success text-white p-2 text-center">Concluído</h3>
+      <h3 class="kanban-header bg-success text-white p-2 text-center">Finalizado</h3>
       <div v-for="chamado in chamadosConcluidos" :key="chamado.id" class="kanban-item bg-light p-3 my-2">
         <p><strong>Setor:</strong> {{ chamado.setor }}</p>
         <p><strong>E-mail:</strong> {{ chamado.email }}</p>
@@ -45,8 +45,8 @@
         <button class="btn btn-success btn-sm mt-2" 
         :disabled="isUpdating(chamado.id)" 
         @click="mudarStatus(chamado.id, 'Concluido')">
-  Mover para Concluído
-</button>
+        Relatar inconsistência
+      </button>
 
       </div>
     </div>
