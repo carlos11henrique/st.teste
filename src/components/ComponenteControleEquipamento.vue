@@ -23,11 +23,11 @@
           <th>Ações</th>
         </tr>
       </thead>
-      <tbody v-if="equipamentos.length > 0">
+      <tbody v-if="equipamentosFiltrados.length > 0">
         <tr v-for="equipamento in equipamentosFiltrados" :key="equipamento.id">
           <td>{{ equipamento.numero_maquina }}</td>
           <td>{{ equipamento.id }}</td>
-          <td>{{ equipamento.numero_sala || 'Sem localização' }}</td> <!-- Ajuste para exibir localização -->
+          <td>{{ equipamento.numero_sala || 'Sem localização' }}</td>
           <td>
             <button class="btn btn-warning btn-sm" @click="editarEquipamento(equipamento)">Editar</button>
             <button class="btn btn-danger btn-sm" @click="removerEquipamento(equipamento.id)">Remover</button>
@@ -45,43 +45,53 @@
 
   <!-- Formulário de edição -->
   <div v-if="equipamentoEmEdicao" class="modal" tabindex="-1" role="dialog" style="display: block;">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Editar Equipamento</h5>
-        <button type="button" class="close" @click="cancelarEdicao">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form @submit.prevent="salvarEdicao">
-          <div class="form-group">
-            <label for="editId">ID</label>
-            <input type="text" id="editId" v-model="equipamentoEmEdicao.id" class="form-control" disabled />
-          </div>
-          <div class="form-group">
-            <label for="editNome">Nome do Equipamento</label>
-            <input type="text" id="editNome" v-model="equipamentoEmEdicao.numero_maquina" class="form-control" required />
-          </div>
-          <div class="form-group">
-            <label for="editLocalizacao">Localização</label>
-            <input type="text" id="editLocalizacao" v-model="equipamentoEmEdicao.numero_sala" class="form-control" required />
-          </div>
-          <div class="form-group text-right">
-            <button type="submit" class="btn btn-success">Salvar</button>
-            <button type="button" class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
-          </div>
-        </form>
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Equipamento</h5>
+          <button type="button" class="close" @click="cancelarEdicao">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="salvarEdicao">
+            <div class="form-group">
+              <label for="editId">ID</label>
+              <input type="text" id="editId" v-model="equipamentoEmEdicao.id" class="form-control" disabled />
+            </div>
+            <div class="form-group">
+              <label for="editNome">Nome do Equipamento</label>
+              <input type="text" id="editNome" v-model="equipamentoEmEdicao.numero_maquina" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="editLocalizacao">Localização</label>
+              <input type="text" id="editLocalizacao" v-model="equipamentoEmEdicao.numero_sala" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="editTipo">Tipo de Equipamento</label>
+              <input type="text" id="editTipo" v-model="equipamentoEmEdicao.tipo_equipamento" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="editDescricao">Descrição</label>
+              <textarea id="editDescricao" v-model="equipamentoEmEdicao.descricao" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="editSalaId">ID da Sala</label>
+              <input type="number" id="editSalaId" v-model="equipamentoEmEdicao.sala_id" class="form-control" />
+            </div>
+            <div class="form-group text-right">
+              <button type="submit" class="btn btn-success">Salvar</button>
+              <button type="button" class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
-
-
 </template>
 
 <script>
 import axios from 'axios';
 import jsPDF from 'jspdf';
-import Swal from 'sweetalert2'; // Importe o SweetAlert2
+import Swal from 'sweetalert2';
 
 export default {
   name: 'ComponenteControleEquipamento',
@@ -90,7 +100,14 @@ export default {
       mostrarTabelaEquipamentos: true,
       filtroPesquisa: '',
       equipamentos: [],
-      equipamentoEmEdicao: null,
+      equipamentoEmEdicao: {
+        id: null,
+        numero_maquina: '',
+        numero_sala: '',
+        tipo_equipamento: '', // Campo inicializado
+        descricao: '',        // Campo inicializado
+        sala_id: null,        // Campo inicializado
+      },
     };
   },
   computed: {
@@ -117,44 +134,43 @@ export default {
         console.error("Erro ao carregar equipamentos:", error);
       }
     },
-
-    // Editar Equipamento
     editarEquipamento(equipamento) {
-      this.equipamentoEmEdicao = { ...equipamento };
+      this.equipamentoEmEdicao = { 
+        ...equipamento,
+        tipo_equipamento: equipamento.tipo_equipamento || '', 
+        descricao: equipamento.descricao || '', 
+        sala_id: equipamento.sala_id || null,
+      };
     },
-
-    // Cancelar Edição
     cancelarEdicao() {
       this.equipamentoEmEdicao = null;
     },
-
-    // Salvar edição do equipamento
     async salvarEdicao() {
-  console.log("Método salvarEdicao chamado");
-  console.log("Equipamento em edição:", this.equipamentoEmEdicao);
+  const { tipo_equipamento, descricao, sala_id, numero_maquina } = this.equipamentoEmEdicao;
 
-  const token = localStorage.getItem("token");
+  // Verifique se os campos obrigatórios estão preenchidos
+  if (!tipo_equipamento || !descricao || !sala_id || !numero_maquina) {
+    alert("Todos os campos obrigatórios devem ser preenchidos.");
+    return;
+  }
+
   try {
     const resposta = await axios.put(
       `http://localhost:3000/maquinas/${this.equipamentoEmEdicao.id}`,
-      this.equipamentoEmEdicao,
-      { headers: { Authorization: `Bearer ${token}` } }
+      { numero_maquina, tipo_equipamento, descricao, sala_id },
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );
 
     console.log("Resposta da API:", resposta.data);
     this.carregarEquipamentos();
     this.equipamentoEmEdicao = null;
   } catch (error) {
-    console.error("Erro ao salvar edição:", error);
+    console.error("Erro ao salvar edição:", error.response?.data || error);
   }
 },
 
-
-    // Remover equipamento
     async removerEquipamento(id) {
       const token = localStorage.getItem("token");
-
-      // Usando SweetAlert2 para confirmação e exibição de alerta bonito
       const result = await Swal.fire({
         title: 'Tem certeza?',
         text: "Você não poderá reverter essa ação!",
@@ -163,57 +179,38 @@ export default {
         confirmButtonText: 'Sim, remover!',
         cancelButtonText: 'Cancelar',
       });
-
       if (result.isConfirmed) {
         try {
           await axios.delete(`http://localhost:3000/maquinas/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           this.carregarEquipamentos();
-          Swal.fire(
-            'Removido!',
-            'O equipamento foi removido com sucesso.',
-            'success'
-          );
+          Swal.fire('Removido!', 'O equipamento foi removido com sucesso.', 'success');
         } catch (error) {
           console.error("Erro ao remover equipamento:", error);
-          Swal.fire(
-            'Erro!',
-            'Ocorreu um erro ao tentar remover o equipamento.',
-            'error'
-          );
+          Swal.fire('Erro!', 'Ocorreu um erro ao tentar remover o equipamento.', 'error');
         }
       }
     },
-
-    // Gerar PDF com tamanho de cartão de crédito
     gerarPDF(equipamento) {
-      // Dimensões do cartão de crédito em pontos
-      // Dimensões do ingresso em pontos
-const width = 200 * 2.83465; // Largura em mm convertido para pontos (≈ 396.85 pontos)
-const height = 155 * 2.83465; // Altura em mm convertido para pontos (≈ 155.91 pontos)
-
-      // Criando o PDF com o tamanho personalizado
+      const width = 200 * 2.83465; // Largura em pontos
+      const height = 155 * 2.83465; // Altura em pontos
       const doc = new jsPDF({
         unit: 'pt',
-        format: [width, height]
+        format: [width, height],
       });
-
-      // Adicionando informações ao PDF
-      doc.text(`Equipamento: ${equipamento.numero_maquina}`, 10, 20); // Ajustado para caber melhor
+      doc.text(`Equipamento: ${equipamento.numero_maquina}`, 10, 20);
       doc.text(`ID: ${equipamento.id}`, 10, 40);
       doc.text(`Localização: ${equipamento.numero_sala}`, 10, 60);
-
-      // Salvando o PDF
       doc.save(`equipamento_${equipamento.id}.pdf`);
     },
   },
-  
   mounted() {
     this.carregarEquipamentos();
   },
 };
 </script>
+
 
 <style scoped>
 .table-container {
