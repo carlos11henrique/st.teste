@@ -72,8 +72,19 @@
         <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
         <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
-        <p><strong>Feedback:</strong> {{ chamado.feedback }}</p>
-
+        <div>
+          <div>
+      <label for="feedback-{{ chamado.id }}"><strong>Feedback:</strong></label>
+      <textarea
+        id="feedback-{{ chamado.id }}"
+        v-model="chamado.feedback"
+        class="form-control"
+        rows="3"
+        placeholder="Digite o feedback aqui"
+      ></textarea>
+      <button class="btn btn-primary btn-sm mt-2" @click="updateFeedback(chamado.id)">Enviar</button>
+    </div>
+  </div>
         
         <button class="btn btn-danger btn-sm" @click="confirmarFinalizacao(chamado.id, chamado.status)">Finalizar</button>
       </div>
@@ -92,6 +103,7 @@ export default {
     return {
       filterOcupacao: "TODOS",
       chamadosAnalise: [],
+      feedback: '',
       ROLES,
       chamadosAndamento: [],
       chamadosConcluidos: [],
@@ -138,6 +150,28 @@ export default {
         this.mudarStatus(chamadoId, 'Invalido');
       }
     });
+  },
+
+  async updateFeedback() {
+    try {
+      if (!this.feedback) {
+        alert("Por favor, forneça um feedback.");
+        return;
+      }
+
+      // Envia a requisição PUT para atualizar o feedback do chamado
+      const response = await axios.put(`/api/chamados/${this.chamadoId}/feedback`, {
+        feedback: this.feedback, // O feedback no corpo da requisição
+      });
+
+      // Caso a requisição seja bem-sucedida
+      if (response.status === 204) {
+        alert("Feedback atualizado com sucesso!");
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar feedback:', error);
+      alert('Ocorreu um erro ao atualizar o feedback.');
+    }
   },
 
   async mudarStatus(chamadoId, novoStatus) {
@@ -193,7 +227,7 @@ export default {
       }
     }
   },
-
+  
 
     async carregarChamados() {
       try {
