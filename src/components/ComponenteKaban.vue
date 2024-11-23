@@ -72,6 +72,9 @@
         <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
         <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
+        <p><strong>Feedback:</strong> {{ chamado.feedback }}</p>
+
+        
         <button class="btn btn-danger btn-sm" @click="confirmarFinalizacao(chamado.id, chamado.status)">Finalizar</button>
       </div>
     </div>
