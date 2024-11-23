@@ -8,17 +8,7 @@
         <input type="text" id="nome" v-model="novoAluno.nome" required />
       </div>
 
-      <div class="form-group">
-        <label for="telefone">Telefone:</label>
-        <input
-          type="tel"
-          id="telefone"
-          v-model="novoAluno.telefone"
-          @input="formatarTelefone"
-          required
-          maxlength="16"
-        />
-      </div>
+      
 
       <div class="form-group">
         <label for="email">E-mail:</label>
