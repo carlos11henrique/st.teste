@@ -102,7 +102,7 @@ export default {
             response.data.ocupacao.endsWith("ESTUDANTE") ||
             response.data.ocupacao.endsWith("DOCENTE")
           ) {
-            this.$router.push("/openticketpage");
+            this.$router.push("/openchamando");
           } else if (
             response.data.ocupacao.endsWith("MANUTENCAO") ||
             response.data.ocupacao.endsWith("TI")
