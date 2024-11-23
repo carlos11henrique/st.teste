@@ -152,27 +152,75 @@ export default {
     });
   },
 
-  async updateFeedback() {
-    try {
-      if (!this.feedback) {
-        alert("Por favor, forneça um feedback.");
-        return;
-      }
-
-      // Envia a requisição PUT para atualizar o feedback do chamado
-      const response = await axios.put(`/api/chamados/${this.chamadoId}/feedback`, {
-        feedback: this.feedback, // O feedback no corpo da requisição
+  async updateFeedback(chamadoId) {
+  try {
+    // Localizar o chamado pelo ID
+    const chamado = this.chamados.find((ch) => ch.id === chamadoId);
+    if (!chamado) {
+      Swal.fire({
+        title: 'Erro!',
+        text: 'Chamado não encontrado.',
+        icon: 'error',
+        confirmButtonText: 'OK',
       });
-
-      // Caso a requisição seja bem-sucedida
-      if (response.status === 204) {
-        alert("Feedback atualizado com sucesso!");
-      }
-    } catch (error) {
-      console.error('Erro ao atualizar feedback:', error);
-      alert('Ocorreu um erro ao atualizar o feedback.');
+      return;
     }
-  },
+
+    // Validar o feedback
+    if (!chamado.feedback || chamado.feedback.trim() === "") {
+      Swal.fire({
+        title: 'Feedback necessário',
+        text: 'Por favor, forneça um feedback válido antes de enviar.',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+    // Recuperar o token de autenticação
+    const token = localStorage.getItem('token');
+    if (!token) {
+      Swal.fire({
+        title: 'Erro de autenticação',
+        text: 'Token de autenticação não encontrado. Por favor, faça login novamente.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+    // Enviar o feedback via API
+    const response = await axios.put(
+      `http://localhost:3000/chamados/feedback/${chamadoId}`,
+      { id: chamadoId, feedback: chamado.feedback },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status >= 200 && response.status < 300) {
+      Swal.fire({
+        title: 'Sucesso!',
+        text: 'Feedback atualizado com sucesso.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
+    } else {
+      throw new Error('Resposta inesperada do servidor.');
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar feedback:', error);
+    Swal.fire({
+      title: 'Erro!',
+      text: 'Ocorreu um erro ao atualizar o feedback. Por favor, tente novamente.',
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
+  }
+},
+
 
   async mudarStatus(chamadoId, novoStatus) {
     const chamado = this.chamados.find(ch => ch.id === chamadoId);
