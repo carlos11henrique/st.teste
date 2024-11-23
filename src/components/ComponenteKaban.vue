@@ -166,7 +166,6 @@ export default {
       return;
     }
 
-    // Validar o feedback
     if (!chamado.feedback || chamado.feedback.trim() === "") {
       Swal.fire({
         title: 'Feedback necessário',
@@ -189,7 +188,6 @@ export default {
       return;
     }
 
-    // Enviar o feedback via API
     const response = await axios.put(
       `http://localhost:3000/chamados/feedback/${chamadoId}`,
       { id: chamadoId, feedback: chamado.feedback },
