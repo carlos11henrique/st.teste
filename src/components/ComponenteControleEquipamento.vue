@@ -1,5 +1,4 @@
 <template>
-  <!-- Tabela de Equipamentos Cadastrados -->
   <div v-if="mostrarTabelaEquipamentos" class="table-container p-3">
     <h2>Tabela de Equipamentos Cadastrados</h2>
 
@@ -13,10 +12,28 @@
       />
     </div>
 
+    <!-- Botão para gerar PDF -->
+    <div class="mb-3 text-right">
+      <button 
+        class="btn btn-info" 
+        :disabled="equipamentosSelecionados.length === 0"
+        @click="gerarPDFSelecionados"
+      >
+        Gerar PDF Selecionados
+      </button>
+    </div>
+
     <!-- Tabela de equipamentos -->
     <table class="table table-bordered table-hover">
       <thead class="thead-dark">
         <tr>
+          <th>
+            <input 
+              type="checkbox" 
+              @change="toggleSelecionarTodos($event)" 
+              :checked="selecionarTodos"
+            />
+          </th>
           <th>Nome do Equipamento</th>
           <th>ID</th>
           <th>Localização</th>
@@ -25,63 +42,61 @@
       </thead>
       <tbody v-if="equipamentosFiltrados.length > 0">
         <tr v-for="equipamento in equipamentosFiltrados" :key="equipamento.id">
+          <td>
+            <input 
+              type="checkbox" 
+              :value="equipamento" 
+              v-model="equipamentosSelecionados"
+            />
+          </td>
           <td>{{ equipamento.numero_maquina }}</td>
           <td>{{ equipamento.id }}</td>
           <td>{{ equipamento.numero_sala || 'Sem localização' }}</td>
           <td>
             <button class="btn btn-warning btn-sm" @click="editarEquipamento(equipamento)">Editar</button>
             <button class="btn btn-danger btn-sm" @click="removerEquipamento(equipamento.id)">Remover</button>
-            <button class="btn btn-info btn-sm" @click="gerarPDF(equipamento)">Gerar PDF</button>
           </td>
         </tr>
       </tbody>
       <tbody v-else>
         <tr>
-          <td colspan="4" class="text-center">Nenhum equipamento encontrado</td>
+          <td colspan="5" class="text-center">Nenhum equipamento encontrado</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Formulário de edição -->
-  <div v-if="equipamentoEmEdicao" class="modal" tabindex="-1" role="dialog" style="display: block;">
-    <div class="modal-dialog" role="document">
+  <!-- Modal de Edição -->
+  <div v-if="modalAberto" class="modal d-block" style="background: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Editar Equipamento</h5>
-          <button type="button" class="close" @click="cancelarEdicao">&times;</button>
+          <button class="btn-close" @click="cancelarEdicao"></button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="salvarEdicao">
-            <div class="form-group">
-              <label for="editId">ID</label>
-              <input type="text" id="editId" v-model="equipamentoEmEdicao.id" class="form-control" disabled />
-            </div>
-            <div class="form-group">
-              <label for="editNome">Nome do Equipamento</label>
-              <input type="text" id="editNome" v-model="equipamentoEmEdicao.numero_maquina" class="form-control" required />
-            </div>
-            <div class="form-group">
-              <label for="editLocalizacao">Localização</label>
-              <input type="text" id="editLocalizacao" v-model="equipamentoEmEdicao.numero_sala" class="form-control" required />
-            </div>
-            <div class="form-group">
-              <label for="editTipo">Tipo de Equipamento</label>
-              <input type="text" id="editTipo" v-model="equipamentoEmEdicao.tipo_equipamento" class="form-control" />
-            </div>
-            <div class="form-group">
-              <label for="editDescricao">Descrição</label>
-              <textarea id="editDescricao" v-model="equipamentoEmEdicao.descricao" class="form-control"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="editSalaId">ID da Sala</label>
-              <input type="number" id="editSalaId" v-model="equipamentoEmEdicao.sala_id" class="form-control" />
-            </div>
-            <div class="form-group text-right">
-              <button type="submit" class="btn btn-success">Salvar</button>
-              <button type="button" class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
-            </div>
-          </form>
+          <div class="mb-3">
+            <label for="numeroEquipamento" class="form-label">Número do Equipamento</label>
+            <input 
+              type="text" 
+              id="numeroEquipamento" 
+              v-model="equipamentoEditando.numero_maquina" 
+              class="form-control"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="numeroSala" class="form-label">Número da Sala</label>
+            <input 
+              type="text" 
+              id="numeroSala" 
+              v-model="equipamentoEditando.numero_sala" 
+              class="form-control"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
+          <button class="btn btn-primary" @click="salvarEquipamentoEditado">Salvar</button>
         </div>
       </div>
     </div>
@@ -89,32 +104,27 @@
 </template>
 
 <script>
-import axios from 'axios';
-import jsPDF from 'jspdf';
-import Swal from 'sweetalert2';
+import axios from "axios";
+import jsPDF from "jspdf";
+import Swal from "sweetalert2";
 
 export default {
-  name: 'ComponenteControleEquipamento',
   data() {
     return {
       mostrarTabelaEquipamentos: true,
-      filtroPesquisa: '',
+      filtroPesquisa: "",
       equipamentos: [],
-      equipamentoEmEdicao: {
-        id: null,
-        numero_maquina: '',
-        numero_sala: '',
-        tipo_equipamento: '', // Campo inicializado
-        descricao: '',        // Campo inicializado
-        sala_id: null,        // Campo inicializado
-      },
+      equipamentosSelecionados: [],
+      selecionarTodos: false,
+      equipamentoEditando: null, // Armazena o equipamento que está sendo editado
+      modalAberto: false, // Controla a exibição do modal de edição
     };
   },
   computed: {
     equipamentosFiltrados() {
       return this.equipamentos.filter((equipamento) => {
-        const nome = equipamento.numero_maquina ? String(equipamento.numero_maquina) : '';
-        const id = equipamento.id ? String(equipamento.id) : '';
+        const nome = equipamento.numero_maquina ? String(equipamento.numero_maquina) : "";
+        const id = equipamento.id ? String(equipamento.id) : "";
         return (
           nome.toLowerCase().includes(this.filtroPesquisa.toLowerCase()) ||
           id.toLowerCase().includes(this.filtroPesquisa.toLowerCase())
@@ -134,75 +144,88 @@ export default {
         console.error("Erro ao carregar equipamentos:", error);
       }
     },
-    editarEquipamento(equipamento) {
-      this.equipamentoEmEdicao = { 
-        ...equipamento,
-        tipo_equipamento: equipamento.tipo_equipamento || '', 
-        descricao: equipamento.descricao || '', 
-        sala_id: equipamento.sala_id || null,
-      };
+    toggleSelecionarTodos(event) {
+      this.selecionarTodos = event.target.checked;
+      this.equipamentosSelecionados = this.selecionarTodos
+        ? [...this.equipamentosFiltrados]
+        : [];
     },
-    cancelarEdicao() {
-      this.equipamentoEmEdicao = null;
-    },
-    async salvarEdicao() {
-  const { tipo_equipamento, descricao, sala_id, numero_maquina } = this.equipamentoEmEdicao;
+    gerarPDFSelecionados() {
+      if (this.equipamentosSelecionados.length === 0) return;
 
-  // Verifique se os campos obrigatórios estão preenchidos
-  if (!tipo_equipamento || !descricao || !sala_id || !numero_maquina) {
-    alert("Todos os campos obrigatórios devem ser preenchidos.");
-    return;
-  }
+      const doc = new jsPDF();
+      let y = 10;
 
-  try {
-    const resposta = await axios.put(
-      `http://localhost:3000/maquinas/${this.equipamentoEmEdicao.id}`,
-      { numero_maquina, tipo_equipamento, descricao, sala_id },
-      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-    );
+      this.equipamentosSelecionados.forEach((equipamento, index) => {
+        doc.text(`Equipamento ${index + 1}:`, 10, y);
+        doc.text(`  - Nome: ${equipamento.numero_maquina}`, 20, y + 10);
+        doc.text(`  - ID: ${equipamento.id}`, 20, y + 20);
+        doc.text(`  - Localização: ${equipamento.numero_sala || "Sem localização"}`, 20, y + 30);
+        y += 50;
 
-    console.log("Resposta da API:", resposta.data);
-    this.carregarEquipamentos();
-    this.equipamentoEmEdicao = null;
-  } catch (error) {
-    console.error("Erro ao salvar edição:", error.response?.data || error);
-  }
-},
-
-    async removerEquipamento(id) {
-      const token = localStorage.getItem("token");
-      const result = await Swal.fire({
-        title: 'Tem certeza?',
-        text: "Você não poderá reverter essa ação!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sim, remover!',
-        cancelButtonText: 'Cancelar',
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
       });
-      if (result.isConfirmed) {
+
+      doc.save("equipamentos_selecionados.pdf");
+    },
+    async removerEquipamento(id) {
+      const confirmacao = await Swal.fire({
+        title: "Você tem certeza?",
+        text: "Isso removerá o equipamento permanentemente!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sim, remover!",
+        cancelButtonText: "Cancelar",
+      });
+
+      if (confirmacao.isConfirmed) {
         try {
+          const token = localStorage.getItem("token");
           await axios.delete(`http://localhost:3000/maquinas/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          this.carregarEquipamentos();
-          Swal.fire('Removido!', 'O equipamento foi removido com sucesso.', 'success');
+          this.equipamentos = this.equipamentos.filter((equip) => equip.id !== id);
+          Swal.fire("Removido!", "O equipamento foi removido com sucesso.", "success");
         } catch (error) {
-          console.error("Erro ao remover equipamento:", error);
-          Swal.fire('Erro!', 'Ocorreu um erro ao tentar remover o equipamento.', 'error');
+          Swal.fire("Erro!", "Não foi possível remover o equipamento.", "error");
         }
       }
     },
-    gerarPDF(equipamento) {
-      const width = 200 * 2.83465; // Largura em pontos
-      const height = 155 * 2.83465; // Altura em pontos
-      const doc = new jsPDF({
-        unit: 'pt',
-        format: [width, height],
-      });
-      doc.text(`Equipamento: ${equipamento.numero_maquina}`, 10, 20);
-      doc.text(`ID: ${equipamento.id}`, 10, 40);
-      doc.text(`Localização: ${equipamento.numero_sala}`, 10, 60);
-      doc.save(`equipamento_${equipamento.id}.pdf`);
+    editarEquipamento(equipamento) {
+      this.equipamentoEditando = { ...equipamento }; // Clona o equipamento para evitar mudanças diretas
+      this.modalAberto = true; // Abre o modal
+    },
+    async salvarEquipamentoEditado() {
+      try {
+        const token = localStorage.getItem("token");
+        await axios.put(
+          `http://localhost:3000/maquinas/${this.equipamentoEditando.id}`,
+          this.equipamentoEditando,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const index = this.equipamentos.findIndex(
+          (equip) => equip.id === this.equipamentoEditando.id
+        );
+        if (index !== -1) {
+          this.equipamentos.splice(index, 1, this.equipamentoEditando);
+        }
+
+        Swal.fire("Sucesso!", "O equipamento foi atualizado.", "success");
+        this.modalAberto = false; // Fecha o modal
+        this.equipamentoEditando = null; // Limpa os dados de edição
+      } catch (error) {
+        Swal.fire("Erro!", "Não foi possível atualizar o equipamento.", "error");
+      }
+    },
+    cancelarEdicao() {
+      this.modalAberto = false; // Fecha o modal
+      this.equipamentoEditando = null; // Limpa os dados de edição
     },
   },
   mounted() {
@@ -210,7 +233,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .table-container {
