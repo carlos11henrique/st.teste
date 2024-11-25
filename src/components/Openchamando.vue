@@ -1,250 +1,71 @@
 <template>
-    <div class="problem-report-container">
-      <!-- Lado esquerdo com imagem e gradiente -->
-      <div class="left-side">
-        <div class="bubbles">
-          <div class="bubble"></div>
-          <div class="bubble"></div>
-          <div class="bubble"></div>
-          <div class="bubble"></div>
-          <div class="bubble"></div>
-        </div>
-        <img src="/images/ST.png" alt="Logotipo" />
+  <div class="problem-report-container">
+    <div class="left-side">
+      <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
       </div>
-  
-      <!-- Lado direito com o formulário -->
-      <div class="right-side">
-        <div class="report-box">
-          <h2>Informe seu problema</h2>
-  
-          <!-- Seletor de tipo de problema -->
-          <b-form-group label="Selecione o problema" label-for="problema">
-            <b-form-select v-model="problema" id="problema">
-              <option value="" disabled>Selecione um problema</option>
-              <option v-for="(problema, index) in problemas" :key="index" :value="problema.id">
-                {{ problema.descricao }}
-              </option>
-            </b-form-select>
-          </b-form-group>
-  
-          <!-- Campo para descrição do problema -->
-          <b-form-group
-            v-if="problemas.some(p => (p.descricao === 'outros' || p.descricao === 'Computadores e Periféricos' || p.descricao === 'Softwares e Programas Específicos') && (p.id === problema))"
-            label="Descreva o problema específico"
-            label-for="descricaoProblema"
-          >
-            <b-form-input
-              v-model="descricaoProblema"
-              id="descricaoProblema"
-              placeholder="Digite mais detalhes sobre o problema"
-            ></b-form-input>
-          </b-form-group>
-  
-          <!-- Caixa de pesquisa para código do equipamento -->
-          <b-form-group label="Código do Equipamento" label-for="codigoEquipamento">
-            <b-form-input
-              v-model="codigoEquipamento"
-              id="codigoEquipamento"
-              placeholder="Digite o código ou nome da máquina"
-              @input="filterEquipamentos"
-            ></b-form-input>
-            <b-list-group v-if="filteredEquipamentos.length > 0" class="mt-2">
-              <b-list-group-item
-                v-for="equipamento in filteredEquipamentos"
-                :key="equipamento.numero_maquina"
-                @click="selectEquipamento(equipamento)"
-                class="clickable-item"
-              >
-                {{ equipamento.numero_maquina }} - {{ equipamento.descricao }}
-              </b-list-group-item>
-            </b-list-group>
-          </b-form-group>
-  
-          <!-- Seletor de bloco da sala -->
-          <b-form-group label="Bloco da Sala*" label-for="blocodasala">
-            <b-form-select v-model="blocodaSala" id="blocodasala" @change="updateSalas($event)">
-              <option value="" disabled>Selecione um bloco</option>
-              <option v-for="(bloco, index) in blocos" :key="index" :value="bloco.id">
-                {{ bloco.nome_bloco }}
-              </option>
-            </b-form-select>
-          </b-form-group>
-  
-          <!-- Seletor de número da sala -->
-          <b-form-group v-if="blocodaSala" label="Selecione a Sala*" label-for="numerodaSala">
-            <b-form-select v-model="numerodaSala" id="numerodaSala">
-              <option value="" disabled>Selecione a sala</option>
-              <option v-for="sala in salas" :key="sala.id" :value="sala.id">
-                {{ sala.numero_sala }}
-              </option>
-            </b-form-select>
-          </b-form-group>
-  
-      
-  
-          <!-- Botão de submissão -->
-          <b-button
-            type="submit"
-            variant="primary"
-            class="w-100 my-3"
-            @click="reportProblem"
-          >
-            Relatar Problema
-          </b-button>
-  
-          <!-- Link para voltar -->
-          <div class="text-center mt-3">
-            <router-link to="/login" class="btn btn-link">Voltar à página inicial</router-link>
-          </div>
-        </div>
+      <img src="/images/ST.png" alt="Logotipo" />
+    </div>
+
+    <div class="right-side">
+      <div class="tracking-container">
+        <h2>Rastreamento do Chamado</h2>
+        <ul class="tracking-list">
+          <li :class="['tracking-step', chamadoDetalhes?.status === 'Aberto' ? 'completed' : '']">
+            <div class="step-icon">✔</div>
+            <div class="step-content">
+              <h3>Aberto</h3>
+              <p>O chamado foi registrado com sucesso.</p>
+              <span class="step-time">Hoje, 10:00 AM</span>
+            </div>
+          </li>
+          <li :class="['tracking-step', chamadoDetalhes?.status === 'Em análise' ? 'in-progress' : '']">
+            <div class="step-icon">🔄</div>
+            <div class="step-content">
+              <h3>Em análise</h3>
+              <p>A equipe está verificando o problema.</p>
+              <span class="step-time">Hoje, 11:30 AM</span>
+            </div>
+          </li>
+          <li :class="['tracking-step', chamadoDetalhes?.status === 'Em andamento' ? 'in-progress' : '']">
+            <div class="step-icon">⏳</div>
+            <div class="step-content">
+              <h3>Em andamento</h3>
+              <p>O técnico está trabalhando no problema.</p>
+              <span class="step-time">Previsto para hoje, 3:00 PM</span>
+            </div>
+          </li>
+          <li :class="['tracking-step', chamadoDetalhes?.status === 'Resolvido' ? 'completed' : '']">
+            <div class="step-icon">✔</div>
+            <div class="step-content">
+              <h3>Resolvido</h3>
+              <p>O chamado foi resolvido.</p>
+              <span class="step-time">A definir</span>
+            </div>
+          </li>
+        </ul>
+        
+        <!-- Botão para a página de login -->
+        <router-link to="/login">
+          <button class="btn btn-primary">Voltar para o Login</button>
+        </router-link>
       </div>
     </div>
-  </template>
-  
+  </div>
+</template>
+
+
   
   <script>
-  import Swal from "sweetalert2";
-  import axios from "axios";
+  import axios from 'axios';
+  import Swal from 'sweetalert2';
   
-  export default {
-    data() {
-      return {
-        problema: "",
-        problemas: [],
-        blocodaSala: "",
-        numerodaSala: "",
-        codigoEquipamento: "", // Código da máquina
-        salas: [],
-        blocos: [],
-        descricaoProblema: "",
-        equipamentos: [],
-        filteredEquipamentos: [],
-        setor_id: "1", // Setor fixo como ADMINISTRACAO
-      };
-    },
-    mounted() {
-      this.fetchBlocos();
-      this.exibirProblema();
-      this.carregarEquipamentos();
-    },
-    methods: {
-      async carregarEquipamentos() {
-        const token = localStorage.getItem("token");
-        try {
-          const resposta = await axios.get("http://localhost:3000/maquinas", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          this.equipamentos = resposta.data;
-        } catch (error) {
-          console.error("Erro ao carregar equipamentos:", error);
-          Swal.fire("Erro", "Não foi possível carregar as máquinas.", "error");
-        }
-      },
-      fetchBlocos(event) {
-        const token = localStorage.getItem("token");
-        axios
-          .get("http://localhost:3000/blocos/com/salas", {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((response) => {
-            this.blocos = response.data;
-          })
-          .catch((error) => {
-            console.error("Erro ao carregar blocos:", error);
-            Swal.fire("Erro", "Não foi possível carregar os blocos.", "error");
-          });
-      },
-      updateSalas(value) {
-        const bloco = this.blocos.find((bloco) => bloco.id === value);
-        this.salas = bloco ? bloco.salas : [];
-        this.numerodaSala = "";
-      },
-      async exibirProblema() {
-        const token = localStorage.getItem("token");
-        try {
-          const response = await axios.get("http://localhost:3000/problemas", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          this.problemas = response.data;
-        } catch (error) {
-          console.error("Erro ao exibir problema:", error);
-          Swal.fire("Erro", "Não foi possível exibir o problema.", "error");
-        }
-      },
-      filterEquipamentos() {
-        const searchTerm = this.codigoEquipamento.toLowerCase();
-        this.filteredEquipamentos = searchTerm
-          ? this.equipamentos.filter(
-              (equipamento) =>
-                equipamento.numero_maquina.toLowerCase().includes(searchTerm) ||
-                equipamento.descricao.toLowerCase().includes(searchTerm)
-            )
-          : [];
-      },
-      selectEquipamento(equipamento) {
-        this.codigoEquipamento = equipamento.numero_maquina;
-        this.filteredEquipamentos = [];
-      },
-      limparFormulario() {
-        this.problema = "";
-        this.blocodaSala = "";
-        this.numerodaSala = "";
-        this.codigoEquipamento = "";
-        this.descricaoProblema = "";
-        this.filteredEquipamentos = [];
-      },
-      async cadastrarChamado() {
-        const token = localStorage.getItem("token");
-        const chamado = {
-          problema_id: this.problema,
-          bloco_id: this.blocodaSala,
-          sala_id: this.numerodaSala,
-          descricao: this.descricaoProblema || "",
-          maquina_id: this.codigoEquipamento,
-          setor_id: this.setor_id,
-        };
-  
-        try {
-          await axios.post("http://localhost:3000/chamados", chamado, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          Swal.fire("Sucesso", "Chamado cadastrado com sucesso!", "success");
-          this.limparFormulario();
-        } catch (error) {
-          console.error("Erro ao cadastrar chamado:", error);
-          Swal.fire("Erro", "Não foi possível cadastrar o chamado.", "error");
-        }
-      },
-      reportProblem() {
-    // Verificação dos campos obrigatórios
-    if (this.blocodaSala && this.numerodaSala && this.problema && this.codigoEquipamento) {
-      // Exibe o resumo do chamado antes da confirmação
-      Swal.fire({
-        title: 'Revise seu Chamado',
-        html: `
-          <p><strong>Problema:</strong> ${this.problema}</p>
-          <p><strong>Bloco da Sala:</strong> ${this.blocodaSala}</p>
-          <p><strong>Sala:</strong> ${this.numerodaSala}</p>
-          <p><strong>Código do Equipamento:</strong> ${this.codigoEquipamento}</p>
-          <p><strong>Descrição do Problema:</strong> ${this.descricaoProblema || 'Nenhuma descrição fornecida'}</p>
-        `,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar Chamado',
-        cancelButtonText: 'Editar',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Se o usuário confirmar, chama o método para cadastrar o chamado
-          this.cadastrarChamado();
-        }
-      });
-    } else {
-      Swal.fire("Erro", "Preencha todos os campos obrigatórios.", "error");
-    }
-  },
-    },
-  };
   </script>
+  
   
   <style scoped>
   /* Reset básico */
@@ -460,5 +281,116 @@
       max-width: 70%;
     }
   }
+  .tracking-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tracking-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #0738b3;
+}
+
+.tracking-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tracking-step {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.tracking-step:last-child {
+  margin-bottom: 0;
+}
+
+.step-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  color: #fff;
+  margin-right: 15px;
+}
+
+.completed .step-icon {
+  background-color: #28a745; /* Verde */
+}
+
+.in-progress .step-icon {
+  background-color: #007bff; /* Azul */
+}
+
+.pending .step-icon {
+  background-color: #ffc107; /* Amarelo */
+}
+
+.step-content {
+  flex-grow: 1;
+}
+
+.step-content h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.step-content p {
+  margin: 5px 0 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.step-time {
+  font-size: 12px;
+  color: #999;
+}
+.pending .step-icon {
+  background-color: #ffc107; /* Amarelo */
+}
+
+/* Estilos para o botão de Login */
+button.btn-primary {
+  background-color: #007bff; /* Cor de fundo azul */
+  color: white; /* Cor do texto */
+  border: 1px solid #007bff; /* Borda azul */
+  padding: 10px 20px; /* Espaçamento interno */
+  font-size: 16px; /* Tamanho da fonte */
+  border-radius: 5px; /* Bordas arredondadas */
+  cursor: pointer; /* Muda o cursor para indicar que é clicável */
+  transition: all 0.3s ease; /* Animação suave para os efeitos */
+  margin-top: 30px;
+}
+
+button.btn-primary:hover {
+  background-color: #0056b3; /* Cor de fundo azul mais escuro quando o botão é hover */
+  border-color: #0056b3; /* Borda mais escura */
+}
+
+button.btn-primary:focus {
+  outline: none; /* Remove o contorno padrão do navegador */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Efeito de sombra ao focar */
+}
+
+button.btn-primary:active {
+  background-color: #004085; /* Cor de fundo ainda mais escura quando o botão é pressionado */
+  border-color: #004085; /* Borda mais escura */
+}
+
+
   </style>
   
