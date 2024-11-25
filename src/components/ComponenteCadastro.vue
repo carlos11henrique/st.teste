@@ -63,18 +63,7 @@
         </small>
       </div>
 
-      <div class="form-group">
-        <label for="tipoUsuario">Tipo de Usuário:</label>
-        <select id="tipoUsuario" v-model="novoAluno.tipoUsuario" class="form-control">
-          <option value="" disabled>Selecione um tipo</option>
-          <option value="ESTUDANTE">Estudante</option>
-          <option value="TI">Técnico de TI</option>
-          <option value="DOCENTE">Docente</option>
-          <option value="MANUTENCAO">Técnico de Manutenção</option>
-          <option value="NOA">NOA</option>
-        </select>
-      </div>
-
+      
       <button type="submit" class="btn btn-primary"><strong>Cadastrar</strong></button>
     </form>
   </div>
@@ -111,22 +100,39 @@ export default {
       );
     },
   },
-
+  watch: {
+    // Monitorar alterações no campo de e-mail
+    "novoAluno.gmail"(novoValor) {
+      this.novoAluno.tipoUsuario = this.obterOcupacaoPorEmail(novoValor);
+    },
+  },
   methods: {
-    formatarTelefone(event) {
-      let telefone = this.novoAluno.telefone.replace(/\D/g, "");
+    obterOcupacaoPorEmail(email) {
+      if (!email) return "FUNCIONARIOS"; // Valor padrão caso o e-mail não seja fornecido
 
-      if (telefone.length <= 10) {
-        this.novoAluno.telefone = `(${telefone.slice(0, 2)}) ${telefone.slice(2, 6)}-${telefone.slice(6, 10)}`;
-      } else if (telefone.length <= 15) {
-        this.novoAluno.telefone = `(${telefone.slice(0, 2)}) ${telefone.slice(2, 7)}-${telefone.slice(7, 11)} ${telefone.slice(11, 15)}`;
-      } else if (telefone.length <= 20) {
-        this.novoAluno.telefone = `(${telefone.slice(0, 2)}) ${telefone.slice(2, 7)}-${telefone.slice(7, 11)} ${telefone.slice(11, 15)} ${telefone.slice(15, 20)}`;
+      const dominio = email.split("@")[1]?.toLowerCase(); // Extrai o domínio do e-mail
+
+      if (/\.fieb\./.test(dominio)) {
+        return "NOA"; // Para domínios relacionados ao Fieb
+      } else if (/\.fbest\./.test(dominio)) {
+        return "ESTAGIARIO"; // Para domínios relacionados ao Fbest
+      } else if (/\.ti\./.test(dominio)) {
+        return "TI"; // Para domínios relacionados ao TI
+      } else if (/\.manutencao\./.test(dominio)) {
+        return "MANUTENCAO"; // Para domínios relacionados ao MANUTENCAO
+      } else if (/\.manutencão\./.test(dominio)) {
+        return "MANUTENCAO"; // Para domínios relacionados ao MANUTENCAO
+      } else if (/\.fbt\./.test(dominio)) {
+        return "TERCEIRO"; // Para domínios relacionados ao Fbt
+      } else if (/\.estudante\./.test(dominio)) {
+        return "ESTUDANTE"; // Para domínios relacionados ao estudante
+      } else if (/\.docente\./.test(dominio)) {
+        return "DOCENTE"; // Para domínios relacionados ao docente
+      } else {
+        return "FUNCIONARIOS"; // Valor padrão se o domínio não corresponder
       }
     },
-
     async cadastrarAluno() {
-      // Verificar se as senhas e emails são iguais
       if (this.novoAluno.senha !== this.novoAluno.confirmarSenha) {
         alert("As senhas não coincidem. Por favor, verifique.");
         return;
@@ -137,7 +143,6 @@ export default {
         return;
       }
 
-      // Verificar se a senha tem pelo menos 8 caracteres
       if (this.novoAluno.senha.length < 8) {
         alert("A senha deve ter pelo menos 8 caracteres.");
         return;
@@ -187,6 +192,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 button {

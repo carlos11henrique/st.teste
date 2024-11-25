@@ -46,6 +46,8 @@
         <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
         <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
+        <p><strong>Máquinas:</strong> {{ chamado.maquina }}</p>
+
       </div>
     </div>
 
@@ -59,6 +61,8 @@
         <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
         <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
+        <p><strong>Máquinas:</strong> {{ chamado.maquina }}</p>
+
       </div>
     </div>
 
@@ -72,6 +76,8 @@
         <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
         <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
+        <p><strong>Máquinas:</strong> {{ chamado.maquina }}</p>
+
         <div>
           <div>
       <label for="feedback-{{ chamado.id }}"><strong>Feedback:</strong></label>

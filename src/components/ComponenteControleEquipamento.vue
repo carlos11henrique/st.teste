@@ -199,30 +199,46 @@ export default {
       this.modalAberto = true; // Abre o modal
     },
     async salvarEquipamentoEditado() {
-      try {
-        const token = localStorage.getItem("token");
-        await axios.put(
-          `http://localhost:3000/maquinas/${this.equipamentoEditando.id}`,
-          this.equipamentoEditando,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
 
-        const index = this.equipamentos.findIndex(
-          (equip) => equip.id === this.equipamentoEditando.id
-        );
-        if (index !== -1) {
-          this.equipamentos.splice(index, 1, this.equipamentoEditando);
-        }
 
-        Swal.fire("Sucesso!", "O equipamento foi atualizado.", "success");
-        this.modalAberto = false; // Fecha o modal
-        this.equipamentoEditando = null; // Limpa os dados de edição
-      } catch (error) {
-        Swal.fire("Erro!", "Não foi possível atualizar o equipamento.", "error");
-      }
-    },
+  try {
+    const token = localStorage.getItem("token");
+
+    await axios.put(
+  `http://localhost:3000/maquinas/${this.equipamentoEditando.id}`,
+  {
+    numero_maquina: this.equipamentoEditando.numero_maquina,
+    tipo_equipamento: this.equipamentoEditando.tipo_equipamento,
+    descricao: this.equipamentoEditando.descricao,
+    sala_id: this.equipamentoEditando.sala_id, // Altere de numero_sala para sala_id
+  },
+  {
+    headers: { Authorization: `Bearer ${token}` },
+  }
+);
+
+    if (index !== -1) {
+      this.equipamentos.splice(index, 1, { ...this.equipamentoEditando });
+    }
+
+    Swal.fire("Sucesso!", "O equipamento foi atualizado.", "success");
+    this.modalAberto = false;
+    this.equipamentoEditando = null;
+  } catch (error) {
+    console.error("Erro ao salvar equipamento:", error.response || error);
+
+    if (error.response && error.response.data) {
+      Swal.fire(
+        "Erro!",
+        `Não foi possível atualizar o equipamento: ${error.response.data.message || "Erro desconhecido"}`,
+        "error"
+      );
+    } else {
+      Swal.fire("Erro!", "Não foi possível atualizar o equipamento.", "error");
+    }
+  }
+},
+
     cancelarEdicao() {
       this.modalAberto = false; // Fecha o modal
       this.equipamentoEditando = null; // Limpa os dados de edição
