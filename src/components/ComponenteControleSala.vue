@@ -1,6 +1,5 @@
 <template>
-  <!-- Tabela de Salas -->
-  <div v-if="mostrarTabelaSalas" class="table-container p-3">
+  <div class="table-container p-3">
     <h2>Tabela de salas cadastradas</h2>
     <input
       type="text"
@@ -8,6 +7,7 @@
       placeholder="Buscar por bloco ou número da sala..."
       class="form-control mb-3"
     />
+    <button class="btn btn-success mb-3" @click="exportarParaExcel">Exportar para Excel</button>
 
     <table class="table table-striped">
       <thead>
@@ -17,58 +17,62 @@
           <th>Ações</th>
         </tr>
       </thead>
-      <tbody v-if="salasFiltradas.length > 0">
+      <tbody>
         <tr v-for="sala in salasFiltradas" :key="sala.id">
           <td>{{ sala.nome_bloco }}</td>
           <td>{{ sala.numero_sala }}</td>
           <td>
-            <button class="btn btn-warning btn-sm" @click="editarSala(sala)">Editar</button>
-            <button class="btn btn-danger btn-sm" @click="confirmarRemoverSala(sala.id)">Remover</button>
+            <button class="btn btn-warning btn-sm" @click="editarSala(sala)">
+              Editar
+            </button>
+            <button
+              class="btn btn-danger btn-sm"
+              @click="confirmarRemoverSala(sala.id)"
+            >
+              Remover
+            </button>
           </td>
         </tr>
-      </tbody>
-      <tbody v-else>
-        <tr>
+        <tr v-if="salasFiltradas.length === 0">
           <td colspan="3">Nenhuma sala encontrada</td>
         </tr>
       </tbody>
     </table>
-  </div>
 
-  <!-- Modal de Edição -->
-  <div v-if="salaEmEdicao" class="modal" tabindex="-1" role="dialog" style="display: block;">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Editar Sala</h5>
-          <button type="button" class="close" @click="cancelarEdicao">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form @submit.prevent="salvarEdicao">
-            <div class="form-group">
-              <label for="editBloco">Bloco</label>
-              <input
-                type="text"
-                id="editBloco"
-                v-model="salaEmEdicao.nome_bloco"
-                class="form-control"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="editNumero">Nome / Número da Sala</label>
-              <input
-                type="text"
-                id="editNumero"
-                v-model="salaEmEdicao.numero_sala"
-                class="form-control"
-                required
-                maxlength="50"
-              />
-            </div>
-            <button type="submit" class="btn btn-success">Salvar</button>
-            <button type="button" class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
-          </form>
+    <!-- Modal de Edição -->
+    <div v-if="salaEmEdicao" class="modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Editar Sala</h5>
+            <button type="button" class="close" @click="cancelarEdicao">
+              &times;
+            </button>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="salvarEdicao">
+              <div class="form-group">
+                <label>Bloco</label>
+                <input v-model="salaEmEdicao.nome_bloco" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label>Nome/Número da Sala</label>
+                <input
+                  v-model="salaEmEdicao.numero_sala"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn btn-success">Salvar</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                @click="cancelarEdicao"
+              >
+                Cancelar
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -78,12 +82,13 @@
 <script>
 import axios from "axios";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 
 export default {
   name: "ComponenteControleSala",
   data() {
     return {
-      mostrarCadastroSala: true,
+      mostrarCadastroSala: false,
       mostrarTabelaSalas: true,
       filtroPesquisa: "",
       salas: [],
@@ -92,15 +97,12 @@ export default {
   },
   computed: {
     salasFiltradas() {
-      if (!Array.isArray(this.salas)) return []; // Verifica se 'salas' é um array
+      if (!Array.isArray(this.salas)) return [];
+      const filtro = this.filtroPesquisa.toLowerCase();
       return this.salas.filter((sala) => {
-        const bloco = sala.nome_bloco ? String(sala.nome_bloco).toLowerCase() : "";
-        const numero = sala.numero_sala ? String(sala.numero_sala).toLowerCase() : "";
-
-        return (
-          bloco.includes(this.filtroPesquisa.toLowerCase()) ||
-          numero.includes(this.filtroPesquisa.toLowerCase())
-        );
+        const bloco = sala.nome_bloco ? sala.nome_bloco.toLowerCase() : "";
+        const numero = sala.numero_sala ? sala.numero_sala.toLowerCase() : "";
+        return bloco.includes(filtro) || numero.includes(filtro);
       });
     },
   },
@@ -111,65 +113,55 @@ export default {
         const resposta = await axios.get("http://localhost:3000/salas", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Verifica se a resposta é um array e o define corretamente
-        if (Array.isArray(resposta.data)) {
-          this.salas = resposta.data;
-        } else {
-          console.error("Dados de salas não estão no formato esperado");
-        }
+        this.salas = Array.isArray(resposta.data) ? resposta.data : [];
       } catch (error) {
         console.error("Erro ao carregar salas:", error);
+        Swal.fire("Erro", "Não foi possível carregar as salas.", "error");
       }
     },
 
     editarSala(sala) {
-      this.salaEmEdicao = { ...sala }; // Cria uma cópia da sala para edição
+      this.salaEmEdicao = { ...sala };
     },
 
     async salvarEdicao() {
       const token = localStorage.getItem("token");
       try {
-        // Requisição PUT para atualizar a sala
-        const resposta = await axios.put(
+        await axios.put(
           `http://localhost:3000/salas/${this.salaEmEdicao.id}`,
           this.salaEmEdicao,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        console.log("Sala editada com sucesso:", resposta.data); 
-        // Atualiza a lista de salas
         const index = this.salas.findIndex(
           (sala) => sala.id === this.salaEmEdicao.id
         );
         if (index !== -1) {
-          this.salas[index] = { ...this.salaEmEdicao }; // Atualiza a sala editada
+          this.salas.splice(index, 1, { ...this.salaEmEdicao });
         }
-        this.salaEmEdicao = null; // Limpa a sala em edição
+        this.salaEmEdicao = null;
+        Swal.fire("Sucesso", "Sala editada com sucesso.", "success");
       } catch (error) {
         console.error("Erro ao salvar a edição da sala:", error);
+        Swal.fire("Erro", "Não foi possível salvar a edição.", "error");
       }
     },
 
     cancelarEdicao() {
-      this.salaEmEdicao = null; // Cancela a edição
+      this.salaEmEdicao = null;
     },
 
     async confirmarRemoverSala(id) {
       const result = await Swal.fire({
-        title: 'Tem certeza?',
+        title: "Tem certeza?",
         text: "Você não poderá reverter essa ação!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonText: 'Sim, remover!',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        background: '#f4f4f9',
-        customClass: {
-          title: 'swal-title-custom',
-          content: 'swal-content-custom',
-        },
+        confirmButtonText: "Sim, remover!",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
       });
 
       if (result.isConfirmed) {
@@ -183,19 +175,39 @@ export default {
         await axios.delete(`http://localhost:3000/salas/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(`Sala com ID ${id} removida com sucesso`);
         this.salas = this.salas.filter((sala) => sala.id !== id);
+        Swal.fire("Sucesso", "Sala removida com sucesso.", "success");
       } catch (error) {
         console.error("Erro ao remover sala:", error);
+        Swal.fire("Erro", "Não foi possível remover a sala.", "error");
       }
     },
-    
+
+    exportarParaExcel() {
+      try {
+        const dados = this.salasFiltradas.map((sala) => ({
+          Bloco: sala.nome_bloco,
+          "Nome/Número da Sala": sala.numero_sala,
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dados);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Salas");
+
+        XLSX.writeFile(workbook, "SalasCadastradas.xlsx");
+        Swal.fire("Sucesso", "Arquivo Excel exportado com sucesso.", "success");
+      } catch (error) {
+        console.error("Erro ao exportar para Excel:", error);
+        Swal.fire("Erro", "Não foi possível exportar os dados.", "error");
+      }
+    },
   },
   mounted() {
     this.carregarSalas();
   },
 };
 </script>
+
 
 <style scoped>
 .table-container {

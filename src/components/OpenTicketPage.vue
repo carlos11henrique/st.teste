@@ -80,8 +80,6 @@
           </b-form-select>
         </b-form-group>
 
-    
-
         <!-- Botão de submissão -->
         <b-button
           type="submit"
@@ -100,7 +98,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import Swal from "sweetalert2";
@@ -216,32 +213,35 @@ export default {
       }
     },
     reportProblem() {
-  // Verificação dos campos obrigatórios
-  if (this.blocodaSala && this.numerodaSala && this.problema && this.codigoEquipamento) {
-    // Exibe o resumo do chamado antes da confirmação
-    Swal.fire({
-      title: 'Revise seu Chamado',
-      html: `
-        <p><strong>Problema:</strong> ${this.problema}</p>
-        <p><strong>Bloco da Sala:</strong> ${this.blocodaSala}</p>
-        <p><strong>Sala:</strong> ${this.numerodaSala}</p>
-        <p><strong>Código do Equipamento:</strong> ${this.codigoEquipamento}</p>
-        <p><strong>Descrição do Problema:</strong> ${this.descricaoProblema || 'Nenhuma descrição fornecida'}</p>
-      `,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Confirmar Chamado',
-      cancelButtonText: 'Editar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Se o usuário confirmar, chama o método para cadastrar o chamado
-        this.cadastrarChamado();
+      // Verificação dos campos obrigatórios
+      if (this.blocodaSala && this.numerodaSala && this.problema && this.codigoEquipamento) {
+        // Exibe o resumo do chamado antes da confirmação
+        Swal.fire({
+          title: 'Revise seu Chamado',
+          html: `
+            <p><strong>Problema:</strong> ${this.problema}</p>
+            <p><strong>Bloco da Sala:</strong> ${this.blocodaSala}</p>
+            <p><strong>Sala:</strong> ${this.numerodaSala}</p>
+            <p><strong>Código do Equipamento:</strong> ${this.codigoEquipamento}</p>
+            <p><strong>Descrição do Problema:</strong> ${this.descricaoProblema || 'Nenhuma descrição fornecida'}</p>
+          `,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Confirmar Chamado',
+          cancelButtonText: 'Editar',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Se o usuário confirmar, chama o método para cadastrar o chamado
+            this.cadastrarChamado().then(() => {
+              // Redireciona para a página '/openchamando' após o sucesso
+              this.$router.push('/openchamando');
+            });
+          }
+        });
+      } else {
+        Swal.fire("Erro", "Preencha todos os campos obrigatórios.", "error");
       }
-    });
-  } else {
-    Swal.fire("Erro", "Preencha todos os campos obrigatórios.", "error");
-  }
-},
+    },
   },
 };
 </script>

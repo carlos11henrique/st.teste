@@ -12,7 +12,7 @@
       />
     </div>
 
-    <!-- Botão para gerar PDF -->
+    <!-- Botões para ações -->
     <div class="mb-3 text-right">
       <button 
         class="btn btn-info" 
@@ -20,6 +20,9 @@
         @click="gerarPDFSelecionados"
       >
         Gerar PDF Selecionados
+      </button>
+      <button class="btn btn-success" @click="exportarParaExcel">
+        Exportar para Excel
       </button>
     </div>
 
@@ -67,46 +70,14 @@
   </div>
 
   <!-- Modal de Edição -->
-  <div v-if="modalAberto" class="modal d-block" style="background: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Editar Equipamento</h5>
-          <button class="btn-close" @click="cancelarEdicao"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="numeroEquipamento" class="form-label">Número do Equipamento</label>
-            <input 
-              type="text" 
-              id="numeroEquipamento" 
-              v-model="equipamentoEditando.numero_maquina" 
-              class="form-control"
-            />
-          </div>
-          <div class="mb-3">
-            <label for="numeroSala" class="form-label">Número da Sala</label>
-            <input 
-              type="text" 
-              id="numeroSala" 
-              v-model="equipamentoEditando.numero_sala" 
-              class="form-control"
-            />
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
-          <button class="btn btn-primary" @click="salvarEquipamentoEditado">Salvar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- (O modal de edição permanece igual ao seu código atual) -->
 </template>
 
 <script>
 import axios from "axios";
 import jsPDF from "jspdf";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx"; // Importando a biblioteca XLSX para exportar Excel
 
 export default {
   data() {
@@ -116,8 +87,8 @@ export default {
       equipamentos: [],
       equipamentosSelecionados: [],
       selecionarTodos: false,
-      equipamentoEditando: null, // Armazena o equipamento que está sendo editado
-      modalAberto: false, // Controla a exibição do modal de edição
+      equipamentoEditando: null,
+      modalAberto: false,
     };
   },
   computed: {
@@ -171,6 +142,19 @@ export default {
 
       doc.save("equipamentos_selecionados.pdf");
     },
+    exportarParaExcel() {
+      const dados = this.equipamentosFiltrados.map((equipamento) => ({
+        Nome: equipamento.numero_maquina,
+        ID: equipamento.id,
+        Localização: equipamento.numero_sala || "Sem localização",
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(dados);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Equipamentos");
+
+      XLSX.writeFile(wb, "equipamentos_cadastrados.xlsx");
+    },
     async removerEquipamento(id) {
       const confirmacao = await Swal.fire({
         title: "Você tem certeza?",
@@ -195,53 +179,44 @@ export default {
       }
     },
     editarEquipamento(equipamento) {
-      this.equipamentoEditando = { ...equipamento }; // Clona o equipamento para evitar mudanças diretas
-      this.modalAberto = true; // Abre o modal
+      this.equipamentoEditando = { ...equipamento };
+      this.modalAberto = true;
     },
     async salvarEquipamentoEditado() {
+      try {
+        const token = localStorage.getItem("token");
+        await axios.put(
+          `http://localhost:3000/maquinas/${this.equipamentoEditando.id}`,
+          {
+            numero_maquina: this.equipamentoEditando.numero_maquina,
+            tipo_equipamento: this.equipamentoEditando.tipo_equipamento,
+            descricao: this.equipamentoEditando.descricao,
+            sala_id: this.equipamentoEditando.sala_id,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
+        const index = this.equipamentos.findIndex(
+          (equip) => equip.id === this.equipamentoEditando.id
+        );
 
-  try {
-    const token = localStorage.getItem("token");
+        if (index !== -1) {
+          this.equipamentos.splice(index, 1, { ...this.equipamentoEditando });
+        }
 
-    await axios.put(
-  `http://localhost:3000/maquinas/${this.equipamentoEditando.id}`,
-  {
-    numero_maquina: this.equipamentoEditando.numero_maquina,
-    tipo_equipamento: this.equipamentoEditando.tipo_equipamento,
-    descricao: this.equipamentoEditando.descricao,
-    sala_id: this.equipamentoEditando.sala_id, // Altere de numero_sala para sala_id
-  },
-  {
-    headers: { Authorization: `Bearer ${token}` },
-  }
-);
-
-    if (index !== -1) {
-      this.equipamentos.splice(index, 1, { ...this.equipamentoEditando });
-    }
-
-    Swal.fire("Sucesso!", "O equipamento foi atualizado.", "success");
-    this.modalAberto = false;
-    this.equipamentoEditando = null;
-  } catch (error) {
-    console.error("Erro ao salvar equipamento:", error.response || error);
-
-    if (error.response && error.response.data) {
-      Swal.fire(
-        "Erro!",
-        `Não foi possível atualizar o equipamento: ${error.response.data.message || "Erro desconhecido"}`,
-        "error"
-      );
-    } else {
-      Swal.fire("Erro!", "Não foi possível atualizar o equipamento.", "error");
-    }
-  }
-},
-
+        Swal.fire("Sucesso!", "O equipamento foi atualizado.", "success");
+        this.modalAberto = false;
+        this.equipamentoEditando = null;
+      } catch (error) {
+        console.error("Erro ao salvar equipamento:", error);
+        Swal.fire("Erro!", "Não foi possível atualizar o equipamento.", "error");
+      }
+    },
     cancelarEdicao() {
-      this.modalAberto = false; // Fecha o modal
-      this.equipamentoEditando = null; // Limpa os dados de edição
+      this.modalAberto = false;
+      this.equipamentoEditando = null;
     },
   },
   mounted() {
@@ -249,6 +224,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .table-container {

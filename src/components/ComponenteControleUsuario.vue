@@ -7,14 +7,14 @@
       placeholder="Pesquisa por nome ou email"
       class="form-control mb-3"
     />
+    <button class="btn btn-success mb-3" @click="exportarParaExcel">Exportar para Excel</button>
     <div class="table-responsive">
       <table class="table table-striped">
         <thead>
           <tr>
             <th>Nome</th>
             <th>Email</th>
-            <th>Ocupacão</th>
-
+            <th>Ocupação</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -22,8 +22,7 @@
           <tr v-for="usuario in usuariosFiltrados" :key="usuario.id">
             <td data-label="Nome">{{ usuario.nome_completo }}</td>
             <td data-label="Email">{{ usuario.email }}</td>
-            <td data-label="Email">{{ usuario.ocupacao }}</td>
-
+            <td data-label="Ocupação">{{ usuario.ocupacao }}</td>
             <td data-label="Ações">
               <button class="btn btn-warning btn-sm" @click="buscarUsuario(usuario.id)">Editar</button>
               <button class="btn btn-danger btn-sm" @click="removerUsuario(usuario.id)">Remover</button>
@@ -32,7 +31,7 @@
         </tbody>
       </table>
     </div>
-    
+
     <!-- Formulário de Edição -->
     <div v-if="usuarioParaEditar" class="edit-form mt-4">
       <h3>Editar Usuário</h3>
@@ -57,19 +56,19 @@
 </template>
 
 <script>
-import axios from 'axios';
-import Swal from 'sweetalert2';
+import axios from "axios";
+import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 
 export default {
   name: "ComponenteControleUsuario",
-  
   data() {
     return {
       mostrarTabelaExibida: true,
       filtro: "",
       usuarios: [],
-      usuarioParaEditar: null, // Armazena o usuário selecionado para edição
-      mensagem: null, // Mensagem de sucesso ou erro
+      usuarioParaEditar: null,
+      mensagem: null,
     };
   },
   computed: {
@@ -108,15 +107,19 @@ export default {
     async atualizarUsuario() {
       const token = localStorage.getItem("token");
       try {
-        const resposta = await axios.put(`http://localhost:3000/usuarios/${this.usuarioParaEditar.id}`, this.usuarioParaEditar, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const resposta = await axios.put(
+          `http://localhost:3000/usuarios/${this.usuarioParaEditar.id}`,
+          this.usuarioParaEditar,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         console.log("Usuário atualizado:", resposta.data);
-        this.usuarioParaEditar = null; // Fecha o formulário de edição
-        await this.carregarUsuarios(); // Recarrega a lista de usuários
+        this.usuarioParaEditar = null;
+        await this.carregarUsuarios();
         this.mostrarMensagem("success", "Usuário atualizado com sucesso!");
       } catch (error) {
         console.error("Erro ao atualizar usuário:", error);
@@ -125,28 +128,25 @@ export default {
     },
     async removerUsuario(id) {
       const token = localStorage.getItem("token");
-      
-      // Usando SweetAlert2 para exibir o alerta de confirmação
       const { isConfirmed } = await Swal.fire({
-        title: 'Tem certeza?',
+        title: "Tem certeza?",
         text: "Você não poderá reverter esta ação!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sim, remover!',
-        cancelButtonText: 'Cancelar'
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Sim, remover!",
+        cancelButtonText: "Cancelar",
       });
 
-      if (!isConfirmed) return; // Se o usuário cancelar, a remoção não ocorre
+      if (!isConfirmed) return;
 
       try {
-        // Corrigindo a URL para refletir o endpoint correto
         await axios.delete(`http://localhost:3000/usuarios/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log(`Usuário com ID ${id} removido`);
-        await this.carregarUsuarios(); // Recarrega a lista de usuários após remoção
+        await this.carregarUsuarios();
         this.mostrarMensagem("success", "Usuário removido com sucesso!");
       } catch (error) {
         console.error("Erro ao remover usuário:", error);
@@ -156,20 +156,27 @@ export default {
     mostrarMensagem(tipo, texto) {
       this.mensagem = { tipo, texto };
       setTimeout(() => {
-        this.mensagem = null; // Remove a mensagem após 5 segundos
+        this.mensagem = null;
       }, 5000);
-    }
+    },
+    exportarParaExcel() {
+      const dados = this.usuariosFiltrados.map((usuario) => ({
+        Nome: usuario.nome_completo,
+        Email: usuario.email,
+        Ocupação: usuario.ocupacao,
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(dados);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Usuários");
+
+      XLSX.writeFile(workbook, "Usuarios.xlsx");
+    },
   },
   mounted() {
-    this.carregarUsuarios(); // Carrega todos os usuários ao montar o componente
+    this.carregarUsuarios();
   },
-  props: {
-    filterOcupacao: {
-      type: String,
-      required: false
-    }
-  }
-}
+};
 </script>
 
 <style scoped>
@@ -177,7 +184,6 @@ export default {
   margin: 20px;
 }
 
-/* Estilos para o formulário de edição */
 .edit-form {
   background-color: #f9f9f9;
   padding: 20px;

@@ -12,385 +12,355 @@
     </div>
 
     <div class="right-side">
-      <div class="tracking-container">
-        <h2>Rastreamento do Chamado</h2>
-        <ul class="tracking-list">
-          <li :class="['tracking-step', chamadoDetalhes?.status === 'Aberto' ? 'completed' : '']">
-            <div class="step-icon">✔</div>
-            <div class="step-content">
-              <h3>Aberto</h3>
-              <p>O chamado foi registrado com sucesso.</p>
-              <span class="step-time">Hoje, 10:00 AM</span>
-            </div>
-          </li>
-          <li :class="['tracking-step', chamadoDetalhes?.status === 'Em análise' ? 'in-progress' : '']">
-            <div class="step-icon">🔄</div>
-            <div class="step-content">
-              <h3>Em análise</h3>
-              <p>A equipe está verificando o problema.</p>
-              <span class="step-time">Hoje, 11:30 AM</span>
-            </div>
-          </li>
-          <li :class="['tracking-step', chamadoDetalhes?.status === 'Em andamento' ? 'in-progress' : '']">
-            <div class="step-icon">⏳</div>
-            <div class="step-content">
-              <h3>Em andamento</h3>
-              <p>O técnico está trabalhando no problema.</p>
-              <span class="step-time">Previsto para hoje, 3:00 PM</span>
-            </div>
-          </li>
-          <li :class="['tracking-step', chamadoDetalhes?.status === 'Resolvido' ? 'completed' : '']">
-            <div class="step-icon">✔</div>
-            <div class="step-content">
-              <h3>Resolvido</h3>
-              <p>O chamado foi resolvido.</p>
-              <span class="step-time">A definir</span>
-            </div>
-          </li>
-        </ul>
-        
-        <!-- Botão para a página de login -->
-        <router-link to="/login">
-          <button class="btn btn-primary">Voltar para o Login</button>
-        </router-link>
+      <h2>Rastreamento do Chamado</h2>
+      
+      <!-- Linha de progresso -->
+      <div class="progress-tracking">
+        <div 
+          class="progress-step" 
+          :class="{ completed: currentStep >= 1 }">
+          <div class="circle">1</div>
+          <span>Chamado Aberto</span>
+        </div>
+        <div 
+          class="progress-step" 
+          :class="{ completed: currentStep >= 2 }">
+          <div class="circle">2</div>
+          <span>Em Análise</span>
+        </div>
+        <div 
+          class="progress-step" 
+          :class="{ completed: currentStep >= 3 }">
+          <div class="circle">3</div>
+          <span>Em Andamento</span>
+        </div>
+        <div 
+          class="progress-step" 
+          :class="{ completed: currentStep >= 4 }">
+          <div class="circle">4</div>
+          <span>Concluído</span>
+        </div>
+      </div>
+
+      <!-- Botão para a página de login -->
+      <router-link to="/login">
+        <button class="btn btn-primary">Voltar para o Login</button>
+      </router-link>
+      <router-link to="/openticketpage">
+        <button class="btn btn-primary">Voltar para o Abrir Chamado</button>
+      </router-link>
+
+      <!-- Exibir informações do chamado -->
+      <div v-if="chamado" class="call-details mt-4">
+        <h3>Detalhes do Chamado</h3>
+        <p><strong>Problema:</strong> {{ chamado.problema }}</p>
+        <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
+        <p><strong>Sala:</strong> {{ chamado.sala }}</p>
+        <p><strong>Código do Equipamento:</strong> {{ chamado.codigoEquipamento }}</p>
+        <p><strong>Descrição do Problema:</strong> {{ chamado.descricaoProblema || 'Nenhuma descrição fornecida' }}</p>
       </div>
     </div>
   </div>
 </template>
 
+<script>
+export default {
+  data() {
+    return {
+      currentStep: 1, // Atualize este valor dinamicamente com base no status do chamado
+      chamado: null, // Detalhes do chamado
+    };
+  },
+  mounted() {
+    // Aqui você pode buscar o chamado no Vuex, API ou qualquer outro local
+    // Exemplo de chamada com Vuex ou uma API
+    this.fetchChamado();
+  },
+  methods: {
+    fetchChamado() {
+  
+      fetch('http://localhost:3000/chamados') // Altere o endpoint conforme necessário
+        .then(response => response.json())
+        .then(data => {
+          this.chamado = data;
+          this.currentStep = data.status; // Atualizar o status baseado no retorno da API
+        })
+        .catch(error => {
+          console.error('Erro ao buscar chamado:', error);
+        });
+    },
+  },
+};
+</script>
 
-  
-  <script>
-  import axios from 'axios';
-  import Swal from 'sweetalert2';
-  
-  </script>
-  
-  
-  <style scoped>
-  /* Reset básico */
-  body,
-  html {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    font-family: Arial, sans-serif;
-  }
-  
-  .problem-report-container {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-    flex-direction: row;
-  }
-  
-  /* Lado esquerdo com imagem e gradiente */
-  .left-side {
-    flex: 1;
-    background: linear-gradient(to bottom, #0575e6, #02298a, #021b79);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .left-side img {
-    max-width: 80%;
-    z-index: 2;
-  }
-  
-  .bubbles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: 1;
-  }
-  
-  .bubble {
-    position: absolute;
-    bottom: -50px;
-    width: 40px;
-    height: 40px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    animation: bubble 6s infinite ease-in-out;
-  }
-  
-  .bubble:nth-child(1) {
-    left: 20%;
-    width: 60px;
-    height: 60px;
-    animation-duration: 8s;
-  }
-  
-  .bubble:nth-child(2) {
-    left: 50%;
-    animation-duration: 5s;
-  }
-  
-  .bubble:nth-child(3) {
-    left: 70%;
-    width: 80px;
-    height: 80px;
-    animation-duration: 9s;
-  }
-  
-  .bubble:nth-child(4) {
-    left: 90%;
-    width: 50px;
-    height: 50px;
-    animation-duration: 7s;
-  }
-  
-  .bubble:nth-child(5) {
-    left: 30%;
-    animation-duration: 10s;
-  }
-  
-  @keyframes bubble {
-    0% {
-      transform: translateY(0) scale(1);
-    }
-    50% {
-      transform: translateY(-300px) scale(1.2);
-    }
-    100% {
-      transform: translateY(-600px) scale(0.8);
-    }
-  }
-  
-  /* Lado direito com formulário */
-  .right-side {
-    flex: 2;
-    background-color: #f8f9fa;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-  }
-  
-  .report-box {
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    width: 100%;
-    max-width: 500px;
-  }
-  
-  .report-box h2 {
-    color: #0738b3;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .report-box label {
-    font-weight: bold;
-  }
-  
-  .report-box input,
-  .report-box select,
-  .report-box textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    box-sizing: border-box;
-  }
-  
-  .report-box textarea {
-    resize: none;
-  }
-  
-  .report-box button {
-    width: 100%;
-    padding: 12px;
-    background-color: #02298a;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .report-box button:hover {
-    background-color: #0738b3;
-  }
-  
-  .clickable-item {
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .clickable-item:hover {
-    background-color: #f1f1f1;
-  }
-  
-  /* Link para voltar */
-  .report-box .btn-link {
-    color: #02298a;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  
-  .report-box .btn-link:hover {
-    text-decoration: underline;
-  }
-  
-  /* Responsividade */
-  @media screen and (max-width: 768px) {
-    .problem-report-container {
-      flex-direction: column;
-      height: auto;
-    }
-  
-    .left-side {
-      height: 200px;
-      flex: none;
-    }
-  
-    .right-side {
-      flex: none;
-      padding: 10px;
-    }
-  
-    .report-box {
-      max-width: 90%;
-    }
-  }
-  
-  @media screen and (max-width: 480px) {
-    .report-box h2 {
-      font-size: 18px;
-    }
-  
-    .report-box button {
-      font-size: 14px;
-      padding: 10px;
-    }
-  
-    .left-side img {
-      max-width: 70%;
-    }
-  }
-  .tracking-container {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.tracking-container h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #0738b3;
-}
-
-.tracking-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.tracking-step {
+<style scoped>
+.problem-report-container {
   display: flex;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: stretch;
+  min-height: 100vh;
+  background: #f9f9f9;
+  font-family: Arial, sans-serif;
+}
+
+/* Estilizando a coluna da esquerda */
+.left-side {
+  width: 30%;
+  background: #45a049;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.left-side img {
+  max-width: 80%;
+  height: auto;
   margin-bottom: 20px;
 }
 
-.tracking-step:last-child {
-  margin-bottom: 0;
-}
-
-.step-icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #ddd;
+.bubbles {
+  position: relative;
+  width: 100%;
+  height: 200px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 20px;
-  color: #fff;
-  margin-right: 15px;
 }
 
-.completed .step-icon {
-  background-color: #28a745; /* Verde */
+.bubble {
+  width: 30px;
+  height: 30px;
+  margin: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  animation: float 3s ease-in-out infinite;
 }
 
-.in-progress .step-icon {
-  background-color: #007bff; /* Azul */
+.bubble:nth-child(2) {
+  width: 40px;
+  height: 40px;
+  animation-duration: 4s;
 }
 
-.pending .step-icon {
-  background-color: #ffc107; /* Amarelo */
+.bubble:nth-child(3) {
+  width: 50px;
+  height: 50px;
+  animation-duration: 5s;
 }
 
-.step-content {
-  flex-grow: 1;
+.bubble:nth-child(4) {
+  width: 60px;
+  height: 60px;
+  animation-duration: 6s;
 }
 
-.step-content h3 {
-  margin: 0;
+.bubble:nth-child(5) {
+  width: 70px;
+  height: 70px;
+  animation-duration: 7s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Estilizando a coluna da direita */
+.right-side {
+  width: 70%;
+  padding: 40px;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.right-side h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #4caf50;
+}
+
+/* Linha de progresso */
+.progress-tracking {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-step {
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+
+.progress-step .circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
   font-size: 16px;
-  color: #333;
+  font-weight: bold;
+  color: #555;
+  z-index: 1;
 }
 
-.step-content p {
-  margin: 5px 0 10px;
+.progress-step.completed .circle {
+  background: #4caf50;
+  color: white;
+}
+
+.progress-step span {
+  display: block;
+  margin-top: 10px;
   font-size: 14px;
   color: #666;
 }
 
-.step-time {
-  font-size: 12px;
-  color: #999;
-}
-.pending .step-icon {
-  background-color: #ffc107; /* Amarelo */
+.progress-tracking::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #ddd;
+  z-index: 0;
 }
 
-/* Estilos para o botão de Login */
-button.btn-primary {
-  background-color: #007bff; /* Cor de fundo azul */
-  color: white; /* Cor do texto */
-  border: 1px solid #007bff; /* Borda azul */
+.progress-step.completed::after {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #4caf50;
+  z-index: 0;
+}
+
+/* Container que envolve os botões */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px; /* Espaço entre os botões */
+  margin-top: 20px;
+}
+
+/* Estilizando os botões */
+.button-container .btn {
+  background-color: #28a745; /* Cor verde */
+  color: white; /* Cor do texto do botão */
+  border: none; /* Remove borda */
   padding: 10px 20px; /* Espaçamento interno */
   font-size: 16px; /* Tamanho da fonte */
   border-radius: 5px; /* Bordas arredondadas */
-  cursor: pointer; /* Muda o cursor para indicar que é clicável */
-  transition: all 0.3s ease; /* Animação suave para os efeitos */
+  cursor: pointer; /* Cursor de pointer */
+  transition: background-color 0.3s; /* Animação suave para a cor de fundo */
+}
+
+/* Alteração da cor quando o botão é hover */
+.button-container .btn:hover {
+  background-color: #218838; /* Verde mais escuro ao passar o mouse */
+}
+
+/* Ajuste para telas menores */
+@media (max-width: 768px) {
+  .button-container {
+    flex-direction: column; /* Empilha os botões em telas menores */
+    align-items: center; /* Centraliza os botões */
+  }
+}
+
+@media (max-width: 768px) {
+  .left-side,
+  .right-side {
+    width: 100%;
+    text-align: center;
+  }
+
+  .progress-tracking {
+    flex-direction: column;
+  }
+
+  .progress-step {
+    margin-bottom: 20px;
+  }
+
+  .progress-tracking::before {
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
+    width: 4px;
+  }
+}
+a {
+  color: #45a049;
+    text-decoration: underline;
+}
+.call-details {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-top: 30px;
 }
 
-button.btn-primary:hover {
-  background-color: #0056b3; /* Cor de fundo azul mais escuro quando o botão é hover */
-  border-color: #0056b3; /* Borda mais escura */
+.call-details h3 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4caf50;
+  margin-bottom: 15px;
 }
 
-button.btn-primary:focus {
-  outline: none; /* Remove o contorno padrão do navegador */
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Efeito de sombra ao focar */
+.call-details p {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
 }
 
-button.btn-primary:active {
-  background-color: #004085; /* Cor de fundo ainda mais escura quando o botão é pressionado */
-  border-color: #004085; /* Borda mais escura */
+.call-details strong {
+  color: #000000; /* Cor para os rótulos */
+  font-weight: 600;
 }
 
+.call-details p:last-child {
+  margin-bottom: 0;
+}
 
-  </style>
-  
+.call-details .no-description {
+  font-style: italic;
+  color: #999;
+}
+
+@media (max-width: 768px) {
+  .call-details {
+    padding: 15px;
+  }
+
+  .call-details h3 {
+    font-size: 20px;
+  }
+
+  .call-details p {
+    font-size: 14px;
+  }
+}
+
+</style>
