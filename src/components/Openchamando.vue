@@ -64,34 +64,53 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
-      currentStep: 1, // Atualize este valor dinamicamente com base no status do chamado
-      chamado: null, // Detalhes do chamado
+      currentStep: 1, 
+      chamado: null, 
     };
   },
   mounted() {
-    // Aqui você pode buscar o chamado no Vuex, API ou qualquer outro local
-    // Exemplo de chamada com Vuex ou uma API
-    this.fetchChamado();
+    const chamadoId = this.$route.params.id; 
+    this.carregarChamado(chamadoId); 
   },
   methods: {
-    fetchChamado() {
-  
-      fetch('http://localhost:3000/chamados') // Altere o endpoint conforme necessário
-        .then(response => response.json())
-        .then(data => {
-          this.chamado = data;
-          this.currentStep = data.status; // Atualizar o status baseado no retorno da API
-        })
-        .catch(error => {
-          console.error('Erro ao buscar chamado:', error);
+    async carregarChamado(id) {
+      try {
+        const token = localStorage.getItem("token");
+        const resposta = await axios.get(`http://localhost:3000/chamados/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
+
+        this.chamado = resposta.data;
+        this.currentStep = this.definirEtapa(this.chamado.status); // Atualiza o progresso
+      } catch (erro) {
+        console.error("Erro ao carregar o chamado:", erro);
+      }
+    },
+
+    // Definir a etapa com base no status do chamado
+    definirEtapa(status) {
+      switch (status) {
+        case 'Aberto':
+          return 1;
+        case 'Em Análise':
+          return 2;
+        case 'Em Andamento':
+          return 3;
+        case 'Concluído':
+          return 4;
+        default:
+          return 1;
+      }
     },
   },
 };
 </script>
+
 
 <style scoped>
 .problem-report-container {
