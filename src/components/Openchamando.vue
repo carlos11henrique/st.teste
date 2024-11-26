@@ -95,13 +95,13 @@ export default {
     // Definir a etapa com base no status do chamado
     definirEtapa(status) {
       switch (status) {
-        case 'Aberto':
+        case 'Análise':
           return 1;
-        case 'Em Análise':
+        case 'Pendentes':
           return 2;
         case 'Em Andamento':
           return 3;
-        case 'Concluído':
+        case 'Concluido':
           return 4;
         default:
           return 1;
