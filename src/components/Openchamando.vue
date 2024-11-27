@@ -46,7 +46,7 @@
             @click="selecionarChamado(chamado)"
             class="chamado-item"
           >
-            <strong>ID:</strong> {{ chamado.id }} - <strong>Status:</strong> {{ chamado.status }}
+            <strong>Problema:</strong> {{ chamado.problema }} - <strong>Status:</strong> {{ chamado.status }}
           </li>
         </ul>
       </div>
