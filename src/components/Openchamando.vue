@@ -14,6 +14,7 @@
     <div class="right-side">
       <h2>Rastreamento do Chamado</h2>
 
+      <!-- Linha de progresso -->
       <div class="progress-tracking">
         <div class="progress-step" :class="{ completed: currentStep >= 1 }">
           <div class="circle">1</div>
@@ -33,6 +34,7 @@
         </div>
       </div>
 
+      <!-- Botões de navegação -->
       <router-link to="/login">
         <button class="btn btn-primary">Voltar para o Login</button>
       </router-link>
@@ -40,16 +42,16 @@
         <button class="btn btn-primary">Voltar para o Abrir Chamado</button>
       </router-link>
 
+      <!-- Detalhes do chamado -->
       <div v-if="chamado" class="call-details mt-4">
         <h3>Detalhes do Chamado</h3>
+        <p><strong>Setor:</strong> {{ chamado.setor }}</p>
         <p><strong>Problema:</strong> {{ chamado.problema }}</p>
         <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
         <p><strong>Código do Equipamento:</strong> {{ chamado.maquina }}</p>
-        <p>
-          <strong>Descrição do Problema:</strong>
-          {{ chamado.descricao_chamado || "Nenhuma descrição fornecida" }}
-        </p>
+        <p><strong>Descrição do Problema:</strong>{{ chamado.descricao_chamado || "Nenhuma descrição fornecida" }}</p>
+        <p><strong>Feedback:</strong> {{ chamado.feedback || "Nenhum feedback fornecido" }}</p>
       </div>
     </div>
   </div>
@@ -65,7 +67,7 @@ export default {
     };
   },
   mounted() {
-    const chamadoId = this.$route.params.id;
+    const chamadoId = this.$route.params.id; // Captura o ID do chamado da rota
     this.carregarChamado(chamadoId);
   },
   methods: {
@@ -97,7 +99,7 @@ export default {
         "Análise": 1,
         "Pendentes": 2,
         "Em Andamento": 3,
-        "Concluído": 4,
+        "Concluido": 4,
       };
       return etapas[status] || 1; 
     },

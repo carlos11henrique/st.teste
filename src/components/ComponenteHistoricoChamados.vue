@@ -22,6 +22,8 @@
           <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
           <p><em>Bloco:</em> {{ chamado.bloco }}</p>
           <p><em>Sala:</em> {{ chamado.sala }}</p>
+          <p><em>Feedback:</em> {{ chamado.feedback }}</p>
+
           <p v-if="Array.isArray(chamado.maquinas) && chamado.maquinas.length > 0"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
           <!-- Botão para mudar o status para "Análise" -->
           <button class="btn btn-primary btn-sm mt-2" :disabled="isUpdating(chamado.id)" @click="confirmarRemocao(chamado.id)">Mover para Análise</button>
