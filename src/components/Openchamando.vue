@@ -15,7 +15,7 @@
       <h2>Rastreamento do Chamado</h2>
 
       <!-- Linha de progresso -->
-      <div class="progress-tracking">
+      <div v-if="chamado" class="progress-tracking">
         <div class="progress-step" :class="{ completed: currentStep >= 1 }">
           <div class="circle">1</div>
           <span>Em Análise</span>
@@ -34,13 +34,22 @@
         </div>
       </div>
 
-      <!-- Botões de navegação -->
-      <router-link to="/login">
-        <button class="btn btn-primary">Voltar para o Login</button>
-      </router-link>
-      <router-link to="/openticketpage">
-        <button class="btn btn-primary">Voltar para o Abrir Chamado</button>
-      </router-link>
+      
+
+      <!-- Lista de chamados -->
+      <div v-if="chamados.length" class="call-list mt-4">
+        <h3>Seus Chamados {{ chamados.nome_completo }}</h3>
+        <ul>
+          <li
+            v-for="(chamado, index) in chamados"
+            :key="index"
+            @click="selecionarChamado(chamado)"
+            class="chamado-item"
+          >
+            <strong>ID:</strong> {{ chamado.id }} - <strong>Status:</strong> {{ chamado.status }}
+          </li>
+        </ul>
+      </div>
 
       <!-- Detalhes do chamado -->
       <div v-if="chamado" class="call-details mt-4">
@@ -53,7 +62,18 @@
         <p><strong>Descrição do Problema:</strong>{{ chamado.descricao_chamado || "Nenhuma descrição fornecida" }}</p>
         <p><strong>Feedback:</strong> {{ chamado.feedback || "Nenhum feedback fornecido" }}</p>
       </div>
+
+
+
+          <!-- Botões de navegação -->
+      <router-link to="/login">
+        <button class="btn btn-primary">Voltar para o Login</button>
+      </router-link>
+      <router-link to="/openticketpage">
+        <button class="btn btn-primary">Voltar para o Abrir Chamado</button>
+      </router-link>
     </div>
+
   </div>
 </template>
 <script>
@@ -62,38 +82,35 @@ import axios from "axios";
 export default {
   data() {
     return {
-      currentStep: 1, // Etapa atual
-      chamado: null,  // Dados do chamado
+      currentStep: 1, // Etapa atual do chamado
+      chamados: [], // Lista de chamados do usuário
+      chamado: null, // Chamado selecionado para exibição
     };
   },
   mounted() {
-    const chamadoId = this.$route.params.id; // Captura o ID do chamado da rota
-    this.carregarChamado(chamadoId);
+    this.carregarChamados(); // Carrega todos os chamados do usuário ao montar o componente
   },
   methods: {
-    async carregarChamado(id) {
+    async carregarChamados() {
       try {
         const token = localStorage.getItem("token");
-        console.log("Carregando chamado com ID:", id);
-
         const resposta = await axios.get(`http://localhost:3000/chamados`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         if (resposta.data.length > 0) {
-          this.chamado = resposta.data[0]; 
-          this.currentStep = this.definirEtapa(this.chamado.status);
+          this.chamados = resposta.data; // Armazena a lista de chamados
         } else {
-          console.warn("Nenhum chamado encontrado com este ID.");
+          console.warn("Nenhum chamado encontrado.");
         }
       } catch (erro) {
-        console.error(
-          "Erro ao carregar o chamado:",
-          erro.response?.data || "Erro desconhecido"
-        );
+        console.error("Erro ao carregar os chamados:", erro.response?.data || "Erro desconhecido");
       }
     },
-
+    selecionarChamado(chamado) {
+      this.chamado = chamado; // Define o chamado selecionado
+      this.currentStep = this.definirEtapa(chamado.status); // Atualiza a etapa do progresso
+    },
     definirEtapa(status) {
       const etapas = {
         "Análise": 1,
@@ -101,12 +118,11 @@ export default {
         "Em Andamento": 3,
         "Concluido": 4,
       };
-      return etapas[status] || 1; 
+      return etapas[status] || 1;
     },
   },
 };
 </script>
-
 
 <style scoped>
 .problem-report-container {
