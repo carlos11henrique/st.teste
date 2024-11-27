@@ -25,6 +25,8 @@
           <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
           <p><strong>Sala:</strong> {{ chamado.sala }}</p>
           <p><strong>Máquinas:</strong> {{ chamado.maquina }}</p>
+          <p><strong>Feedback:</strong> {{ chamado.feedback || "Nenhum feedback fornecido" }}</p>
+
 
           <!-- Botões para alterar o setor -->
           <div class="mt-2">
@@ -47,6 +49,8 @@
         <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
         <p><strong>Máquinas:</strong> {{ chamado.maquina }}</p>
+        <p><strong>Feedback:</strong> {{ chamado.feedback || "Nenhum feedback fornecido" }}</p>
+
 
       </div>
     </div>
@@ -62,6 +66,8 @@
         <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
         <p><strong>Máquinas:</strong> {{ chamado.maquina }}</p>
+        <p><strong>Feedback:</strong> {{ chamado.feedback || "Nenhum feedback fornecido" }}</p>
+
 
       </div>
     </div>
