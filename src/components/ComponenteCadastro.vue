@@ -62,6 +62,17 @@
           As senhas não coincidem.
         </small>
       </div>
+      <div class="form-group">
+  <label for="tipoUsuario">Tipo de Usuário:</label>
+  <select id="tipoUsuario" v-model="novoAluno.tipoUsuario" class="form-control">
+    <option value="ESTUDANTE">Estudante</option>
+    <option value="TI">Técnico de TI</option>
+    <option value="DOCENTE">Docente</option>
+    <option value="MANUTENCAO">Técnico de Manutenção</option>
+    <option value="NOA">NOA</option>
+  </select>
+</div>
+
 
       
       <button type="submit" class="btn btn-primary"><strong>Cadastrar</strong></button>
