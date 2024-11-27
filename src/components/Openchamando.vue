@@ -13,36 +13,28 @@
 
     <div class="right-side">
       <h2>Rastreamento do Chamado</h2>
-      
+
       <!-- Linha de progresso -->
       <div class="progress-tracking">
-        <div 
-          class="progress-step" 
-          :class="{ completed: currentStep >= 1 }">
+        <div class="progress-step" :class="{ completed: currentStep >= 1 }">
           <div class="circle">1</div>
           <span>Chamado Aberto</span>
         </div>
-        <div 
-          class="progress-step" 
-          :class="{ completed: currentStep >= 2 }">
+        <div class="progress-step" :class="{ completed: currentStep >= 2 }">
           <div class="circle">2</div>
           <span>Em Análise</span>
         </div>
-        <div 
-          class="progress-step" 
-          :class="{ completed: currentStep >= 3 }">
+        <div class="progress-step" :class="{ completed: currentStep >= 3 }">
           <div class="circle">3</div>
           <span>Em Andamento</span>
         </div>
-        <div 
-          class="progress-step" 
-          :class="{ completed: currentStep >= 4 }">
+        <div class="progress-step" :class="{ completed: currentStep >= 4 }">
           <div class="circle">4</div>
           <span>Concluído</span>
         </div>
       </div>
 
-      <!-- Botão para a página de login -->
+      <!-- Botões de navegação -->
       <router-link to="/login">
         <button class="btn btn-primary">Voltar para o Login</button>
       </router-link>
@@ -50,62 +42,69 @@
         <button class="btn btn-primary">Voltar para o Abrir Chamado</button>
       </router-link>
 
-      <!-- Exibir informações do chamado -->
+      <!-- Detalhes do chamado -->
       <div v-if="chamado" class="call-details mt-4">
         <h3>Detalhes do Chamado</h3>
         <p><strong>Problema:</strong> {{ chamado.problema }}</p>
         <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
-        <p><strong>Código do Equipamento:</strong> {{ chamado.codigoEquipamento }}</p>
-        <p><strong>Descrição do Problema:</strong> {{ chamado.descricaoProblema || 'Nenhuma descrição fornecida' }}</p>
+        <p><strong>Código do Equipamento:</strong> {{ chamado.maquina }}</p>
+        <p>
+          <strong>Descrição do Problema:</strong>
+          {{ chamado.descricao_chamado || "Nenhuma descrição fornecida" }}
+        </p>
       </div>
     </div>
   </div>
 </template>
-
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   data() {
     return {
-      currentStep: 1, 
-      chamado: null, 
+      currentStep: 1, // Etapa atual
+      chamado: null,  // Dados do chamado
     };
   },
   mounted() {
-    const chamadoId = this.$route.params.id; 
-    this.carregarChamado(chamadoId); 
+    const chamadoId = this.$route.params.id; // Captura o ID do chamado da rota
+    this.carregarChamado(chamadoId);
   },
   methods: {
+    // Carrega os dados do chamado pela API
     async carregarChamado(id) {
       try {
         const token = localStorage.getItem("token");
-        const resposta = await axios.get(`http://localhost:3000/chamados/${id}`, {
+        console.log("Carregando chamado com ID:", id);
+
+        const resposta = await axios.get(`http://localhost:3000/chamados`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        this.chamado = resposta.data;
-        this.currentStep = this.definirEtapa(this.chamado.status); // Atualiza o progresso
+        if (resposta.data.length > 0) {
+          this.chamado = resposta.data[0]; // Assume que os dados estão no índice 0
+          this.currentStep = this.definirEtapa(this.chamado.status);
+        } else {
+          console.warn("Nenhum chamado encontrado com este ID.");
+        }
       } catch (erro) {
-        console.error("Erro ao carregar o chamado:", erro);
+        console.error(
+          "Erro ao carregar o chamado:",
+          erro.response?.data || "Erro desconhecido"
+        );
       }
     },
 
-    // Definir a etapa com base no status do chamado
+    // Define a etapa atual com base no status do chamado
     definirEtapa(status) {
-      switch (status) {
-        case 'Análise':
-          return 1;
-        case 'Pendentes':
-          return 2;
-        case 'Em Andamento':
-          return 3;
-        case 'Concluido':
-          return 4;
-        default:
-          return 1;
-      }
+      const etapas = {
+        "Análise": 1,
+        "Pendentes": 2,
+        "Em Andamento": 3,
+        "Concluído": 4,
+      };
+      return etapas[status] || 1; // Etapa padrão é 1 caso o status seja inválido
     },
   },
 };
