@@ -14,7 +14,6 @@
     <div class="right-side">
       <h2>Rastreamento do Chamado</h2>
 
-      <!-- Linha de progresso -->
       <div class="progress-tracking">
         <div class="progress-step" :class="{ completed: currentStep >= 1 }">
           <div class="circle">1</div>
@@ -34,7 +33,6 @@
         </div>
       </div>
 
-      <!-- Botões de navegação -->
       <router-link to="/login">
         <button class="btn btn-primary">Voltar para o Login</button>
       </router-link>
@@ -42,7 +40,6 @@
         <button class="btn btn-primary">Voltar para o Abrir Chamado</button>
       </router-link>
 
-      <!-- Detalhes do chamado -->
       <div v-if="chamado" class="call-details mt-4">
         <h3>Detalhes do Chamado</h3>
         <p><strong>Problema:</strong> {{ chamado.problema }}</p>
@@ -68,11 +65,10 @@ export default {
     };
   },
   mounted() {
-    const chamadoId = this.$route.params.id; // Captura o ID do chamado da rota
+    const chamadoId = this.$route.params.id;
     this.carregarChamado(chamadoId);
   },
   methods: {
-    // Carrega os dados do chamado pela API
     async carregarChamado(id) {
       try {
         const token = localStorage.getItem("token");
@@ -83,7 +79,7 @@ export default {
         });
 
         if (resposta.data.length > 0) {
-          this.chamado = resposta.data[0]; // Assume que os dados estão no índice 0
+          this.chamado = resposta.data[0]; 
           this.currentStep = this.definirEtapa(this.chamado.status);
         } else {
           console.warn("Nenhum chamado encontrado com este ID.");
@@ -96,7 +92,6 @@ export default {
       }
     },
 
-    // Define a etapa atual com base no status do chamado
     definirEtapa(status) {
       const etapas = {
         "Análise": 1,
@@ -104,7 +99,7 @@ export default {
         "Em Andamento": 3,
         "Concluído": 4,
       };
-      return etapas[status] || 1; // Etapa padrão é 1 caso o status seja inválido
+      return etapas[status] || 1; 
     },
   },
 };
