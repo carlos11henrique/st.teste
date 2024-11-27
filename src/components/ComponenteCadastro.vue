@@ -195,9 +195,108 @@ export default {
 
 
 <style scoped>
-button {
-  display: block;
-  width: 20%;
-  margin-top: 25px;
+/* Container do formulário */
+/* Container do formulário */
+.form-container {
+  max-width: 950px;
+  margin: 50px auto;
+  padding: 25px;
+  background: #ffffff71;
+  border-radius: 12px;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.), -4px -4px 10px rgba(255, 255, 255, 0.7);
 }
+
+/* Título do formulário */
+.form-container h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 30px;
+  color: #076adb;
+}
+
+/* Grupo de formulário */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* Labels */
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #000000;
+  font-size: 16px;
+  font-weight: bold;
+
+}
+
+/* Campos de entrada */
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+  outline: none;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Foco nos campos */
+.form-group input:focus {
+  border-color: #007bff;
+  background-color: #fff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Texto de erro */
+.form-text.text-danger {
+  color: #e63946;
+  font-size: 14px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+/* Botão de cadastro */
+.form-container button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 35%;
+}
+
+.btn:hover {
+  background: linear-gradient(90deg, #0056b3, #007bff);
+  box-shadow: 2px 4px 10px rgba(0, 123, 255, 0.4);
+}
+
+/* Efeito de transição para campos com erro */
+.form-group input:invalid {
+  border-color: #e63946;
+  box-shadow: 0 0 6px rgba(230, 57, 70, 0.3);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 20px;
+  }
+
+  .form-group input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .btn {
+    padding: 12px;
+    font-size: 16px;
+  }
+}
+
 </style>

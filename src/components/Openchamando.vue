@@ -137,8 +137,8 @@ export default {
 /* Estilizando a coluna da esquerda */
 .left-side {
   width: 30%;
-  background: #45a049;
   color: white;
+  background: linear-gradient(to bottom, #077df3, #02298a, #021b79);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -217,7 +217,7 @@ export default {
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
-  color: #4caf50;
+  color: #0e66e9;
 }
 
 /* Linha de progresso */
@@ -252,7 +252,7 @@ export default {
 }
 
 .progress-step.completed .circle {
-  background: #4caf50;
+  background: #056ef89c;
   color: white;
 }
 
@@ -281,7 +281,7 @@ export default {
   left: 0;
   right: 0;
   height: 4px;
-  background: #4caf50;
+  background: #089fdb;
   z-index: 0;
 }
 
@@ -295,7 +295,7 @@ export default {
 
 /* Estilizando os botões */
 .button-container .btn {
-  background-color: #28a745; /* Cor verde */
+  background-color: #0890c5; /* Cor verde */
   color: white; /* Cor do texto do botão */
   border: none; /* Remove borda */
   padding: 10px 20px; /* Espaçamento interno */
@@ -342,7 +342,7 @@ export default {
   }
 }
 a {
-  color: #45a049;
+  color: #1630c5;
     text-decoration: underline;
 }
 .call-details {
@@ -356,7 +356,7 @@ a {
 .call-details h3 {
   font-size: 24px;
   font-weight: bold;
-  color: #4caf50;
+  color: #1b82d6;
   margin-bottom: 15px;
 }
 
@@ -391,6 +391,71 @@ a {
 
   .call-details p {
     font-size: 14px;
+  }
+}
+.chamado-item {
+  display: block; /* Faz o elemento ocupar toda a largura disponível */
+  padding: 10px 15px; /* Espaçamento interno */
+  margin-bottom: 10px; /* Espaçamento entre itens */
+  background-color: #f8f9fa; /* Cor de fundo clara */
+  color: #212529; /* Cor do texto */
+  border: 1px solid #dee2e6; /* Borda sutil */
+  border-radius: 5px; /* Arredondamento das bordas */
+  font-size: 16px; /* Tamanho do texto */
+  cursor: pointer; /* Muda o cursor para indicar interatividade */
+  transition: all 0.3s ease; /* Suaviza a transição para hover */
+}
+
+.chamado-item:hover {
+  background-color: #e9ecef; /* Muda o fundo ao passar o mouse */
+  color: #495057; /* Escurece o texto */
+  transform: translateY(-2px); /* Eleva o botão levemente */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adiciona sombra */
+}
+
+.chamado-item:active {
+  background-color: #dee2e6; /* Fica um pouco mais escuro quando clicado */
+  transform: translateY(0); /* Remove a elevação ao pressionar */
+  box-shadow: none; /* Remove a sombra ao pressionar */
+}
+/* Estilo base para os botões */
+.btn {
+  display: inline-block; /* Permite personalização como botão */
+  padding: 10px 20px; /* Espaçamento interno */
+  margin: 10px; /* Espaçamento externo */
+  font-size: 16px; /* Tamanho do texto */
+  font-weight: 500; /* Peso do texto */
+  color: #fff; /* Cor do texto */
+  background-color: #007bff; /* Cor de fundo padrão (azul) */
+  border: none; /* Remove bordas padrão */
+  border-radius: 5px; /* Bordas arredondadas */
+  cursor: pointer; /* Mostra que é clicável */
+  text-align: center; /* Centraliza o texto */
+  text-decoration: none; /* Remove sublinhado se usado em links */
+  transition: all 0.3s ease; /* Suaviza transições */
+}
+
+.btn-primary {
+  background-color: #007bff; /* Cor de fundo azul */
+}
+
+.btn-primary:hover {
+  background-color: #0056b3; /* Azul mais escuro ao passar o mouse */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra no hover */
+  transform: translateY(-2px); /* Eleva ligeiramente */
+}
+
+.btn-primary:active {
+  background-color: #004085; /* Azul ainda mais escuro ao clicar */
+  transform: translateY(0); /* Remove elevação */
+  box-shadow: none; /* Remove a sombra */
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .btn {
+    font-size: 14px; /* Reduz o tamanho do texto */
+    padding: 8px 16px; /* Ajusta o espaçamento interno */
   }
 }
 
