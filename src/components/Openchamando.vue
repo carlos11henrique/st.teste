@@ -46,7 +46,7 @@
             @click="selecionarChamado(chamado)"
             class="chamado-item"
           >
-            <strong>Problema:</strong> {{ chamado.problema }} - <strong>Status:</strong> {{ chamado.status }}
+            <strong>Problema:</strong> {{ chamado.problema }}
           </li>
         </ul>
       </div>
@@ -60,7 +60,6 @@
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
         <p><strong>Código do Equipamento:</strong> {{ chamado.maquina }}</p>
         <p><strong>Descrição do Problema:</strong>{{ chamado.descricao_chamado || "Nenhuma descrição fornecida" }}</p>
-        <p><strong>Feedback:</strong> {{ chamado.feedback || "Nenhum feedback fornecido" }}</p>
       </div>
 
 
