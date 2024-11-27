@@ -38,7 +38,7 @@
 
       <!-- Lista de chamados -->
       <div v-if="chamados.length" class="call-list mt-4">
-        <h3>Seus Chamados {{ chamados.nome_completo }}</h3>
+        <h3>Seus Chamados </h3>
         <ul>
           <li
             v-for="(chamado, index) in chamados"
