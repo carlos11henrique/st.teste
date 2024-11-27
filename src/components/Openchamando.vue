@@ -18,11 +18,11 @@
       <div class="progress-tracking">
         <div class="progress-step" :class="{ completed: currentStep >= 1 }">
           <div class="circle">1</div>
-          <span>Chamado Aberto</span>
+          <span>Em Análise</span>
         </div>
         <div class="progress-step" :class="{ completed: currentStep >= 2 }">
           <div class="circle">2</div>
-          <span>Em Análise</span>
+          <span>Chamado Pendente</span>
         </div>
         <div class="progress-step" :class="{ completed: currentStep >= 3 }">
           <div class="circle">3</div>
