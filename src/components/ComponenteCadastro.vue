@@ -118,31 +118,6 @@ export default {
     },
   },
   methods: {
-    obterOcupacaoPorEmail(email) {
-      if (!email) return "FUNCIONARIOS"; // Valor padrão caso o e-mail não seja fornecido
-
-      const dominio = email.split("@")[1]?.toLowerCase(); // Extrai o domínio do e-mail
-
-      if (/\.fieb\./.test(dominio)) {
-        return "NOA"; // Para domínios relacionados ao Fieb
-      } else if (/\.fbest\./.test(dominio)) {
-        return "ESTAGIARIO"; // Para domínios relacionados ao Fbest
-      } else if (/\.ti\./.test(dominio)) {
-        return "TI"; // Para domínios relacionados ao TI
-      } else if (/\.manutencao\./.test(dominio)) {
-        return "MANUTENCAO"; // Para domínios relacionados ao MANUTENCAO
-      } else if (/\.manutencão\./.test(dominio)) {
-        return "MANUTENCAO"; // Para domínios relacionados ao MANUTENCAO
-      } else if (/\.fbt\./.test(dominio)) {
-        return "TERCEIRO"; // Para domínios relacionados ao Fbt
-      } else if (/\.estudante\./.test(dominio)) {
-        return "ESTUDANTE"; // Para domínios relacionados ao estudante
-      } else if (/\.docente\./.test(dominio)) {
-        return "DOCENTE"; // Para domínios relacionados ao docente
-      } else {
-        return "FUNCIONARIOS"; // Valor padrão se o domínio não corresponder
-      }
-    },
     async cadastrarAluno() {
       if (this.novoAluno.senha !== this.novoAluno.confirmarSenha) {
         alert("As senhas não coincidem. Por favor, verifique.");
