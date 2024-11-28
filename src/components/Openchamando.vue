@@ -32,6 +32,10 @@
           <div class="circle">4</div>
           <span>Concluído</span>
         </div>
+        <div class="progress-step" :class="{ completed: currentStep >= 5 }">
+          <div class="circle">5</div>
+          <span>Finalizado</span>
+        </div>
       </div>
 
       
@@ -117,6 +121,8 @@ export default {
         "Pendentes": 2,
         "Em Andamento": 3,
         "Concluido": 4,
+        "Finalizado": 5,
+
       };
       return etapas[status] || 1;
     },
