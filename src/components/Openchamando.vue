@@ -17,35 +17,32 @@
       <!-- Linha de progresso -->
       <div v-if="chamado" class="progress-tracking">
         <div class="progress-step" :class="{ completed: currentStep >= 1 }">
-          <div class="circle">1</div>
+          <div class="circle"></div>
           <span>Em Análise</span>
         </div>
         <div class="progress-step" :class="{ completed: currentStep >= 2 }">
-          <div class="circle">2</div>
+          <div class="circle"></div>
           <span>Chamado Pendente</span>
         </div>
         <div class="progress-step" :class="{ completed: currentStep >= 3 }">
-          <div class="circle">3</div>
+          <div class="circle"></div>
           <span>Em Andamento</span>
         </div>
         <div class="progress-step" :class="{ completed: currentStep >= 4 }">
-          <div class="circle">4</div>
+          <div class="circle"></div>
           <span>Concluído</span>
         </div>
         <div class="progress-step" :class="{ completed: currentStep >= 5 }">
-          <div class="circle">5</div>
+          <div class="circle"></div>
           <span>Finalizado</span>
         </div>
       </div>
 
-      
-
-      <!-- Lista de chamados -->
       <div v-if="chamados.length" class="call-list mt-4">
-        <h3>Seus Chamados </h3>
-        <p class="info-text">
-  🔍 <span>Clique no problema para visualizar os detalhes:</span>
-</p>
+        <h3>Seus Chamados</h3>
+        <p v-if="exibirMensagemInfo" class="info-text">
+          🔍 <span>Clique no problema para visualizar os detalhes:</span>
+        </p>
 
         <ul>
           <li
@@ -70,9 +67,7 @@
         <p><strong>Descrição do Problema:</strong>{{ chamado.descricao_chamado || "Nenhuma descrição fornecida" }}</p>
       </div>
 
-
-
-          <!-- Botões de navegação -->
+      <!-- Botões de navegação -->
       <router-link to="/login">
         <button class="btn btn-primary">Voltar para o Login</button>
       </router-link>
@@ -80,22 +75,23 @@
         <button class="btn btn-primary">Voltar para o Abrir Chamado</button>
       </router-link>
     </div>
-
   </div>
 </template>
+
 <script>
 import axios from "axios";
 
 export default {
   data() {
     return {
-      currentStep: 1, // Etapa atual do chamado
-      chamados: [], // Lista de chamados do usuário
-      chamado: null, // Chamado selecionado para exibição
+      currentStep: 1, 
+      chamado: null, 
+      exibirMensagemInfo: true, 
     };
   },
   mounted() {
-    this.carregarChamados(); // Carrega todos os chamados do usuário ao montar o componente
+    this.carregarChamados(); 
+    this.atualizarChamados();
   },
   methods: {
     async carregarChamados() {
@@ -111,23 +107,31 @@ export default {
           console.warn("Nenhum chamado encontrado.");
         }
       } catch (erro) {
-        console.error("Erro ao carregar os chamados:", erro.response?.data || "Erro desconhecido");
+        console.error(
+          "Erro ao carregar os chamados:",
+          erro.response?.data || "Erro desconhecido"
+        );
       }
     },
     selecionarChamado(chamado) {
-      this.chamado = chamado; // Define o chamado selecionado
-      this.currentStep = this.definirEtapa(chamado.status); // Atualiza a etapa do progresso
+      this.chamado = chamado; 
+      this.currentStep = this.definirEtapa(chamado.status);
+      this.exibirMensagemInfo = false; 
     },
     definirEtapa(status) {
       const etapas = {
-        "Análise": 1,
-        "Pendentes": 2,
+        Análise: 1,
+        Pendentes: 2,
         "Em Andamento": 3,
-        "Concluido": 4,
-        "Finalizado": 5,
-
+        Concluido: 4,
+        Finalizado: 5,
       };
       return etapas[status] || 1;
+    },
+    atualizarChamados() {
+      setInterval(() => {
+        this.carregarChamados();
+      }, 1000 * 60);
     },
   },
 };
