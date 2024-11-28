@@ -43,6 +43,10 @@
       <!-- Lista de chamados -->
       <div v-if="chamados.length" class="call-list mt-4">
         <h3>Seus Chamados </h3>
+        <p class="info-text">
+  🔍 <span>Clique no problema para visualizar os detalhes:</span>
+</p>
+
         <ul>
           <li
             v-for="(chamado, index) in chamados"
@@ -462,6 +466,25 @@ a {
     font-size: 14px; /* Reduz o tamanho do texto */
     padding: 8px 16px; /* Ajusta o espaçamento interno */
   }
+}
+
+
+
+
+.info-text {
+  font-size: 1.1rem;
+  color: #555;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.info-text span {
+  font-weight: bold;
+  color: #333;
 }
 
 </style>
