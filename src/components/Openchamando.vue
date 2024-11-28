@@ -64,7 +64,10 @@
         <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
         <p><strong>Sala:</strong> {{ chamado.sala }}</p>
         <p><strong>Código do Equipamento:</strong> {{ chamado.maquina }}</p>
-        <p><strong>Descrição do Problema:</strong>{{ chamado.descricao_chamado || "Nenhuma descrição fornecida" }}</p>
+        <p>
+          <strong>Descrição do Problema:</strong>
+          {{ chamado.descricao_chamado || "Nenhuma descrição fornecida" }}
+        </p>
       </div>
 
       <!-- Botões de navegação -->
@@ -84,14 +87,21 @@ import axios from "axios";
 export default {
   data() {
     return {
-      currentStep: 1, 
+      currentStep: 1,
       chamado: null, 
-      exibirMensagemInfo: true, 
+      chamados: [], 
+      exibirMensagemInfo: true,
+      intervalId: null,
     };
   },
   mounted() {
-    this.carregarChamados(); 
+    this.carregarChamados();
     this.atualizarChamados();
+  },
+  beforeDestroy() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId); // Limpa o intervalo ao destruir o componente
+    }
   },
   methods: {
     async carregarChamados() {
@@ -114,28 +124,29 @@ export default {
       }
     },
     selecionarChamado(chamado) {
-      this.chamado = chamado; 
+      this.chamado = chamado;
       this.currentStep = this.definirEtapa(chamado.status);
-      this.exibirMensagemInfo = false; 
+      this.exibirMensagemInfo = false;
     },
     definirEtapa(status) {
       const etapas = {
-        Análise: 1,
+        "Em Análise": 1,
         Pendentes: 2,
         "Em Andamento": 3,
-        Concluido: 4,
+        Concluído: 4,
         Finalizado: 5,
       };
       return etapas[status] || 1;
     },
     atualizarChamados() {
-      setInterval(() => {
+      this.intervalId = setInterval(() => {
         this.carregarChamados();
-      }, 1000 * 60);
+      }, 1000 * 60); // Atualiza a cada 60 segundos
     },
   },
 };
 </script>
+
 
 <style scoped>
 .problem-report-container {
