@@ -70,8 +70,59 @@
   </div>
 
   <!-- Modal de Edição -->
-  <!-- (O modal de edição permanece igual ao seu código atual) -->
+  <div v-if="modalAberto" class="modal fade show" style="display: block; background: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Equipamento</h5>
+          <button type="button" class="close" @click="cancelarEdicao">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="salvarEquipamentoEditado">
+            <div class="form-group">
+              <label for="numero_maquina">Número da Máquina:</label>
+              <input
+                id="numero_maquina"
+                v-model="equipamentoEditando.numero_maquina"
+                type="text"
+                class="form-control"
+              />
+            </div>
+            <div class="form-group">
+              <label for="tipo_equipamento">Tipo de Equipamento:</label>
+              <input
+                id="tipo_equipamento"
+                v-model="equipamentoEditando.tipo_equipamento"
+                type="text"
+                class="form-control"
+              />
+            </div>
+            <div class="form-group">
+              <label for="descricao">Descrição:</label>
+              <textarea
+                id="descricao"
+                v-model="equipamentoEditando.descricao"
+                class="form-control"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="sala_id">Sala ID:</label>
+              <input
+                id="sala_id"
+                v-model="equipamentoEditando.sala_id"
+                type="number"
+                class="form-control"
+              />
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <button type="button" class="btn btn-secondary" @click="cancelarEdicao">Cancelar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
+
 
 <script>
 import axios from "axios";
