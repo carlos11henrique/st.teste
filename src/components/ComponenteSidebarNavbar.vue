@@ -108,7 +108,7 @@ export default {
     },
     logout() {
       localStorage.removeItem('authToken'); // Remove o token do localStorage
-      this.$router.push('/login'); // Redireciona para a página de login
+      this.$router.push('/'); // Redireciona para a página de login
     },
   },
   watch: {

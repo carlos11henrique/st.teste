@@ -71,7 +71,7 @@
       </div>
 
       <!-- Botões de navegação -->
-      <router-link to="/login">
+      <router-link to="/">
         <button class="btn btn-primary">Voltar para o Login</button>
       </router-link>
       <router-link to="/openticketpage">

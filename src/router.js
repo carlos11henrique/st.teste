@@ -5,13 +5,12 @@ import LoginPage from './components/LoginPage.vue';
 import OpenTicketPage from './components/OpenTicketPage.vue';
 import Openchamando from './components/Openchamando.vue';
 import CadastroUsarioComum from './components/CadastroUsarioComum.vue';
-import axios from "axios";
 
 
 const routes = [
 
-  { path: '/login', component: LoginPage },
-  {path: '/', component: ComponenteSidebarNavbar},
+  { path: '/', component: LoginPage },
+  {path: '/sidebar', component: ComponenteSidebarNavbar},
   { path: '/openticketpage', component: OpenTicketPage },
   { path: '/openchamando', component: Openchamando },	
   { path: '/cadastrocomum', component: CadastroUsarioComum },

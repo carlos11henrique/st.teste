@@ -109,10 +109,10 @@ export default {
             response.data.ocupacao.endsWith("MANUTENCAO") ||
             response.data.ocupacao.endsWith("TI")
           ) {
-            this.$router.push("/");
+            this.$router.push("/sidebar");
           } else if (
             response.data.ocupacao.endsWith("NOA")) {
-            this.$router.push("/");
+            this.$router.push("/sidebar");
           }
         } else {
           this.senhaInvalida = true;
