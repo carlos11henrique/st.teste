@@ -102,6 +102,7 @@ export default {
             response.data.ocupacao.endsWith("ESTUDANTE") ||
             response.data.ocupacao.endsWith("DOCENTE")||
             response.data.ocupacao.endsWith("ESTAGIARIO")||
+            response.data.ocupacao.endsWith("TERCEIROS")||
             response.data.ocupacao.endsWith("FUNCIONARIO")
           ) {
             this.$router.push("/openchamando");
