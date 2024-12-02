@@ -107,12 +107,8 @@ export default {
         return "NOA";
       } else if (dominio.includes("fbest.")) {
         return "ESTAGIARIO";
-      } else if (dominio.includes("ti.")) {
-        return "TI";
-      } else if (dominio.includes("manutencao.") || dominio.includes("manutenção.")) {
-        return "MANUTENCAO";
       } else if (dominio.includes("fbt.")) {
-        return "TERCEIRO";
+        return "TERCEIROS";
       } else if (dominio.includes("estudante.")) {
         return "ESTUDANTE";
       } else if (dominio.includes("docente.")) {
