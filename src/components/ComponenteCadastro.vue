@@ -191,7 +191,7 @@ export default {
 
 /* Estilização principal do formulário */
 .form-container {
-  max-width: 600px;
+  max-width: 990px;
   margin: 0 auto;
   padding: 25px;
   background: rgba(255, 255, 255, 0.9);
