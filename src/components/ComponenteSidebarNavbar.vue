@@ -8,6 +8,9 @@
       <h2>Menu</h2>
       <ul class="nav flex-column">
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteHome'}">
+          <a class="nav-link text-white" @click="setComponent('ComponenteHomeTM')" href="#">Home</a>
+        </li>
+        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteHome'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteHome')" href="#">Home</a>
         </li>
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteKaban'}">
@@ -61,11 +64,13 @@ import ComponenteCadastroSala from './ComponenteCadastroSala.vue';
 import ComponenteCadastroEquipamento from './ComponenteCadastroEquipamento.vue';
 import ComponenteControleEquipamento from './ComponenteControleEquipamento.vue';
 import ComponenteHistoricoChamados from './ComponenteHistoricoChamados.vue';
+import ComponenteHomeTM from './ComponenteHomeTM.vue';
 
 import Swal from 'sweetalert2';
 
 export default {
   components: {
+    ComponenteHomeTM,
     ComponenteCadastroSala,
     ComponenteHome,
     ComponenteKaban,
