@@ -84,10 +84,11 @@
 </template>
 
 <script>
+import Swal from "sweetalert2";
 import axios from "axios";
 
 export default {
-  name: "CadastroUsarioComum",
+  name: "CadastroUsuarioComum",
   data() {
     return {
       mostrarFormulario: true,
@@ -143,22 +144,38 @@ export default {
     },
     async cadastrarAluno() {
       if (!this.novoAluno.tipoUsuario) {
-        alert("O e-mail fornecido é inválido. Por favor, insira um e-mail válido.");
+        Swal.fire({
+          icon: "error",
+          title: "Erro!",
+          text: "O e-mail fornecido é inválido. Por favor, insira um e-mail válido.",
+        });
         return;
       }
 
       if (this.novoAluno.senha !== this.novoAluno.confirmarSenha) {
-        alert("As senhas não coincidem. Por favor, verifique.");
+        Swal.fire({
+          icon: "error",
+          title: "Erro!",
+          text: "As senhas não coincidem. Por favor, verifique.",
+        });
         return;
       }
 
       if (this.novoAluno.gmail !== this.novoAluno.confirmarEmail) {
-        alert("Os e-mails não coincidem. Por favor, verifique.");
+        Swal.fire({
+          icon: "error",
+          title: "Erro!",
+          text: "Os e-mails não coincidem. Por favor, verifique.",
+        });
         return;
       }
 
       if (this.novoAluno.senha.length < 8) {
-        alert("A senha deve ter pelo menos 8 caracteres.");
+        Swal.fire({
+          icon: "error",
+          title: "Erro!",
+          text: "A senha deve ter pelo menos 8 caracteres.",
+        });
         return;
       }
 
@@ -185,7 +202,11 @@ export default {
         );
 
         if (resposta.status === 201) {
-          alert("Cadastro realizado com sucesso!");
+          Swal.fire({
+            icon: "success",
+            title: "Sucesso!",
+            text: "Cadastro realizado com sucesso!",
+          });
           this.novoAluno = {
             nome: "",
             telefone: "",
@@ -195,29 +216,38 @@ export default {
             confirmarSenha: "",
             tipoUsuario: "",
           };
-        } else {
-          alert("Erro ao cadastrar o usuário");
         }
       } catch (error) {
         console.error("Erro no cadastro:", error.response?.data || error);
-        alert(
-          `Erro ao cadastrar o usuário: ${
-            error.response?.data?.message || "Tente novamente mais tarde."
-          }`
-        );
+
+        if (error.response?.data?.message === "Usuário já cadastrado") {
+          Swal.fire({
+            icon: "error",
+            title: "Erro!",
+            text: "Usuário já cadastrado. Por favor, utilize outro e-mail.",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Erro!",
+            text: error.response?.data?.message || "Erro ao cadastrar. Tente novamente mais tarde.",
+          });
+        }
       }
     },
   },
 };
+
 </script>
 
 <style scoped>
 .left-container {
-  background-color: #007bff; /* Azul */
+  background:linear-gradient(to bottom, #0575e6, #02298a, #021b79);
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  
 }
 
 .left-side {
@@ -228,6 +258,7 @@ export default {
 .form-container {
   max-width: 600px;
   margin: 0 auto;
+  margin-top: 150px;
   padding: 20px;
 }
 

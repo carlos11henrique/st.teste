@@ -1,84 +1,96 @@
 <template>
   <div v-if="mostrarFormulario" class="form-container">
-    <h2><strong>Cadastrar usuário</strong></h2>
+    <h2><strong>Cadastrar Usuário</strong></h2>
     <form @submit.prevent="cadastrarAluno">
-      <!-- Campos do formulário -->
+      <!-- Nome -->
       <div class="form-group">
         <label for="nome">Nome:</label>
-        <input type="text" id="nome" v-model="novoAluno.nome" required />
+        <input 
+          type="text" 
+          id="nome" 
+          v-model="novoAluno.nome" 
+          required 
+          placeholder="Digite seu nome completo"
+        />
       </div>
 
-      
-
+      <!-- Email -->
       <div class="form-group">
         <label for="email">E-mail:</label>
-        <input
-          type="email"
-          id="email"
-          v-model="novoAluno.gmail"
-          required
+        <input 
+          type="email" 
+          id="email" 
+          v-model="novoAluno.gmail" 
+          required 
+          placeholder="Digite seu e-mail"
         />
       </div>
 
+      <!-- Confirmar Email -->
       <div class="form-group">
         <label for="confirmar-email">Confirmar E-mail:</label>
-        <input
-          type="email"
-          id="confirmar-email"
-          v-model="novoAluno.confirmarEmail"
-          required
+        <input 
+          type="email" 
+          id="confirmar-email" 
+          v-model="novoAluno.confirmarEmail" 
+          required 
+          placeholder="Confirme seu e-mail"
         />
+        <small v-if="emailsNaoCoincidem" class="form-text text-danger">
+          Os e-mails não coincidem.
+        </small>
       </div>
 
+      <!-- Senha -->
       <div class="form-group">
         <label for="senha">Senha:</label>
-        <input
-          type="password"
-          id="senha"
-          v-model="novoAluno.senha"
-          required
-          minlength="8"
+        <input 
+          type="password" 
+          id="senha" 
+          v-model="novoAluno.senha" 
+          required 
+          minlength="8" 
+          placeholder="Crie uma senha (mín. 8 caracteres)"
         />
-        <small
-          v-if="senhaInvalida"
-          class="form-text text-danger"
-        >
+        <small v-if="senhaInvalida" class="form-text text-danger">
           A senha deve ter pelo menos 8 caracteres.
         </small>
       </div>
 
+      <!-- Confirmar Senha -->
       <div class="form-group">
         <label for="confirmar-senha">Confirmar Senha:</label>
-        <input
-          type="password"
-          id="confirmar-senha"
-          v-model="novoAluno.confirmarSenha"
-          required
+        <input 
+          type="password" 
+          id="confirmar-senha" 
+          v-model="novoAluno.confirmarSenha" 
+          required 
+          placeholder="Confirme sua senha"
         />
-        <small
-          v-if="senhasNaoCoincidem"
-          class="form-text text-danger"
-        >
+        <small v-if="senhasNaoCoincidem" class="form-text text-danger">
           As senhas não coincidem.
         </small>
       </div>
+
+      <!-- Tipo de Usuário -->
       <div class="form-group">
-  <label for="tipoUsuario">Tipo de Usuário:</label>
-  <select id="tipoUsuario" v-model="novoAluno.tipoUsuario" class="form-control">
-    <option value="ESTUDANTE">Estudante</option>
-    <option value="TI">Técnico de TI</option>
-    <option value="DOCENTE">Docente</option>
-    <option value="MANUTENCAO">Técnico de Manutenção</option>
-    <option value="NOA">NOA</option>
-  </select>
-</div>
+        <label for="tipoUsuario">Tipo de Usuário:</label>
+        <select id="tipoUsuario" v-model="novoAluno.tipoUsuario" required>
+          <option disabled value="">Selecione uma opção</option>
+          <option value="ESTUDANTE">Estudante</option>
+          <option value="TI">Técnico de TI</option>
+          <option value="DOCENTE">Docente</option>
+          <option value="MANUTENCAO">Técnico de Manutenção</option>
+          <option value="NOA">NOA</option>
+        </select>
+      </div>
 
-
-      
-      <button type="submit" class="btn btn-primary"><strong>Cadastrar</strong></button>
+      <!-- Botão de Cadastro -->
+      <button type="submit" class="btn"><strong>Cadastrar</strong></button>
     </form>
   </div>
 </template>
+
 <script>
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -90,7 +102,6 @@ export default {
       mostrarFormulario: true,
       novoAluno: {
         nome: "",
-        telefone: "",
         gmail: "",
         confirmarEmail: "",
         senha: "",
@@ -104,124 +115,118 @@ export default {
       return this.novoAluno.senha && this.novoAluno.senha.length < 8;
     },
     senhasNaoCoincidem() {
-      return (
-        this.novoAluno.senha &&
-        this.novoAluno.confirmarSenha &&
-        this.novoAluno.senha !== this.novoAluno.confirmarSenha
-      );
+      return this.novoAluno.senha !== this.novoAluno.confirmarSenha;
     },
-  },
-  watch: {
-    // Monitorar alterações no campo de e-mail
-    "novoAluno.gmail"(novoValor) {
-      this.novoAluno.tipoUsuario = this.obterOcupacaoPorEmail(novoValor);
+    emailsNaoCoincidem() {
+      return this.novoAluno.gmail !== this.novoAluno.confirmarEmail;
     },
   },
   methods: {
     async cadastrarAluno() {
-      if (this.novoAluno.senha !== this.novoAluno.confirmarSenha) {
-        alert("As senhas não coincidem. Por favor, verifique.");
+      // Validações com SweetAlert
+      if (this.senhasNaoCoincidem) {
+        Swal.fire("Erro", "As senhas não coincidem.", "error");
         return;
       }
 
-      if (this.novoAluno.gmail !== this.novoAluno.confirmarEmail) {
-        alert("Os e-mails não coincidem. Por favor, verifique.");
+      if (this.emailsNaoCoincidem) {
+        Swal.fire("Erro", "Os e-mails não coincidem.", "error");
         return;
       }
 
-      if (this.novoAluno.senha.length < 8) {
-        alert("A senha deve ter pelo menos 8 caracteres.");
+      if (this.senhaInvalida) {
+        Swal.fire("Erro", "A senha deve ter pelo menos 8 caracteres.", "error");
         return;
       }
 
+      // Dados para envio
       const dadosUsuario = {
         nome_completo: this.novoAluno.nome,
-        senha: this.novoAluno.senha,
         email: this.novoAluno.gmail,
-        telefone: this.novoAluno.telefone,
+        senha: this.novoAluno.senha,
         ocupacao: this.novoAluno.tipoUsuario,
       };
-
-      const token = localStorage.getItem("token");
 
       try {
         const resposta = await axios.post(
           "http://localhost:3000/auth/register",
-          dadosUsuario,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
+          dadosUsuario
         );
 
         if (resposta.status === 201) {
-          alert("Cadastro realizado com sucesso!");
-          this.novoAluno = {
-            nome: "",
-            telefone: "",
-            gmail: "",
-            confirmarEmail: "",
-            senha: "",
-            confirmarSenha: "",
-            tipoUsuario: "",
-          };
+          Swal.fire("Sucesso", "Cadastro realizado com sucesso!", "success");
+          this.limparFormulario();
         } else {
-          alert("Erro ao cadastrar o usuário");
+          Swal.fire("Erro", "Erro ao cadastrar o usuário.", "error");
         }
       } catch (error) {
-        console.error("Erro no cadastro:", error);
-        alert("Erro ao cadastrar o usuário. Tente novamente.");
+        Swal.fire("Erro", "Erro ao cadastrar o usuário. Tente novamente.", "error");
       }
+    },
+    limparFormulario() {
+      this.novoAluno = {
+        nome: "",
+        gmail: "",
+        confirmarEmail: "",
+        senha: "",
+        confirmarSenha: "",
+        tipoUsuario: "",
+      };
     },
   },
 };
 </script>
 
-
 <style scoped>
-/* Container do formulário */
-/* Container do formulário */
-.form-container {
-  max-width: 950px;
-  margin: 50px auto;
-  padding: 25px;
-  background: #ffffff71;
-  border-radius: 12px;
-  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.), -4px -4px 10px rgba(255, 255, 255, 0.7);
+/* Contêiner esquerdo com gradiente e bolhas */
+.left-container {
+  background: linear-gradient(to bottom, #0575e6, #02298a, #021b79);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Título do formulário */
-.form-container h2 {
+/* Estilização principal do formulário */
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+h2 {
   text-align: center;
   font-size: 24px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   color: #076adb;
+  font-weight: bold;
 }
 
-/* Grupo de formulário */
+/* Grupos de formulário */
 .form-group {
   margin-bottom: 20px;
 }
 
-/* Labels */
 .form-group label {
   display: block;
+  font-size: 14px;
   margin-bottom: 8px;
+  color: #333;
   font-weight: 600;
-  color: #000000;
-  font-size: 16px;
-  font-weight: bold;
-
 }
 
-/* Campos de entrada */
-.form-group input {
+.form-group input,
+.form-group select {
   width: 100%;
   padding: 12px 15px;
   font-size: 16px;
-  border: 2px solid #ccc;
+  border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #f9f9f9;
   transition: all 0.3s ease;
@@ -229,11 +234,11 @@ export default {
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Foco nos campos */
-.form-group input:focus {
-  border-color: #007bff;
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #0575e6;
   background-color: #fff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 0 8px rgba(5, 117, 230, 0.4);
 }
 
 /* Texto de erro */
@@ -244,28 +249,84 @@ export default {
   font-weight: 500;
 }
 
-/* Botão de cadastro */
-.form-container button[type="submit"] {
-    background-color: #007bff;
-    color: white;
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    width: 35%;
+/* Botão */
+button[type="submit"] {
+  background: linear-gradient(to right, #0575e6, #021b79);
+  color: white;
+  font-size: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s;
+  font-weight: bold;
 }
 
-.btn:hover {
-  background: linear-gradient(90deg, #0056b3, #007bff);
-  box-shadow: 2px 4px 10px rgba(0, 123, 255, 0.4);
+button[type="submit"]:hover {
+  background: linear-gradient(to right, #021b79, #0575e6);
+  transform: scale(1.02);
+  box-shadow: 0 4px 10px rgba(5, 117, 230, 0.5);
 }
 
-/* Efeito de transição para campos com erro */
-.form-group input:invalid {
-  border-color: #e63946;
-  box-shadow: 0 0 6px rgba(230, 57, 70, 0.3);
+/* Animação das bolhas */
+.bubbles {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  animation: bubble 6s infinite;
+}
+
+.bubble:nth-child(1) {
+  width: 80px;
+  height: 80px;
+  left: 10%;
+  bottom: -120px;
+  animation-duration: 7s;
+}
+
+.bubble:nth-child(2) {
+  width: 100px;
+  height: 100px;
+  left: 35%;
+  bottom: -150px;
+  animation-duration: 9s;
+}
+
+.bubble:nth-child(3) {
+  width: 90px;
+  height: 90px;
+  left: 60%;
+  bottom: -200px;
+  animation-duration: 8s;
+}
+
+.bubble:nth-child(4) {
+  width: 120px;
+  height: 120px;
+  left: 80%;
+  bottom: -250px;
+  animation-duration: 10s;
+}
+
+@keyframes bubble {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-1000px) scale(0.5);
+    opacity: 0;
+  }
 }
 
 /* Responsividade */
@@ -274,15 +335,9 @@ export default {
     padding: 20px;
   }
 
-  .form-group input {
-    padding: 10px 12px;
+  button[type="submit"] {
     font-size: 14px;
   }
-
-  .btn {
-    padding: 12px;
-    font-size: 16px;
-  }
 }
-
 </style>
+
