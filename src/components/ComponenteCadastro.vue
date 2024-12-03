@@ -123,7 +123,10 @@ export default {
   },
   methods: {
     async cadastrarAluno() {
-      // Validações com SweetAlert
+      console.log("Validando cadastro...");
+      console.log("Dados atuais:", this.novoAluno);
+
+      // Validações
       if (this.senhasNaoCoincidem) {
         Swal.fire("Erro", "As senhas não coincidem.", "error");
         return;
@@ -147,20 +150,30 @@ export default {
         ocupacao: this.novoAluno.tipoUsuario,
       };
 
+
       try {
-        const resposta = await axios.post(
-          "http://localhost:3000/auth/register",
-          dadosUsuario
-        );
+        const token = localStorage.getItem("token");
+        if (!token) {
+          Swal.fire("Erro", "Usuário não autenticado. Faça login novamente.", "error");
+          return;
+        }
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        const resposta = await axios.post("http://localhost:3000/auth/register", dadosUsuario, config);
 
         if (resposta.status === 201) {
           Swal.fire("Sucesso", "Cadastro realizado com sucesso!", "success");
           this.limparFormulario();
         } else {
-          Swal.fire("Erro", "Erro ao cadastrar o usuário.", "error");
+          Swal.fire("Erro", `Erro ao cadastrar: ${resposta.data.message || "Erro desconhecido."}`, "error");
         }
       } catch (error) {
-        Swal.fire("Erro", "Erro ao cadastrar o usuário. Tente novamente.", "error");
+        Swal.fire("Erro", `Erro no cadastro: ${error.response?.data?.message || "Tente novamente."}`, "error");
+        console.error("Erro ao cadastrar:", error);
       }
     },
     limparFormulario() {
@@ -172,10 +185,13 @@ export default {
         confirmarSenha: "",
         tipoUsuario: "",
       };
+      this.mostrarFormulario = false;
+      setTimeout(() => (this.mostrarFormulario = true), 0);
     },
   },
 };
 </script>
+
 
 <style scoped>
 /* Contêiner esquerdo com gradiente e bolhas */
