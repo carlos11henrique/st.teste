@@ -65,7 +65,6 @@ import ComponenteCadastroEquipamento from './ComponenteCadastroEquipamento.vue';
 import ComponenteControleEquipamento from './ComponenteControleEquipamento.vue';
 import ComponenteHistoricoChamados from './ComponenteHistoricoChamados.vue';
 import ComponenteHomeTM from './ComponenteHomeTM.vue';
-
 import Swal from 'sweetalert2';
 
 export default {
