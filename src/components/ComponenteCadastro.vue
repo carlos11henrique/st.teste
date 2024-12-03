@@ -123,10 +123,7 @@ export default {
   },
   methods: {
     async cadastrarAluno() {
-      console.log("Validando cadastro...");
-      console.log("Dados atuais:", this.novoAluno);
-
-      // Validações
+      
       if (this.senhasNaoCoincidem) {
         Swal.fire("Erro", "As senhas não coincidem.", "error");
         return;
