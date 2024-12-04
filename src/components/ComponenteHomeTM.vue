@@ -1,116 +1,129 @@
 <template>
-    <div class="dashboard-container">
-      <div class="content">
-        <h2>Estatísticas Visuais</h2>
-        <div class="charts-container">
-          <div class="chart-card">
-            <h3>Tempo Médio de Resolução</h3>
-            <canvas id="averageResolutionTimeChart"></canvas>
-          </div>
-          <div class="chart-card">
-            <h3>Problemas com Maior Índice de Chamados</h3>
-            <canvas id="mostCalledIssuesChart"></canvas>
-          </div>
-          <div class="chart-card">
-            <h3>Tempo de Resolução dos Chamados</h3>
-            <canvas id="resolutionTimeChart"></canvas>
-          </div>
-          <div class="chart-card">
-            <h3>Tempo de Espera</h3>
-            <canvas id="waitingTimeChart"></canvas>
-          </div>
+  <div class="dashboard-container">
+    <div class="content">
+      <h2>Estatísticas Visuais</h2>
+      <div class="charts-container">
+        <div class="chart-card">
+          <h3>Tempo Médio de Resolução</h3>
+          <canvas id="averageResolutionTimeChart"></canvas>
+          <p>{{ tempoMedioResolucao }}</p>
+        </div>
+        <div class="chart-card">
+          <h3>Problemas com Maior Índice de Chamados</h3>
+          <canvas id="mostCalledIssuesChart"></canvas>
+          <p>{{ problemasMaisChamados }}</p>
+        </div>
+        <div class="chart-card">
+          <h3>Tempo de Resolução dos Chamados</h3>
+          <canvas id="resolutionTimeChart"></canvas>
+          <p>{{ tempoResolucaoChamados }}</p>
+        </div>
+        <div class="chart-card">
+          <h3>Tempo de Espera</h3>
+          <canvas id="waitingTimeChart"></canvas>
+          <p>{{ tempoEspera }}</p>
         </div>
       </div>
+      <div v-if="erro" class="error-message">
+        <p>{{ erro }}</p>
+      </div>
     </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  import Chart from 'chart.js/auto';
-  
-  export default {
-    name: 'DashboardCharts',
-    data() {
-      return {
-        averageResolutionTimeChart: null,
-        mostCalledIssuesChart: null,
-        resolutionTimeChart: null,
-        waitingTimeChart: null,
-      };
-    },
-    methods: {
-      async fetchChartData(url) {
-        try {
-          const response = await axios.get(url);
-          return response.data;
-        } catch (error) {
-          console.error(`Erro ao buscar dados de ${url}:`, error);
-          return null;
-        }
-      },async createCharts() {
-  // Gráfico 1: Tempo médio de resolução
-  const averageResolutionData = await this.fetchChartData('http://localhost:3000/tempo-medio-resolucao-tm');
-  if (averageResolutionData) {
-    this.averageResolutionTimeChart = new Chart(
-      document.getElementById('averageResolutionTimeChart'),
-      {
-        type: 'bar',
-        data: averageResolutionData,
-      }
-    );
-  }
+  </div>
+</template>
 
-  // Gráfico 2: Problemas com maior índice de chamados
-  const mostCalledIssuesData = await this.fetchChartData('http://localhost:3000/problemas-maior-indice');
-  if (mostCalledIssuesData) {
-    this.mostCalledIssuesChart = new Chart(
-      document.getElementById('mostCalledIssuesChart'),
-      {
-        type: 'pie',
-        data: mostCalledIssuesData,
-      }
-    );
-  }
+<script>
+import axios from "axios";
+import Chart from "chart.js/auto";
 
-  // Gráfico 3: Tempo de resolução dos chamados
-  const resolutionTimeData = await this.fetchChartData('http://localhost:3000/tempo-fechamento');
-  if (resolutionTimeData) {
-    this.resolutionTimeChart = new Chart(
-      document.getElementById('resolutionTimeChart'),
-      {
-        type: 'line',
-        data: resolutionTimeData,
-      }
-    );
-  }
+export default {
+  name: "DashboardCharts",
+  data() {
+    return {
+      averageResolutionTimeChart: null,
+      mostCalledIssuesChart: null,
+      resolutionTimeChart: null,
+      waitingTimeChart: null,
+      tempoMedioResolucao: null,
+      problemasMaisChamados: null,
+      tempoResolucaoChamados: null,
+      tempoEspera: null,
+      erro: null,
+    };
+  },
+  methods: {
+    async createCharts() {
+      const token = localStorage.getItem("token");
 
-  // Gráfico 4: Tempo de espera
-  const waitingTimeData = await this.fetchChartData('http://localhost:3000/tempo-primeiro-contato');
-  if (waitingTimeData) {
-    this.waitingTimeChart = new Chart(
-      document.getElementById('waitingTimeChart'),
-      {
-        type: 'bar',
-        data: waitingTimeData,
+      if (!token) {
+        this.erro = "Token não encontrado. O usuário precisa estar autenticado.";
+        return;
       }
-    );
-  }
-},
 
-    mounted() {
-      this.createCharts();
-    },
-    beforeDestroy() {
-      if (this.averageResolutionTimeChart) this.averageResolutionTimeChart.destroy();
-      if (this.mostCalledIssuesChart) this.mostCalledIssuesChart.destroy();
-      if (this.resolutionTimeChart) this.resolutionTimeChart.destroy();
-      if (this.waitingTimeChart) this.waitingTimeChart.destroy();
+      try {
+        // Gráfico 1: Tempo médio de resolução
+        const averageResolutionResponse = await axios.get("http://localhost:3000/tempo-medio-resolucao-tm", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const ctx1 = document.getElementById("averageResolutionTimeChart");
+        this.tempoMedioResolucao = averageResolutionResponse.data.tempoMedio;
+        this.averageResolutionTimeChart = new Chart(ctx1, {
+          type: "bar",
+          data: averageResolutionResponse.data.chartData,
+        });
+
+        // Gráfico 2: Problemas com maior índice de chamados
+        const mostCalledIssuesResponse = await axios.get("http://localhost:3000/problemas-maior-indice", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const ctx2 = document.getElementById("mostCalledIssuesChart");
+        this.problemasMaisChamados = mostCalledIssuesResponse.data.problemas;
+        this.mostCalledIssuesChart = new Chart(ctx2, {
+          type: "pie",
+          data: mostCalledIssuesResponse.data.chartData,
+        });
+
+        // Gráfico 3: Tempo de resolução dos chamados
+        const resolutionTimeResponse = await axios.get("http://localhost:3000/tempo-fechamento", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const ctx3 = document.getElementById("resolutionTimeChart");
+        this.tempoResolucaoChamados = resolutionTimeResponse.data.tempoMedio;
+        this.resolutionTimeChart = new Chart(ctx3, {
+          type: "line",
+          data: resolutionTimeResponse.data.chartData,
+        });
+
+        // Gráfico 4: Tempo de espera
+        const waitingTimeResponse = await axios.get("http://localhost:3000/tempo-primeiro-contato", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const ctx4 = document.getElementById("waitingTimeChart");
+        this.tempoEspera = waitingTimeResponse.data.tempoMedio;
+        this.waitingTimeChart = new Chart(ctx4, {
+          type: "bar",
+          data: waitingTimeResponse.data.chartData,
+        });
+      } catch (error) {
+        this.erro = "Erro ao buscar dados e criar os gráficos. Tente novamente mais tarde.";
+      }
     },
   },
-  };
 
-  </script>
-  
+  mounted() {
+    this.$nextTick(() => {
+      this.createCharts();
+    });
+  },
+
+  beforeUnmount() {
+    if (this.averageResolutionTimeChart) this.averageResolutionTimeChart.destroy();
+    if (this.mostCalledIssuesChart) this.mostCalledIssuesChart.destroy();
+    if (this.resolutionTimeChart) this.resolutionTimeChart.destroy();
+    if (this.waitingTimeChart) this.waitingTimeChart.destroy();
+  },
+};
+</script>
+
 
  <style scoped>
   .charts-container {
