@@ -3,25 +3,18 @@
       <div class="content">
         <h2>Estatísticas Visuais</h2>
         <div class="charts-container">
-          <!-- Gráfico 1: Tempo médio de resolução -->
           <div class="chart-card">
             <h3>Tempo Médio de Resolução</h3>
             <canvas id="averageResolutionTimeChart"></canvas>
           </div>
-  
-          <!-- Gráfico 2: Problemas com maior índice de chamados -->
           <div class="chart-card">
             <h3>Problemas com Maior Índice de Chamados</h3>
             <canvas id="mostCalledIssuesChart"></canvas>
           </div>
-  
-          <!-- Gráfico 3: Tempo de resolução dos chamados -->
           <div class="chart-card">
             <h3>Tempo de Resolução dos Chamados</h3>
             <canvas id="resolutionTimeChart"></canvas>
           </div>
-  
-          <!-- Gráfico 4: Tempo de espera -->
           <div class="chart-card">
             <h3>Tempo de Espera</h3>
             <canvas id="waitingTimeChart"></canvas>
@@ -30,71 +23,94 @@
       </div>
     </div>
   </template>
+  
   <script>
-  import { ref, onMounted, onUnmounted } from 'vue';
+  import axios from 'axios';
   import Chart from 'chart.js/auto';
   
   export default {
     name: 'DashboardCharts',
-    setup() {
-      let averageResolutionTimeChart, mostCalledIssuesChart, resolutionTimeChart, waitingTimeChart;
-  
-      const createChart = (ctx, type, data, options) => {
-        return new Chart(ctx, { type, data, options });
+    data() {
+      return {
+        averageResolutionTimeChart: null,
+        mostCalledIssuesChart: null,
+        resolutionTimeChart: null,
+        waitingTimeChart: null,
       };
-  
-      onMounted(() => {
-        // Gráfico 1: Tempo médio de resolução
-        averageResolutionTimeChart = createChart(document.getElementById('averageResolutionTimeChart'), 'bar', {
-          labels: ['Categoria A', 'Categoria B', 'Categoria C'],
-          datasets: [{
-            label: 'Tempo Médio (horas)',
-            data: [3.5, 2.8, 4.2],
-            backgroundColor: '#36A2EB',
-          }],
-        });
-  
-        // Gráfico 2: Problemas com maior índice de chamados
-        mostCalledIssuesChart = createChart(document.getElementById('mostCalledIssuesChart'), 'pie', {
-          labels: ['Hardware', 'Software', 'Rede'],
-          datasets: [{
-            data: [40, 35, 25],
-            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-          }],
-        });
-  
-        // Gráfico 3: Tempo de resolução dos chamados
-        resolutionTimeChart = createChart(document.getElementById('resolutionTimeChart'), 'line', {
-          labels: ['Janeiro', 'Fevereiro', 'Março'],
-          datasets: [{
-            label: 'Tempo de Resolução (horas)',
-            data: [5, 4.2, 6],
-            borderColor: '#FF6384',
-            fill: false,
-          }],
-        });
-  
-        // Gráfico 4: Tempo de espera
-        waitingTimeChart = createChart(document.getElementById('waitingTimeChart'), 'bar', {
-          labels: ['Chamado 1', 'Chamado 2', 'Chamado 3'],
-          datasets: [{
-            label: 'Tempo de Espera (horas)',
-            data: [2, 1.5, 3],
-            backgroundColor: '#4BC0C0',
-          }],
-        });
-      });
-  
-      onUnmounted(() => {
-        if (averageResolutionTimeChart) averageResolutionTimeChart.destroy();
-        if (mostCalledIssuesChart) mostCalledIssuesChart.destroy();
-        if (resolutionTimeChart) resolutionTimeChart.destroy();
-        if (waitingTimeChart) waitingTimeChart.destroy();
-      });
     },
+    methods: {
+      async fetchChartData(url) {
+        try {
+          const response = await axios.get(url);
+          return response.data;
+        } catch (error) {
+          console.error(`Erro ao buscar dados de ${url}:`, error);
+          return null;
+        }
+      },async createCharts() {
+  // Gráfico 1: Tempo médio de resolução
+  const averageResolutionData = await this.fetchChartData('http://localhost:3000/tempo-medio-resolucao-tm');
+  if (averageResolutionData) {
+    this.averageResolutionTimeChart = new Chart(
+      document.getElementById('averageResolutionTimeChart'),
+      {
+        type: 'bar',
+        data: averageResolutionData,
+      }
+    );
+  }
+
+  // Gráfico 2: Problemas com maior índice de chamados
+  const mostCalledIssuesData = await this.fetchChartData('http://localhost:3000/problemas-maior-indice');
+  if (mostCalledIssuesData) {
+    this.mostCalledIssuesChart = new Chart(
+      document.getElementById('mostCalledIssuesChart'),
+      {
+        type: 'pie',
+        data: mostCalledIssuesData,
+      }
+    );
+  }
+
+  // Gráfico 3: Tempo de resolução dos chamados
+  const resolutionTimeData = await this.fetchChartData('http://localhost:3000/tempo-fechamento');
+  if (resolutionTimeData) {
+    this.resolutionTimeChart = new Chart(
+      document.getElementById('resolutionTimeChart'),
+      {
+        type: 'line',
+        data: resolutionTimeData,
+      }
+    );
+  }
+
+  // Gráfico 4: Tempo de espera
+  const waitingTimeData = await this.fetchChartData('http://localhost:3000/tempo-primeiro-contato');
+  if (waitingTimeData) {
+    this.waitingTimeChart = new Chart(
+      document.getElementById('waitingTimeChart'),
+      {
+        type: 'bar',
+        data: waitingTimeData,
+      }
+    );
+  }
+},
+
+    mounted() {
+      this.createCharts();
+    },
+    beforeDestroy() {
+      if (this.averageResolutionTimeChart) this.averageResolutionTimeChart.destroy();
+      if (this.mostCalledIssuesChart) this.mostCalledIssuesChart.destroy();
+      if (this.resolutionTimeChart) this.resolutionTimeChart.destroy();
+      if (this.waitingTimeChart) this.waitingTimeChart.destroy();
+    },
+  },
   };
+
   </script>
- 
+  
 
  <style scoped>
   .charts-container {

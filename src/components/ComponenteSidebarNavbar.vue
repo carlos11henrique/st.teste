@@ -7,10 +7,10 @@
     <div class="sidebar bg-primary text-white p-3 position-fixed" style="top: 0; bottom: 0; left: 0;">
       <h2>Menu</h2>
       <ul class="nav flex-column">
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteHome'}">
+        <li v-if="role === ROLES.TI || role === ROLES.MANUTENCAO" class="nav-item" :class="{'active': selectedComponent === 'ComponenteHome'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteHomeTM')" href="#">Home</a>
         </li>
-        <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteHome'}">
+        <li v-if="role === ROLES.NOA" class="nav-item" :class="{'active': selectedComponent === 'ComponenteHome'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteHome')" href="#">Home</a>
         </li>
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteKaban'}">
@@ -84,12 +84,19 @@ export default {
     return {
       ROLES,
       role: null, // Inicialize como null ou com o valor padrão
-      selectedComponent: 'ComponenteHome', // Componente inicial
     };
   },
+  
+
   created() {
-    // Simulação de carregamento de role, substitua com chamada real
     this.role = localStorage.getItem('role') || ROLES.USER; // Por exemplo, "NOA"
+    if (this.role === ROLES.TI || this.role === ROLES.MANUTENCAO) {
+    this.selectedComponent = 'ComponenteHomeTM'; 
+  } else if (this.role === ROLES.NOA) {
+    this.selectedComponent = 'ComponenteHome';
+  } else {
+    this.selectedComponent = 'ComponenteKaban'; 
+  }
   },
   methods: {
     setComponent(componentName) {
