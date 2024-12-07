@@ -71,7 +71,7 @@
         <button class="btn btn-primary">Voltar para o Login</button>
       </router-link>
       <router-link to="/openticketpage">
-        <button class="btn btn-primary">Voltar para o Abrir Chamado</button>
+        <button class="btn btn-primary">Abrir um chamado</button>
       </router-link>
     </div>
   </div>
