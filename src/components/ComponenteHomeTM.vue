@@ -39,10 +39,6 @@ export default {
   name: "DashboardCharts",
   data() {
     return {
-      averageResolutionTimeChart: null,
-      mostCalledIssuesChart: null,
-      resolutionTimeChart: null,
-      waitingTimeChart: null,
       tempoMedioResolucao: null,
       problemasMaisChamados: null,
       tempoResolucaoChamados: null,
@@ -59,47 +55,53 @@ export default {
         return;
       }
 
-      try {
-        // Gráfico 1: Tempo médio de resolução
-        const averageResolutionResponse = await axios.get("http://localhost:3000/tempo-medio-resolucao-tm", {
+      const requests = [
+        axios.get("http://localhost:3000/tempo-medio-resolucao-tm", {
           headers: { Authorization: `Bearer ${token}` },
-        });
+        }),
+        axios.get("http://localhost:3000/problemas-maior-indice", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get("http://localhost:3000/tempo-fechamento", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get("http://localhost:3000/tempo-primeiro-contato", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ];
+
+      try {
+        const [
+          averageResolutionResponse,
+          mostCalledIssuesResponse,
+          resolutionTimeResponse,
+          waitingTimeResponse,
+        ] = await Promise.all(requests);
+
         const ctx1 = document.getElementById("averageResolutionTimeChart");
         this.tempoMedioResolucao = averageResolutionResponse.data.tempoMedio;
-        this.averageResolutionTimeChart = new Chart(ctx1, {
+        new Chart(ctx1, {
           type: "bar",
           data: averageResolutionResponse.data.chartData,
         });
 
-        // Gráfico 2: Problemas com maior índice de chamados
-        const mostCalledIssuesResponse = await axios.get("http://localhost:3000/problemas-maior-indice", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
         const ctx2 = document.getElementById("mostCalledIssuesChart");
         this.problemasMaisChamados = mostCalledIssuesResponse.data.problemas;
-        this.mostCalledIssuesChart = new Chart(ctx2, {
+        new Chart(ctx2, {
           type: "pie",
           data: mostCalledIssuesResponse.data.chartData,
         });
 
-        // Gráfico 3: Tempo de resolução dos chamados
-        const resolutionTimeResponse = await axios.get("http://localhost:3000/tempo-fechamento", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
         const ctx3 = document.getElementById("resolutionTimeChart");
         this.tempoResolucaoChamados = resolutionTimeResponse.data.tempoMedio;
-        this.resolutionTimeChart = new Chart(ctx3, {
+        new Chart(ctx3, {
           type: "line",
           data: resolutionTimeResponse.data.chartData,
         });
 
-        // Gráfico 4: Tempo de espera
-        const waitingTimeResponse = await axios.get("http://localhost:3000/tempo-primeiro-contato", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
         const ctx4 = document.getElementById("waitingTimeChart");
         this.tempoEspera = waitingTimeResponse.data.tempoMedio;
-        this.waitingTimeChart = new Chart(ctx4, {
+        new Chart(ctx4, {
           type: "bar",
           data: waitingTimeResponse.data.chartData,
         });
@@ -110,19 +112,23 @@ export default {
   },
 
   mounted() {
-    this.$nextTick(() => {
-      this.createCharts();
-    });
+    this.createCharts();
   },
 
   beforeUnmount() {
-    if (this.averageResolutionTimeChart) this.averageResolutionTimeChart.destroy();
-    if (this.mostCalledIssuesChart) this.mostCalledIssuesChart.destroy();
-    if (this.resolutionTimeChart) this.resolutionTimeChart.destroy();
-    if (this.waitingTimeChart) this.waitingTimeChart.destroy();
+    const charts = [
+      this.averageResolutionTimeChart,
+      this.mostCalledIssuesChart,
+      this.resolutionTimeChart,
+      this.waitingTimeChart,
+    ];
+    charts.forEach((chart) => {
+      if (chart) chart.destroy();
+    });
   },
 };
 </script>
+
 
 
  <style scoped>
