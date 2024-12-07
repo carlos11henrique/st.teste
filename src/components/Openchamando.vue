@@ -17,19 +17,19 @@
       <!-- Linha de progresso -->
       <div v-if="chamado" class="progress-tracking">
         <div class="progress-step" :class="{ completed: currentStep >= 1 }">
-          <div class="circle"></div>
+          <div class="circle">🔎</div>
           <span>Em Análise</span>
         </div>
         <div class="progress-step" :class="{ completed: currentStep >= 2 }">
-          <div class="circle"></div>
+          <div class="circle">❗</div>
           <span>Chamado Pendente</span>
         </div>
         <div class="progress-step" :class="{ completed: currentStep >= 3 }">
-          <div class="circle"></div>
+          <div class="circle">🏃🏻‍♂️</div>
           <span>Em Andamento</span>
         </div>
         <div class="progress-step" :class="{ completed: currentStep >= 4 }">
-          <div class="circle"></div>
+          <div class="circle">✅</div>
           <span>Concluído</span>
         </div>
       </div>

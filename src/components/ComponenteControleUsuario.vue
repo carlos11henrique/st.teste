@@ -32,20 +32,29 @@
       </table>
     </div>
 
-    <!-- Formulário de Edição -->
-    <div v-if="usuarioParaEditar" class="edit-form mt-4">
-      <h3>Editar Usuário</h3>
-      <form @submit.prevent="atualizarUsuario">
-        <div class="form-group">
-          <label>Nome</label>
-          <input type="text" v-model="usuarioParaEditar.nome_completo" class="form-control" required />
+    <!-- Modal para Edição de Usuário -->
+    <div v-if="usuarioParaEditar" class="modal fade show" style="display: block;" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="false">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel">Editar Usuário</h5>
+            <button type="button" class="btn-close" @click="usuarioParaEditar = null" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="atualizarUsuario">
+              <div class="form-group">
+                <label>Nome</label>
+                <input type="text" v-model="usuarioParaEditar.nome_completo" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" v-model="usuarioParaEditar.email" class="form-control" required />
+              </div>
+              <button type="submit" class="btn btn-primary mt-2">Salvar Alterações</button>
+            </form>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" v-model="usuarioParaEditar.email" class="form-control" required />
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">Salvar Alterações</button>
-      </form>
+      </div>
     </div>
 
     <!-- Mensagens de sucesso ou erro -->
@@ -184,11 +193,53 @@ export default {
   margin: 20px;
 }
 
-.edit-form {
-  background-color: #f9f9f9;
-  padding: 20px;
+.modal {
+  position: fixed; /* Fixa o modal na tela */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fundo semitransparente */
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; /* Garantir que o modal fique acima de outros elementos */
+}
+
+.modal.show {
+  display: flex; /* Exibe o modal quando a classe show é adicionada */
+}
+
+.modal-dialog {
+  max-width: 500px;
+  margin: 0;
+}
+
+.modal-content {
+  background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-left: 140%;
+  margin-top: 32%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header .btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #000;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 15px 022px;
 }
 
 .edit-form h3 {
@@ -213,3 +264,4 @@ export default {
   color: #721c24;
 }
 </style>
+

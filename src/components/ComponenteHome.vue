@@ -1,4 +1,4 @@
-<template>
+<template> 
   <div class="dashboard-container">
     <!-- Sidebar de navegação -->
 
@@ -28,10 +28,9 @@
           <p>{{ tempoMedioResolucao }}</p>
         </div>
         <div class="summary-card">
-  <h3>Problemas Mais Recorrentes</h3>
-  <p class="problemas-recorrentes">{{ problemasRecorrentes }}</p>
-</div>
-
+          <h3>Problemas Mais Recorrentes</h3>
+          <p class="problemas-recorrentes">{{ problemasRecorrentes }}</p>
+        </div>
       </div>
 
       <!-- Gráficos -->
@@ -39,24 +38,64 @@
       <div class="charts-container">
         <!-- Gráfico de Pizza -->
         <div class="chart-card">
+          <div class="dropdown"> 
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Exportar Gráfico de Pizza
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
+              <li><a class="dropdown-item" href="#" @click="exportPieChartPDF">PDF</a></li>
+              <li><a class="dropdown-item" href="#" @click="exportPieChartImage">Imagem</a></li>
+            </ul>
+          </div>
           <h3>Distribuição de Chamados por Categoria</h3>
           <canvas id="pieChart"></canvas>
         </div>
 
         <!-- Gráfico de Barra -->
         <div class="chart-card">
+          <div class="dropdown"> 
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Exportar Gráfico de Barra
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" @click="exportBarChartExcel">Excel</a></li>
+              <li><a class="dropdown-item" href="#" @click="exportBarChartPDF">PDF</a></li>
+              <li><a class="dropdown-item" href="#" @click="exportBarChartImage">Imagem</a></li>
+            </ul>
+          </div>
           <h3>Chamados por Mês</h3>
           <canvas id="barChart"></canvas>
         </div>
 
         <!-- Gráfico de Linha -->
         <div class="chart-card">
+          <div class="dropdown"> 
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Exportar Gráfico de Linha
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" @click="exportLineChartExcel">Excel</a></li>
+              <li><a class="dropdown-item" href="#" @click="exportLineChartPDF">PDF</a></li>
+              <li><a class="dropdown-item" href="#" @click="exportLineChartImage">Imagem</a></li>
+            </ul>
+          </div>
           <h3>Evolução dos Chamados</h3>
           <canvas id="lineChart"></canvas>
         </div>
 
         <!-- Gráfico de Degrau -->
         <div class="chart-card">
+          <div class="dropdown"> 
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Exportar Gráfico de Degrau
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" @click="exportStepChartExcel">Excel</a></li>
+              <li><a class="dropdown-item" href="#" @click="exportStepChartPDF">PDF</a></li>
+              <li><a class="dropdown-item" href="#" @click="exportStepChartImage">Imagem</a></li>
+            </ul>
+          </div>
           <h3>Chamados em Degrau</h3>
           <canvas id="stepChart"></canvas>
         </div>
@@ -66,9 +105,11 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
+import html2pdf from 'html2pdf.js';
+import * as XLSX from 'xlsx';
 
 export default {
   name: 'ComponenteHome',
@@ -93,148 +134,156 @@ export default {
     };
 
     const fetchData = async () => {
-  erro.value = null;
-  try {
-    const baseURL = 'http://localhost:3000/home';
-    const token = localStorage.getItem("token");
+      erro.value = null;
+      try {
+        const baseURL = 'http://localhost:3000/home';
+        const token = localStorage.getItem("token");
 
-    const resPendentes = await axios.get(`${baseURL}/total-pendentes`, {
-      headers: {
-        Authorization: `Bearer ${token}`
+        const resPendentes = await axios.get(`${baseURL}/total-pendentes`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        totalPendentes.value = resPendentes.data.total;
+
+        const resAndamento = await axios.get(`${baseURL}/total-andamento`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        totalAndamento.value = resAndamento.data.total;
+
+        const resConcluidos = await axios.get(`${baseURL}/total-concluidos`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        totalConcluidos.value = resConcluidos.data.total;
+
+        const resTempo = await axios.get(`${baseURL}/tempo-medio-resolucao`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (resTempo.data && resTempo.data.tempo_medio_resolucao_dias !== undefined) {
+          const dias = resTempo.data.tempo_medio_resolucao_dias;
+          tempoMedioResolucao.value = `${dias} dia${dias === 1 ? '' : 's'}`;
+        } else {
+          erro.value = "Erro ao carregar o tempo médio de resolução";
+        }
+
+        const resProblemas = await axios.get(`${baseURL}/problemas-recorrentes`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        problemasRecorrentes.value = resProblemas.data.map(item => item.nome_problema).join(', ');
+
+        // Gráficos
+        const resDistribuicao = await axios.get(`${baseURL}/distribuicao-categoria`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (resDistribuicao.data) {
+          pieChart = createChart(document.getElementById('pieChart'), 'pie', {
+            labels: resDistribuicao.data.map(item => item.nome_setor),
+            datasets: [{
+              data: resDistribuicao.data.map(item => item.total_chamados),
+              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0']
+            }]
+          });
+        }
+
+        // Gráfico de Barra
+        const resMeses = await axios.get(`${baseURL}/chamados-por-mes`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (resMeses.data) {
+          barChart = createChart(document.getElementById('barChart'), 'bar', {
+            labels: resMeses.data.map(item => item.mes),
+            datasets: [{
+              label: 'Chamados por Mês',
+              data: resMeses.data.map(item => item.total_chamados),
+              backgroundColor: '#4BC0C0'
+            }]
+          });
+        }
+
+        // Gráfico de Linha
+        const resEvolucao = await axios.get(`${baseURL}/evolucao-chamados`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (resEvolucao.data) {
+          lineChart = createChart(document.getElementById('lineChart'), 'line', {
+            labels: resEvolucao.data.map(item => item.mes),
+            datasets: [{
+              label: 'Evolução dos Chamados',
+              data: resEvolucao.data.map(item => item.total_chamados),
+              borderColor: '#FF9F40',
+              fill: false
+            }]
+          });
+        }
+
+        // Gráfico de Degrau
+        const resDegrau = await axios.get(`${baseURL}/chamados-degrau`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (resDegrau.data) {
+          stepChart = createChart(document.getElementById('stepChart'), 'line', {
+            labels: resDegrau.data.map(item => item.data),
+            datasets: [{
+              label: 'Chamados em Degrau',
+              data: resDegrau.data.map(item => item.total_chamados),
+              borderColor: '#36A2EB',
+              steppedLine: true
+            }]
+          });
+        }
+      } catch (error) {
+        erro.value = "Erro ao carregar os dados.";
+        console.error(error);
       }
-    });
-    totalPendentes.value = resPendentes.data.total;
+    };
 
-    const resAndamento = await axios.get(`${baseURL}/total-andamento`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    totalAndamento.value = resAndamento.data.total;
+    const exportChartToExcel = (chartId) => {
+      const chart = chartId === 'pieChart' ? pieChart :
+                    chartId === 'barChart' ? barChart :
+                    chartId === 'lineChart' ? lineChart :
+                    stepChart;
+      const data = chart.data.datasets[0].data;
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet([['Categoria', 'Quantidade'], ...data.map((d, i) => [chart.data.labels[i], d])]);
+      XLSX.utils.book_append_sheet(wb, ws, 'Gráfico');
+      XLSX.writeFile(wb, `grafico_${chartId}.xlsx`);
+    };
 
-    const resConcluidos = await axios.get(`${baseURL}/total-concluidos`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    totalConcluidos.value = resConcluidos.data.total;
+    const exportChartToPDF = (chartId) => {
+      const chartCanvas = document.getElementById(chartId);
+      const imgData = chartCanvas.toDataURL("image/png");
+      const doc = new jsPDF();
+      doc.addImage(imgData, 'PNG', 10, 10);
+      doc.save(`grafico_${chartId}.pdf`);
+    };
 
-    const resTempo = await axios.get(`${baseURL}/tempo-medio-resolucao`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const exportChartToImage = (chartId) => {
+      const chartCanvas = document.getElementById(chartId);
+      const imgData = chartCanvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = imgData;
+      link.download = `grafico_${chartId}.png`;
+      link.click();
+    };
 
-    if (resTempo.data && resTempo.data.tempo_medio_resolucao_dias !== undefined) {
-      const dias = resTempo.data.tempo_medio_resolucao_dias;
-      tempoMedioResolucao.value = `${dias} dia${dias === 1 ? '' : 's'}`;
-    } else {
-      erro.value = "Erro ao carregar o tempo médio de resolução";
-    }
+    // Exportação por tipo de gráfico
+    const exportPieChartExcel = () => exportChartToExcel('pieChart');
+    const exportPieChartPDF = () => exportChartToPDF('pieChart');
+    const exportPieChartImage = () => exportChartToImage('pieChart');
 
-    const resProblemas = await axios.get(`${baseURL}/problemas-recorrentes`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    problemasRecorrentes.value = resProblemas.data.map(item => item.nome_problema).join(', ');
+    const exportBarChartExcel = () => exportChartToExcel('barChart');
+    const exportBarChartPDF = () => exportChartToPDF('barChart');
+    const exportBarChartImage = () => exportChartToImage('barChart');
 
-    // Gráfico de Pizza
-    const resDistribuicao = await axios.get(`${baseURL}/distribuicao-categoria`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    if (resDistribuicao.data) {
-      pieChart = createChart(document.getElementById('pieChart'), 'pie', {
-        labels: resDistribuicao.data.map(item => item.nome_setor),
-        datasets: [{
-          data: resDistribuicao.data.map(item => item.total_chamados),
-          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0']
-        }]
-      });
-    }
+    const exportLineChartExcel = () => exportChartToExcel('lineChart');
+    const exportLineChartPDF = () => exportChartToPDF('lineChart');
+    const exportLineChartImage = () => exportChartToImage('lineChart');
 
-    // Gráfico de Barra
-    const resMeses = await axios.get(`${baseURL}/chamados-por-mes`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    if (resMeses.data) {
-      barChart = createChart(document.getElementById('barChart'), 'bar', {
-        labels: resMeses.data.map(item => item.mes),
-        datasets: [{
-          label: 'Chamados por Mês',
-          data: resMeses.data.map(item => item.total_chamados),
-          backgroundColor: '#4BC0C0'
-        }]
-      });
-    }
+    const exportStepChartExcel = () => exportChartToExcel('stepChart');
+    const exportStepChartPDF = () => exportChartToPDF('stepChart');
+    const exportStepChartImage = () => exportChartToImage('stepChart');
 
-    // Gráfico de Linha
-  // Gráfico de Linha
-const resEvolucao = await axios.get(`${baseURL}/evolucao-chamados`, {
-  headers: {
-    Authorization: `Bearer ${token}`
-  }
-});
-if (resEvolucao.data) {
-  lineChart = createChart(document.getElementById('lineChart'), 'line', {
-    labels: resEvolucao.data.map(item => item.dia), // Alterado para "dia"
-    datasets: [{
-      label: 'Evolução dos Chamados por Dia',
-      data: resEvolucao.data.map(item => item.total_chamados),
-      borderColor: '#36A2EB',
-      fill: false
-    }]
-  });
-}
-
-
-    // Gráfico de Degrau
-    const resDegrau = await axios.get(`${baseURL}/chamados-degrau`, {
-  headers: {
-    Authorization: `Bearer ${token}`
-  }
-});
-if (resDegrau.data) {
-  stepChart = createChart(document.getElementById('stepChart'), 'line', {
-    labels: resDegrau.data.map(item => item.dia), // Alterado para "dia"
-    datasets: [{
-      label: 'Chamados por Dia',
-      data: resDegrau.data.map(item => item.total_chamados),
-      borderColor: '#FF6384',
-      stepped: true,
-      fill: false
-    }]
-  });
-}
-
-  } catch (error) {
-    console.error('Erro ao buscar dados:', error);
-    if (error.response && error.response.status === 401) {
-      erro.value = "Sua sessão expirou. Faça login novamente.";
-    } else if (error.response) {
-      erro.value = `Erro do servidor: ${error.response.data.message || 'Tente novamente mais tarde.'}`;
-    } else {
-      erro.value = "Erro de conexão. Verifique sua internet.";
-    }
-  }
-};
-
-    // Montagem do componente (onMounted)
-    onMounted(() => {
-      fetchData();
-    });
-
-    // Desmontagem do componente (onUnmounted)
-    onUnmounted(() => {
-      if (pieChart) pieChart.destroy();
-      if (barChart) barChart.destroy();
-      if (lineChart) lineChart.destroy();
-      if (stepChart) stepChart.destroy();
-    });
+    // Ao montar o componente, buscar os dados
+    onMounted(fetchData);
 
     return {
       totalPendentes,
@@ -242,11 +291,24 @@ if (resDegrau.data) {
       totalConcluidos,
       tempoMedioResolucao,
       problemasRecorrentes,
-      erro
+      erro,
+      exportPieChartExcel,
+      exportPieChartPDF,
+      exportPieChartImage,
+      exportBarChartExcel,
+      exportBarChartPDF,
+      exportBarChartImage,
+      exportLineChartExcel,
+      exportLineChartPDF,
+      exportLineChartImage,
+      exportStepChartExcel,
+      exportStepChartPDF,
+      exportStepChartImage
     };
   }
 };
 </script>
+
 
 <style scoped>
 /* Cartões de resumo */
@@ -403,4 +465,63 @@ h6 {
 .bg-primary[data-v-6dec5f19] {
   background-color: #0d6efd !important;
 }
+/* Estilos do botão de dropdown */
+.dropdown .btn {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dropdown .btn:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* Estilos do menu dropdown */
+.dropdown-menu {
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  min-width: 160px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+}
+
+/* Estilos dos itens do dropdown */
+.dropdown-menu .dropdown-item {
+  padding: 12px 20px;
+  font-size: 14px;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #007bff;
+}
+
+/* Estilos adicionais para o dropdown aberto */
+.dropdown-menu.show {
+  display: block;
+}
+
+/* Ajustes para responsividade */
+@media (max-width: 768px) {
+  .dropdown .btn {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+
+  .dropdown-menu .dropdown-item {
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+}
+
 </style>
