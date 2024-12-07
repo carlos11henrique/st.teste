@@ -77,7 +77,7 @@ export default {
     const totalPendentes = ref(0);
     const totalAndamento = ref(0);
     const totalConcluidos = ref(0);
-    const tempoMedioResolucao = ref('0h 0m');
+    const tempoMedioResolucao = ref('dias');
     const problemasRecorrentes = ref('');
     const erro = ref(null); // Propriedade para armazenar erros
 
@@ -93,131 +93,135 @@ export default {
     };
 
     const fetchData = async () => {
-      erro.value = null;
-      try {
-        const baseURL = 'http://localhost:3000/home';
-        const token = localStorage.getItem("token");
+  erro.value = null;
+  try {
+    const baseURL = 'http://localhost:3000/home';
+    const token = localStorage.getItem("token");
 
-        const resPendentes = await axios.get(`${baseURL}/total-pendentes`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        totalPendentes.value = resPendentes.data.total;
-
-        const resAndamento = await axios.get(`${baseURL}/total-andamento`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        totalAndamento.value = resAndamento.data.total;
-
-        const resConcluidos = await axios.get(`${baseURL}/total-concluidos`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        totalConcluidos.value = resConcluidos.data.total;
-        const resTempo = await axios.get(`${baseURL}/tempo-medio-resolucao`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (resTempo.data && resTempo.data.tempo_medio_resolucao_minutos !== undefined) {
-          const tempoMedioMinutos = resTempo.data.tempo_medio_resolucao_minutos;
-
-          if (tempoMedioMinutos < 1) {
-            tempoMedioResolucao.value = `${Math.floor(tempoMedioMinutos * 60)}m`; // Caso o tempo seja inferior a 1 minuto
-          } else {
-            tempoMedioResolucao.value = `${Math.floor(tempoMedioMinutos / 60)}h ${Math.round(tempoMedioMinutos % 60)}m`;
-          }
-        } else {
-          erro.value = "Erro ao carregar o tempo médio de resolução";
-        }
-
-        const resProblemas = await axios.get(`${baseURL}/problemas-recorrentes`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        problemasRecorrentes.value = resProblemas.data.map(item => item.nome_problema).join(', ');
-
-        // Gráfico de Pizza
-        const resDistribuicao = await axios.get(`${baseURL}/distribuicao-categoria`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (resDistribuicao.data) {
-          pieChart = createChart(document.getElementById('pieChart'), 'pie', {
-            labels: resDistribuicao.data.map(item => item.nome_setor),
-            datasets: [{
-              data: resDistribuicao.data.map(item => item.total_chamados),
-              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0']
-            }]
-          });
-        }
-
-        // Gráfico de Barra
-        const resMeses = await axios.get(`${baseURL}/chamados-por-mes`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (resMeses.data) {
-          barChart = createChart(document.getElementById('barChart'), 'bar', {
-            labels: resMeses.data.map(item => item.mes),
-            datasets: [{
-              label: 'Chamados por Mês',
-              data: resMeses.data.map(item => item.total_chamados),
-              backgroundColor: '#4BC0C0'
-            }]
-          });
-        }
-
-        // Gráfico de Linha
-        const resEvolucao = await axios.get(`${baseURL}/evolucao-chamados`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (resEvolucao.data) {
-          lineChart = createChart(document.getElementById('lineChart'), 'line', {
-            labels: resEvolucao.data.map(item => item.mes),
-            datasets: [{
-              label: 'Evolução dos Chamados',
-              data: resEvolucao.data.map(item => item.total_chamados),
-              borderColor: '#36A2EB',
-              fill: false
-            }]
-          });
-        }
-
-        // Gráfico de Degrau
-        const resDegrau = await axios.get(`${baseURL}/chamados-degrau`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (resDegrau.data) {
-          stepChart = createChart(document.getElementById('stepChart'), 'line', {
-            labels: resDegrau.data.map(item => item.mes),
-            datasets: [{
-              label: 'Chamados em Degrau',
-              data: resDegrau.data.map(item => item.total_chamados),
-              borderColor: '#FF6384',
-              stepped: true,
-              fill: false
-            }]
-          });
-        }
-
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error);
-        erro.value = "Erro ao carregar os dados. Tente novamente mais tarde.";
+    const resPendentes = await axios.get(`${baseURL}/total-pendentes`, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    };
+    });
+    totalPendentes.value = resPendentes.data.total;
+
+    const resAndamento = await axios.get(`${baseURL}/total-andamento`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    totalAndamento.value = resAndamento.data.total;
+
+    const resConcluidos = await axios.get(`${baseURL}/total-concluidos`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    totalConcluidos.value = resConcluidos.data.total;
+
+    const resTempo = await axios.get(`${baseURL}/tempo-medio-resolucao`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (resTempo.data && resTempo.data.tempo_medio_resolucao_dias !== undefined) {
+      const dias = resTempo.data.tempo_medio_resolucao_dias;
+      tempoMedioResolucao.value = `${dias} dia${dias === 1 ? '' : 's'}`;
+    } else {
+      erro.value = "Erro ao carregar o tempo médio de resolução";
+    }
+
+    const resProblemas = await axios.get(`${baseURL}/problemas-recorrentes`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    problemasRecorrentes.value = resProblemas.data.map(item => item.nome_problema).join(', ');
+
+    // Gráfico de Pizza
+    const resDistribuicao = await axios.get(`${baseURL}/distribuicao-categoria`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    if (resDistribuicao.data) {
+      pieChart = createChart(document.getElementById('pieChart'), 'pie', {
+        labels: resDistribuicao.data.map(item => item.nome_setor),
+        datasets: [{
+          data: resDistribuicao.data.map(item => item.total_chamados),
+          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0']
+        }]
+      });
+    }
+
+    // Gráfico de Barra
+    const resMeses = await axios.get(`${baseURL}/chamados-por-mes`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    if (resMeses.data) {
+      barChart = createChart(document.getElementById('barChart'), 'bar', {
+        labels: resMeses.data.map(item => item.mes),
+        datasets: [{
+          label: 'Chamados por Mês',
+          data: resMeses.data.map(item => item.total_chamados),
+          backgroundColor: '#4BC0C0'
+        }]
+      });
+    }
+
+    // Gráfico de Linha
+  // Gráfico de Linha
+const resEvolucao = await axios.get(`${baseURL}/evolucao-chamados`, {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
+if (resEvolucao.data) {
+  lineChart = createChart(document.getElementById('lineChart'), 'line', {
+    labels: resEvolucao.data.map(item => item.dia), // Alterado para "dia"
+    datasets: [{
+      label: 'Evolução dos Chamados por Dia',
+      data: resEvolucao.data.map(item => item.total_chamados),
+      borderColor: '#36A2EB',
+      fill: false
+    }]
+  });
+}
+
+
+    // Gráfico de Degrau
+    const resDegrau = await axios.get(`${baseURL}/chamados-degrau`, {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
+if (resDegrau.data) {
+  stepChart = createChart(document.getElementById('stepChart'), 'line', {
+    labels: resDegrau.data.map(item => item.dia), // Alterado para "dia"
+    datasets: [{
+      label: 'Chamados por Dia',
+      data: resDegrau.data.map(item => item.total_chamados),
+      borderColor: '#FF6384',
+      stepped: true,
+      fill: false
+    }]
+  });
+}
+
+  } catch (error) {
+    console.error('Erro ao buscar dados:', error);
+    if (error.response && error.response.status === 401) {
+      erro.value = "Sua sessão expirou. Faça login novamente.";
+    } else if (error.response) {
+      erro.value = `Erro do servidor: ${error.response.data.message || 'Tente novamente mais tarde.'}`;
+    } else {
+      erro.value = "Erro de conexão. Verifique sua internet.";
+    }
+  }
+};
 
     // Montagem do componente (onMounted)
     onMounted(() => {

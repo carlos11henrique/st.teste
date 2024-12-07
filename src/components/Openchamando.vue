@@ -32,10 +32,6 @@
           <div class="circle"></div>
           <span>Concluído</span>
         </div>
-        <div class="progress-step" :class="{ completed: currentStep >= 5 }">
-          <div class="circle"></div>
-          <span>Finalizado</span>
-        </div>
       </div>
 
       <div v-if="chamados.length" class="call-list mt-4">
@@ -88,8 +84,8 @@ export default {
   data() {
     return {
       currentStep: 1,
-      chamado: null, 
-      chamados: [], 
+      chamado: null,
+      chamados: [],
       exibirMensagemInfo: true,
       intervalId: null,
     };
@@ -134,7 +130,7 @@ export default {
         Pendentes: 2,
         "Em Andamento": 3,
         Concluído: 4,
-        Finalizado: 5,
+        Finalizado: 5, // Define o estado de Finalizado
       };
       return etapas[status] || 1;
     },
