@@ -9,6 +9,13 @@
       <option value="NOA">ADM</option>
     </select>
   </li>
+
+  <!-- Botão para exportar para Excel -->
+  <div class="button-container">
+  <button class="btn-warning" @click="exportarExcel">Converter para Excel</button>
+</div>
+
+
   <div class="kanban-container">
     <!-- Seção Análise -->
     <div v-if="role === ROLES.NOA" class="kanban-column">
@@ -22,7 +29,6 @@
           <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
           <p><em>Bloco:</em> {{ chamado.bloco }}</p>
           <p><em>Sala:</em> {{ chamado.sala }}</p>
-
           <p v-if="Array.isArray(chamado.maquinas) && chamado.maquinas.length > 0"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
           <p><strong>Feedback:</strong> {{ chamado.feedback || "Nenhum feedback fornecido" }}</p>
           <button class="btn btn-primary btn-sm mt-2" :disabled="isUpdating(chamado.id)" @click="confirmarRemocao(chamado.id)">Mover para Análise</button>
@@ -48,7 +54,6 @@
         @click="mudarStatus(chamado.id, 'Concluido')">
         Relatar inconsistência
       </button>
-
       </div>
     </div>
   </div>
@@ -57,7 +62,8 @@
 <script>
 import axios from 'axios';
 import { ROLES } from "../util/roles";
-import Swal from 'sweetalert2';  
+import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';  // Importando a biblioteca para exportação Excel
 
 export default {
   name: "ComponenteKaban",
@@ -81,80 +87,68 @@ export default {
       await this.carregarChamados();
     },
 
+    // Função para exportar os chamados para Excel
+    exportarExcel() {
+      const chamadosExportados = this.chamados.map(chamado => ({
+        'Setor': chamado.setor,
+        'E-mail': chamado.email,
+        'Ocupação': chamado.ocupacao,
+        'Problema': chamado.problema,
+        'Descrição': chamado.descricao_chamado,
+        'Bloco': chamado.bloco,
+        'Sala': chamado.sala,
+        'Máquinas': chamado.maquinas ? chamado.maquinas.join(", ") : '',
+        'Feedback': chamado.feedback || "Nenhum feedback fornecido",
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(chamadosExportados);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Chamados");
+
+      // Gerar o arquivo Excel e baixar
+      XLSX.writeFile(wb, 'chamados.xlsx');
+    },
+
     // Função para verificar se o chamado está sendo atualizado
     isUpdating(chamadoId) {
       return this.updatingStatusIds.includes(chamadoId);
     },
 
     confirmarRemocao(chamadoId) {
-    Swal.fire({
-      title: 'Tem certeza que deseja finalizar?',
-      text: "Esta ação moverá o chamado para o status 'Análise'.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#28a745',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sim, finalizar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.mudarStatus(chamadoId, 'Análise');
-      }
-    });
-  },
-
-  async mudarStatus(chamadoId, novoStatus) {
-    const chamado = this.chamados.find(ch => ch.id === chamadoId);
-    if (chamado) {
-      chamado.status = novoStatus;
-      try {
-        const token = localStorage.getItem("token");
-        await axios.put(`http://localhost:3000/chamados/${chamadoId}`, chamado, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        await this.carregarChamados();
-        Swal.fire('Status Atualizado!', `O chamado foi movido para "${novoStatus}".`, 'success');
-      } catch (erro) {
-        console.error(`Erro ao mover para ${novoStatus}:`, erro);
-        Swal.fire('Erro', `Erro ao mover para ${novoStatus}.`, 'error');
-      }
-    }
-  },
-  confirmarFinalizacao(chamadoId, statusAtual) {
-    const novoStatus = statusAtual === "Finalizado" ? "Concluido" : "Concluido";
-    
-    Swal.fire({
-      title: 'Tem certeza que deseja finalizar?',
-      text: `Esta ação moverá o chamado para o status '${novoStatus}'.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#28a745',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sim, finalizar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.mudarStatus(chamadoId, novoStatus);
-      }
-    });
-  },
-  async mudarStatus(chamadoId, novoStatus) {
-  const chamado = this.chamados.find(ch => ch.id === chamadoId);
-  if (chamado) {
-    chamado.status = novoStatus;
-    try {
-      const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:3000/chamados/${chamadoId}`, chamado, {
-        headers: { Authorization: `Bearer ${token}` },
+      Swal.fire({
+        title: 'Tem certeza que deseja finalizar?',
+        text: "Esta ação moverá o chamado para o status 'Análise'.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, finalizar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.mudarStatus(chamadoId, 'Análise');
+        }
       });
-      await this.carregarChamados();
-      Swal.fire('Status Atualizado!', `O chamado foi movido para "${novoStatus}".`, 'success');
-    } catch (erro) {
-      console.error(`Erro ao mover para ${novoStatus}:`, erro);
-      Swal.fire('Erro', `Erro ao mover para ${novoStatus}.`, 'error');
-    }
-  }
-},
+    },
+
+    async mudarStatus(chamadoId, novoStatus) {
+      const chamado = this.chamados.find(ch => ch.id === chamadoId);
+      if (chamado) {
+        chamado.status = novoStatus;
+        try {
+          const token = localStorage.getItem("token");
+          await axios.put(`http://localhost:3000/chamados/${chamadoId}`, chamado, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          await this.carregarChamados();
+          Swal.fire('Status Atualizado!', `O chamado foi movido para "${novoStatus}".`, 'success');
+        } catch (erro) {
+          console.error(`Erro ao mover para ${novoStatus}:`, erro);
+          Swal.fire('Erro', `Erro ao mover para ${novoStatus}.`, 'error');
+        }
+      }
+    },
+
     async carregarChamados() {
       try {
         const token = localStorage.getItem("token");
@@ -369,7 +363,29 @@ export default {
   .ml-2 {
     margin-left: 8px;
   }
-  
+  /* Alinha o botão à direita */
+.button-container {
+  display: flex;
+  justify-content: flex-end; /* Alinha os itens à direita */
+  margin-top: 1rem; /* Espaço superior para o botão */
+}
+
+/* Estilo do botão */
+.button-container .btn-warning {
+  background-color: #198754;
+  border: 1px solid #fff;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button-container .btn-warning:hover {
+  background-color: #036127;
+  color: #000;
+}
+
   </style>
   
   
