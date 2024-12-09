@@ -23,12 +23,12 @@
         <h3 class="kanban-header bg-secondary text-white p-2 text-center">Inválido</h3>
         <div v-for="chamado in chamadosAnalise" :key="chamado.id" class="kanban-item bg-light p-3 my-2">
           <p><strong>Setor:</strong> {{ chamado.setor }}</p>
-          <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-          <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
-          <p><em>Problema:</em> {{ chamado.problema }}</p>
-          <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
-          <p><em>Bloco:</em> {{ chamado.bloco }}</p>
-          <p><em>Sala:</em> {{ chamado.sala }}</p>
+        <p><strong>E-mail:</strong> {{ chamado.email }}</p>
+        <p><strong>Ocupação:</strong> {{ chamado.ocupacao }}</p>
+        <p><strong>Problema:</strong> {{ chamado.problema }}</p>
+        <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
+        <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
+        <p><strong>Sala:</strong> {{ chamado.sala }}</p>
           <p v-if="Array.isArray(chamado.maquinas) && chamado.maquinas.length > 0"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
           <p><strong>Feedback:</strong> {{ chamado.feedback || "Nenhum feedback fornecido" }}</p>
           <button class="btn btn-primary btn-sm mt-2" :disabled="isUpdating(chamado.id)" @click="confirmarRemocao(chamado.id)">Mover para Análise</button>
@@ -42,11 +42,11 @@
       <div v-for="chamado in chamadosConcluidos" :key="chamado.id" class="kanban-item bg-light p-3 my-2">
         <p><strong>Setor:</strong> {{ chamado.setor }}</p>
         <p><strong>E-mail:</strong> {{ chamado.email }}</p>
-        <p><em>Ocupação:</em> {{ chamado.ocupacao }}</p>
-        <p><em>Problema:</em> {{ chamado.problema }}</p>
-        <p><em>Descrição:</em> {{ chamado.descricao_chamado }}</p>
-        <p><em>Bloco:</em> {{ chamado.bloco }}</p>
-        <p><em>Sala:</em> {{ chamado.sala }}</p>
+        <p><strong>Ocupação:</strong> {{ chamado.ocupacao }}</p>
+        <p><strong>Problema:</strong> {{ chamado.problema }}</p>
+        <p><strong>Descrição:</strong> {{ chamado.descricao_chamado }}</p>
+        <p><strong>Bloco:</strong> {{ chamado.bloco }}</p>
+        <p><strong>Sala:</strong> {{ chamado.sala }}</p>
         <p v-if="Array.isArray(chamado.maquinas) && chamado.maquinas.length > 0"><em>Maquina:</em> {{ chamado.maquinas.join(", ") }}</p>
         <p><strong>Feedback:</strong> {{ chamado.feedback || "Nenhum feedback fornecido" }}</p>
         <button class="btn btn-success btn-sm mt-2" 
