@@ -44,7 +44,7 @@
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
-              <li><a class="dropdown-item" href="#" @click="exportPieChartPDF">PDF</a></li>
+              
               <li><a class="dropdown-item" href="#" @click="exportPieChartImage">Imagem</a></li>
             </ul>
           </div>
@@ -60,7 +60,7 @@
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="#" @click="exportBarChartExcel">Excel</a></li>
-              <li><a class="dropdown-item" href="#" @click="exportBarChartPDF">PDF</a></li>
+
               <li><a class="dropdown-item" href="#" @click="exportBarChartImage">Imagem</a></li>
             </ul>
           </div>
@@ -76,7 +76,7 @@
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="#" @click="exportLineChartExcel">Excel</a></li>
-              <li><a class="dropdown-item" href="#" @click="exportLineChartPDF">PDF</a></li>
+            
               <li><a class="dropdown-item" href="#" @click="exportLineChartImage">Imagem</a></li>
             </ul>
           </div>
@@ -92,7 +92,7 @@
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="#" @click="exportStepChartExcel">Excel</a></li>
-              <li><a class="dropdown-item" href="#" @click="exportStepChartPDF">PDF</a></li>
+             
               <li><a class="dropdown-item" href="#" @click="exportStepChartImage">Imagem</a></li>
             </ul>
           </div>
@@ -236,25 +236,6 @@ export default {
       }
     };
 
-    const exportChartToExcel = (chartId) => {
-      const chart = chartId === 'pieChart' ? pieChart :
-                    chartId === 'barChart' ? barChart :
-                    chartId === 'lineChart' ? lineChart :
-                    stepChart;
-      const data = chart.data.datasets[0].data;
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet([['Categoria', 'Quantidade'], ...data.map((d, i) => [chart.data.labels[i], d])]);
-      XLSX.utils.book_append_sheet(wb, ws, 'Gráfico');
-      XLSX.writeFile(wb, `grafico_${chartId}.xlsx`);
-    };
-
-    const exportChartToPDF = (chartId) => {
-      const chartCanvas = document.getElementById(chartId);
-      const imgData = chartCanvas.toDataURL("image/png");
-      const doc = new jsPDF();
-      doc.addImage(imgData, 'PNG', 10, 10);
-      doc.save(`grafico_${chartId}.pdf`);
-    };
 
     const exportChartToImage = (chartId) => {
       const chartCanvas = document.getElementById(chartId);
@@ -438,7 +419,6 @@ canvas {
 .h5,
 .h6,
 h1,
-h2,
 h3,
 h4,
 h5,
@@ -523,5 +503,14 @@ h6 {
     font-size: 16px;
   }
 }
-
+h2 {
+  font-size: 2.5rem; /* Tamanho do texto */
+  font-weight: 600; /* Peso da fonte para destacar */
+  color: #343a40; /* Cor do texto */
+  text-align: center; /* Centralizar o texto */
+  margin-bottom: 2rem; /* Espaço abaixo do título */
+  padding-bottom: 0.5rem; /* Espaçamento interno na parte inferior */
+  border-bottom: 3px solid #007bff; /* Linha destacando o título */
+  display: inline-block; /* Alinha o título com a borda apenas ao redor do texto */
+}
 </style>

@@ -3,18 +3,23 @@
     <div class="content">
       <h2>Estatísticas Visuais</h2>
       <div class="charts-container">
-        <div class="chart-card">
-          <h3>Tempo Médio de Resolução</h3>
-          <canvas id="averageResolutionTimeChart"></canvas>
-          <p v-if="tempoMedioResolucao">Tempo Médio: {{ tempoMedioResolucao }} horas</p>
-          <p v-else>Carregando...</p>
-        </div>
+
         <div class="chart-card">
           <h3>Problemas com Maior Índice de Chamados</h3>
+         
           <canvas id="mostCalledIssuesChart"></canvas>
           <p v-if="problemasRecorrentes">Problemas: {{ problemasRecorrentes }}</p>
           <p v-else>Carregando...</p>
         </div>
+
+        <div class="chart-card">
+          <h3>Tempo Médio de Resolução</h3>
+          
+          <canvas id="averageResolutionTimeChart"></canvas>
+          <p v-if="tempoMedioResolucao">Tempo Médio: {{ tempoMedioResolucao }} horas</p>
+          <p v-else>Carregando...</p>
+        </div>
+       
         <div class="chart-card">
           <h3>Tempo de Fechamento</h3>
           <canvas id="closingTimeChart"></canvas>
@@ -103,42 +108,72 @@ export default {
 
     createCharts(resTempo, resProblemas, resFechamento, resPrimeiroContato) {
       // Criando gráfico de Tempo Médio de Resolução
-      const ctx1 = document.getElementById("averageResolutionTimeChart");
-      new Chart(ctx1, {
-        type: "bar",
-        data: {
-          labels: ['Tempo Médio de Resolução'],
-          datasets: [{
-            label: 'Tempo Médio de Resolução (horas)',
-            data: [this.tempoMedioResolucao],
-            backgroundColor: '#42A5F5',
-            borderColor: '#1E88E5',
-            borderWidth: 1,
-          }],
+     // Criando gráfico de Tempo Médio de Resolução
+const ctx1 = document.getElementById("averageResolutionTimeChart");
+new Chart(ctx1, {
+  type: "line", // Alterado para gráfico de linha
+  data: {
+    labels: ['Tempo Médio de Resolução'], // Rótulos do eixo X
+    datasets: [{
+      label: 'Tempo Médio de Resolução (horas)', // Legenda do gráfico
+      data: [this.tempoMedioResolucao], // Dados a serem exibidos
+      borderColor: '#42A5F5', // Cor da linha
+      backgroundColor: 'rgba(66, 165, 245, 0.2)', // Cor de preenchimento
+      borderWidth: 2, // Largura da linha
+      pointBackgroundColor: '#1E88E5', // Cor dos pontos
+      pointBorderColor: '#1E88E5', // Cor da borda dos pontos
+      pointRadius: 5, // Tamanho dos pontos
+    }],
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: { 
+        beginAtZero: true, 
+        title: {
+          display: true,
+          text: 'Horas',
         },
-        options: {
-          responsive: true,
-          scales: {
-            y: { beginAtZero: true },
-          },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Indicador',
         },
-      });
+      },
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top', // Posição da legenda
+      },
+    },
+  },
+});
 
-      // Criando gráfico de Problemas com Maior Índice de Chamados
-      const ctx2 = document.getElementById("mostCalledIssuesChart");
-      new Chart(ctx2, {
-        type: "pie",
-        data: {
-          labels: resProblemas.data.map(item => item.problema),
-          datasets: [{
-            data: resProblemas.data.map(item => item.total_chamados),
-            backgroundColor: ['#FF5733', '#33FF57', '#3357FF', '#FF33A6'],
-          }],
-        },
-        options: {
-          responsive: true,
-        },
-      });
+// Criando gráfico de Problemas com Maior Índice de Chamados
+const ctx2 = document.getElementById("mostCalledIssuesChart");
+new Chart(ctx2, {
+  type: "pie",
+  data: {
+    labels: resProblemas.data.map(item => item.problema),
+    datasets: [{
+      data: resProblemas.data.map(item => item.total_chamados),
+      backgroundColor: [
+        '#6495ED', // Azul cobalto
+        '#808080', // Cinza elegante
+        '#708090', // Azul acinzentado
+        '#DCDCDC', // Cinza claro
+        '#B0E0E6', // Azul gelo
+        '#4682B4', // Azul aço
+      ],
+    }],
+  },
+  options: {
+    responsive: true,
+  },
+});
+
 
       // Criando gráfico de Tempo de Fechamento
       const ctx3 = document.getElementById("closingTimeChart");
@@ -149,7 +184,8 @@ export default {
           datasets: [{
             label: 'Tempo de Fechamento (horas)',
             data: [this.tempoFechamento],
-            borderColor: '#FF9800',
+            borderColor: '#5F9EA0	',
+            backgroundColor: '#2F4F4F',
             fill: false,
           }],
         },
@@ -170,8 +206,8 @@ export default {
           datasets: [{
             label: 'Tempo de Primeiro Contato (horas)',
             data: [this.tempoPrimeiroContato],
-            backgroundColor: '#8E24AA',
-            borderColor: '#7B1FA2',
+            backgroundColor: '#6495ED',
+            borderColor: '#708090	',
             borderWidth: 1,
           }],
         },
@@ -196,41 +232,226 @@ export default {
 };
 </script>
 
+
 <style scoped>
+
+/* Cartões de resumo */
+.dashboard-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+  margin-bottom: 40px;
+  margin-left: 90px;
+  flex-wrap: wrap; /* Garante que os cartões se ajustem em telas menores */
+}
+
+.summary-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  width: 30%; /* Garante que os cartões tenham o mesmo tamanho */
+}
+
+.summary-card:hover {
+  transform: translateY(-10px);
+}
+
+.summary-card h3 {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.summary-card p {
+  font-size: 16px;
+  font-weight: bold;
+  color: #0e85bd;
+}
+
+/* Animação de rolagem para a parte de Problemas Mais Recorrentes */
+@keyframes scrollProblemas {
+  0% {
+    transform: translateX(100%); /* Começa fora da tela à direita */
+  }
+  100% {
+    transform: translateX(-100%); /* Move até fora da tela à esquerda */
+  }
+}
+
+/* Aplica a animação apenas à parte de "Problemas Mais Recorrentes" */
+.problemas-recorrentes {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scrollProblemas 10s linear infinite;
+  font-size: 18px;
+  color: #0e85bd;
+}
+
+/* Gráficos */
 .charts-container {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
+  margin-left: 95px;
   justify-content: space-between;
-  margin: 20px 0;
 }
 
 .chart-card {
-  flex: 1 1 calc(50% - 20px);
-  max-width: calc(50% - 20px);
-  background-color: #f9f9f9;
+  background-color: #fff;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 48%; /* Garante que os gráficos fiquem do mesmo tamanho */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(33, 33, 33, 0.292);
+  transition: transform 0.3s ease;
 }
 
 .chart-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-10px);
 }
 
-.chart-card h2 {
-  color: #007bff;
-  margin-bottom: 10px;
-  font-size: 1.5rem;
+.chart-card h3 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Gráficos específicos */
+canvas {
+  width: 100%;
+  height: 200px;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .dashboard-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-card {
+    width: calc(50% - 20px);
+  }
 }
 
 @media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  .dashboard-summary {
+    grid-template-columns: 1fr;
+  }
+
   .chart-card {
-    flex: 1 1 100%;
-    max-width: 100%;
+    width: 100%;
   }
 }
+
+/* Estilo para os cabeçalhos */
+h1, h3, h4, h5, h6, .h1, .h3, .h4, .h5, .h6 {
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-bottom: 5px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--bs-heading-color);
+}
+
+/* Estilo do botão de logout */
+.custom-logout-button {
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.custom-logout-button:hover {
+  background-color: #c82333;
+}
+
+.bg-primary[data-v-6dec5f19] {
+  background-color: #0d6efd !important;
+}
+
+/* Estilos do botão de dropdown */
+.dropdown .btn {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dropdown .btn:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* Estilos do menu dropdown */
+.dropdown-menu {
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  min-width: 160px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+}
+
+/* Estilos dos itens do dropdown */
+.dropdown-menu .dropdown-item {
+  padding: 12px 20px;
+  font-size: 14px;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #007bff;
+}
+
+/* Estilos adicionais para o dropdown aberto */
+.dropdown-menu.show {
+  display: block;
+}
+
+/* Ajustes para responsividade */
+@media (max-width: 768px) {
+  .dropdown .btn {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+
+  .dropdown-menu .dropdown-item {
+    padding: 10px 15px;
+    font-size: 16px;
+}
+}
+/* Estilo do título H2 */
+h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #343a40;
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid #007bff;
+  display: inline-block;
+}
 </style>
+
