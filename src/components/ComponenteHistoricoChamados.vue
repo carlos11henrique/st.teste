@@ -51,7 +51,7 @@
         <p><strong>Feedback:</strong> {{ chamado.feedback || "Nenhum feedback fornecido" }}</p>
         <button class="btn btn-success btn-sm mt-2" 
         :disabled="isUpdating(chamado.id)" 
-        @click="mudarStatus(chamado.id, 'Concluido')">
+        @click="mudarStatus(chamado.id, 'Pendentes')">
         Relatar inconsistência
       </button>
       </div>
