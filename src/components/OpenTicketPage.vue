@@ -28,17 +28,7 @@
         </b-form-group>
 
         <!-- Campo para descrição do problema -->
-        <b-form-group
-          v-if="problemas.some(p => (p.descricao === 'outros' || p.descricao === 'Computadores e Periféricos' || p.descricao === 'Softwares e Programas Específicos') && (p.id === problema))"
-          label="Descreva o problema específico"
-          label-for="descricaoProblema"
-        >
-          <b-form-input
-            v-model="descricaoProblema"
-            id="descricaoProblema"
-            placeholder="Digite mais detalhes sobre o problema"
-          ></b-form-input>
-        </b-form-group>
+   
 
         <!-- Caixa de pesquisa para código do equipamento -->
         <b-form-group label="Código do Equipamento" label-for="codigoEquipamento">
@@ -58,6 +48,16 @@
               {{ equipamento.numero_maquina }} - {{ equipamento.descricao }}
             </b-list-group-item>
           </b-list-group>
+        </b-form-group>
+        <b-form-group
+          label="Descreva o problema específico"
+          label-for=""
+        >
+          <b-form-input
+            v-model="descricaoProblema"
+            id="descricaoProblema"
+            placeholder="Digite mais detalhes sobre o problema"
+          ></b-form-input>
         </b-form-group>
 
         <!-- Seletor de bloco da sala -->
