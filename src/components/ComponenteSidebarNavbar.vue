@@ -40,7 +40,9 @@
 
       </ul>
      
-     
+      <router-link to="/openticketpage">
+        <button class="btn btn-primary">Abrir um chamado</button>
+      </router-link>
 
       <!-- Botão de Logout -->
       <div class="mt-4 pt-2 border-top">
