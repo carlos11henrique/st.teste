@@ -73,18 +73,28 @@
       <router-link to="/openticketpage">
         <button class="btn btn-primary">Abrir um chamado</button>
       </router-link>
+
+  <div v-if="role === ROLES.NOA || role === ROLES.TI || role === ROLES.MANUTENCAO" class="mt-4">
+  <router-link to="/sidebar">
+    <button class="btn btn-primary">Voltar Home</button>
+  </router-link>
+</div>
+
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { ROLES } from "../util/roles";
+
 
 export default {
   data() {
     return {
       currentStep: 1,
       chamado: null,
+      ROLES,
       chamados: [],
       exibirMensagemInfo: true,
       intervalId: null,
