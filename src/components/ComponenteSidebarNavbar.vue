@@ -37,7 +37,10 @@
         <li class="nav-item" :class="{'active': selectedComponent === 'ComponenteHistoricoChamados'}">
           <a class="nav-link text-white" @click="setComponent('ComponenteHistoricoChamados')" href="#">Historico de Chamados</a>
         </li>
+
       </ul>
+     
+     
 
       <!-- Botão de Logout -->
       <div class="mt-4 pt-2 border-top">
@@ -126,6 +129,9 @@ export default {
     role(newRole) {
     },
   },
+  navigateToOpenChamando() {
+      this.$router.push('/openchamando'); // Navegar para a página sem o sidebar
+    }
 };
 </script>
 

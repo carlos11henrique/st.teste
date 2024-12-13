@@ -4,10 +4,21 @@
       <option value="TODOS" selected><strong>Todos os Chamados</strong></option>
       <option value="ESTUDANTE">Alunos</option>
       <option value="DOCENTE">Docentes</option>
-      <option value="MANUTENCAO">Manutenção</option>
+      <option value="NOA">ADM</option>
+      <option value="ESTAGIARIOS">Estagiários</option>
+      <option value="FUNCIONARIOS">Funcionários</option>
+      <option value="TERCEIROS">Terceiros</option>
+    </select>
+
+  </li>
+  <li v-if="role === ROLES.NOA" class="nav-item">
+    <select v-model="filterSetor" class="form-select text-white bg-dark" aria-label="Chamados Ti" @change="atualizarFiltro" @click="chamadosTi">
+      <option value="TODOS" selected><strong>Todos os Setores</strong></option>
       <option value="TI">Técnico de TI</option>
+      <option value="MANUTENCAO">Manutenção</option>
       <option value="NOA">ADM</option>
     </select>
+    
   </li>
 
   <div class="kanban-container">
@@ -114,6 +125,7 @@ export default {
   data() {
     return {
       filterOcupacao: "TODOS",
+      filterSetor: "TODOS",
       chamadosAnalise: [],
       feedback: '',
       ROLES,
@@ -123,6 +135,7 @@ export default {
       chamados: [],
       categoriaVisivel: '', 
       mostrarTodosChamados: true, 
+      
       role: localStorage.getItem('role') || null,
     };
   },
@@ -298,6 +311,11 @@ export default {
 
         if (this.filterOcupacao !== "TODOS") {
           this.chamados = this.chamados.filter((chamado) => chamado.ocupacao === this.filterOcupacao);
+        }
+        if (this.filterSetor !== "TODOS") {
+          this.chamados = this.chamados.filter((chamado) => chamado.setor === this.filterSetor);
+
+          
         }
 
         this.chamadosAnalise = this.chamados.filter((chamado) => chamado.status === "Análise");
