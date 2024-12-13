@@ -74,12 +74,10 @@
         <button class="btn btn-primary">Abrir um chamado</button>
       </router-link>
 
-  <div v-if="role === ROLES.NOA || role === ROLES.TI || role === ROLES.MANUTENCAO" class="mt-4">
-  <router-link to="/sidebar">
-    <button class="btn btn-primary">Voltar Home</button>
-  </router-link>
-</div>
 
+      <router-link to="/sidebar" v-show="role === ROLES.NOA || role === ROLES.TI || role === ROLES.MANUTENCAO">
+        <button class="btn btn-primary">Voltar Home</button>
+      </router-link>
     </div>
   </div>
 </template>
@@ -87,7 +85,6 @@
 <script>
 import axios from "axios";
 import { ROLES } from "../util/roles";
-
 
 export default {
   data() {
@@ -97,6 +94,7 @@ export default {
       ROLES,
       chamados: [],
       exibirMensagemInfo: true,
+      role: localStorage.getItem("role"),  // Recuperando o role do localStorage
       intervalId: null,
     };
   },
@@ -152,6 +150,7 @@ export default {
   },
 };
 </script>
+
 
 
 <style scoped>
