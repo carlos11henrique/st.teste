@@ -37,16 +37,7 @@
       <div class="charts-container">
         <!-- Gráfico de Pizza -->
         <div class="chart-card">
-          <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Exportar Gráfico 
-            </button>
-            <ul class="dropdown-menu">
-  <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
-  <li><a class="dropdown-item" href="#" @click.prevent="exportPieChartImage">Imagem</a></li>
-</ul>
-
-          </div>
+   
           <h3>Distribuição de Chamados por Categoria</h3>
           <div id="pieChartContainer"></div>
           
@@ -54,48 +45,21 @@
 
         <!-- Gráficos Highcharts -->
         <div class="chart-card">
-          <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Exportar Gráfico 
-            </button>
-            <ul class="dropdown-menu">
-  <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
-  <li><a class="dropdown-item" href="#" @click.prevent="exportPieChartImage">Imagem</a></li>
-</ul>
-
-          </div>
+     
           <h3>Chamados por Mês</h3>
           <div id="barChartContainer"></div>
          
         </div>
 
         <div class="chart-card">
-          <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Exportar Gráfico 
-            </button>
-            <ul class="dropdown-menu">
-  <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
-  <li><a class="dropdown-item" href="#" @click.prevent="exportPieChartImage">Imagem</a></li>
-</ul>
-
-          </div>
+    
           <h3>Evolução dos Chamados</h3>
           <div id="lineChartContainer"></div>
           
         </div>
 
         <div class="chart-card">
-          <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Exportar Gráfico 
-            </button>
-            <ul class="dropdown-menu">
-  <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
-  <li><a class="dropdown-item" href="#" @click.prevent="exportPieChartImage">Imagem</a></li>
-</ul>
-
-          </div>
+         
           <h3>Chamados em Degrau</h3>
           <div id="stepChartContainer"></div>      
         </div>
