@@ -113,6 +113,7 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Highcharts from 'highcharts';
 import * as XLSX from 'xlsx';
+import exporting from 'highcharts/modules/exporting';
 
 
 export default {
@@ -325,6 +326,7 @@ const exportChartAsImage = (chartId, filename) => {
     console.error('Gráfico não encontrado:', chartId);
   }
 };
+
 
 // Funções específicas para cada gráfico
 const exportPieChartImage = () => exportChartAsImage('pieChartContainer', 'distribuicao_chamados');
