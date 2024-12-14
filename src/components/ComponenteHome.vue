@@ -269,6 +269,37 @@ export default {
       try {
         const baseURL = 'http://localhost:3000/home';
         const token = localStorage.getItem("token");
+      
+
+        // Chamados pendentes
+        const resPendentes = await axios.get(`${baseURL}/total-pendentes`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        totalPendentes.value = resPendentes.data.total;
+
+        // Chamados em andamento
+        const resAndamento = await axios.get(`${baseURL}/total-andamento`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        totalAndamento.value = resAndamento.data.total;
+
+        // Chamados concluídos
+        const resConcluidos = await axios.get(`${baseURL}/total-concluidos`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        totalConcluidos.value = resConcluidos.data.total;
+
+        // Tempo médio de resolução
+        const resTempo = await axios.get(`${baseURL}/tempo-medio-resolucao`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        tempoMedioResolucao.value = `${resTempo.data.tempo_medio_resolucao_dias || 0} dias`;
+
+        // Problemas recorrentes
+        const resProblemas = await axios.get(`${baseURL}/problemas-recorrentes`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        problemasRecorrentes.value = resProblemas.data.map(item => item.nome_problema).join(', ');
 
         // Dados para cada gráfico
         const resDistribuicao = await axios.get(`${baseURL}/distribuicao-categoria`, {
