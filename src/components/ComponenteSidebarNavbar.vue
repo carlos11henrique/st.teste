@@ -39,15 +39,21 @@
         </li>
 
       </ul>
-     
-      <router-link to="/openticketpage">
-        <button class="btn btn-primary">Abrir um chamado</button>
-      </router-link>
+   
 
       <!-- Botão de Logout -->
       <div class="mt-4 pt-2 border-top">
-        <button @click="confirmLogout" class="btn btn-danger w-100 custom-logout-button">Sair</button>
-      </div>
+  <button @click="confirmLogout" class="btn btn-danger w-100 custom-logout-button">Sair</button>
+</div>
+
+
+      <div class="button abrir-chamado">
+  <router-link to="/openticketpage">
+    <button class="btn btn-primary custom-open-ticket-button">Abrir um chamado</button>
+  </router-link>
+</div>
+
+
     </div>
 
     <!-- Conteúdo dinâmico (componente selecionado) -->
@@ -55,6 +61,7 @@
       <component :is="selectedComponent" />
     </div>
   </div>
+  
 </template>
 
 <script>
@@ -191,9 +198,7 @@ export default {
     padding: 10px; /* Adiciona padding para melhorar a estética */
   }
 
-  .custom-logout-button {
-    font-size: 1rem; /* Ajusta o tamanho do botão de logout */
-  }
+  
 
   .nav-link {
     font-size: 0.9rem; /* Ajusta o tamanho dos links */
@@ -229,5 +234,81 @@ export default {
 .bg-primary {
     --bs-bg-opacity: 1;
      background: linear-gradient(to bottom, #0575e6, #02298a, #021b79);;
+}
+.custom-open-ticket-button {
+  font-weight: bold;
+  font-size: 1.2rem;
+  padding: 12px 24px;
+  border-radius: 8px; /* Bordas arredondadas */
+  background: linear-gradient(135deg, #0575e6, #021b79); /* Gradiente do botão */
+  color: #ffffff; /* Texto branco */
+  border: none; /* Remove borda padrão */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra leve */
+  cursor: pointer; /* Aponta como clicável */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease; /* Suaviza animações */
+}
+
+/* Efeito de hover */
+.custom-open-ticket-button:hover {
+  background: linear-gradient(135deg, #044e9c, #021246); /* Gradiente mais escuro */
+  transform: translateY(-2px); /* Leve elevação ao passar o mouse */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Sombra mais forte */
+}
+
+/* Efeito ao pressionar */
+.custom-open-ticket-button:active {
+  transform: translateY(0); /* Retorna à posição original */
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2); /* Reduz a sombra */
+}
+
+/* Ajuste para centralizar o botão */
+.button.abrir-chamado {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0; /* Margem superior e inferior */
+}
+
+/* Responsividade: ajusta o tamanho em dispositivos menores */
+@media (max-width: 768px) {
+  .custom-open-ticket-button {
+    font-size: 1rem; /* Reduz o tamanho da fonte */
+    padding: 10px 20px; /* Ajusta o padding */
+  }
+}
+
+.custom-logout-button {
+  font-weight: bold;
+  font-size: 1.1rem; /* Tamanho da fonte */
+  padding: 12px 24px; /* Espaçamento interno */
+  border-radius: 8px; /* Bordas arredondadas */
+  background: linear-gradient(135deg, #e60023, #a30017); /* Gradiente vermelho */
+  color: #ffffff; /* Texto branco */
+  border: none; /* Remove borda padrão */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra leve */
+  cursor: pointer; /* Aponta como clicável */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease; /* Transições suaves */
+  width: 100%; /* Ocupa toda a largura disponível */
+}
+
+/* Efeito de hover */
+.custom-logout-button:hover {
+  background: linear-gradient(135deg, #b3001a, #870014); /* Gradiente mais escuro no hover */
+  transform: translateY(-2px); /* Elevação leve */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Sombra mais forte */
+}
+
+/* Efeito ao pressionar */
+.custom-logout-button:active {
+  transform: translateY(0); /* Retorna à posição original */
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2); /* Reduz a sombra */
+}
+
+/* Ajuste de responsividade para dispositivos menores */
+@media (max-width: 768px) {
+  .custom-logout-button {
+    font-size: 1rem; /* Reduz o tamanho da fonte */
+    padding: 10px 20px; /* Ajusta o espaçamento */
+  }
 }
 </style>
