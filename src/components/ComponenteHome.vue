@@ -1,14 +1,11 @@
 <template>
   <div class="dashboard-container">
-    <!-- Conteúdo Principal -->
     <div class="content">
       <h2>Resumo Geral</h2>
-      <!-- Exibição de erro -->
       <div v-if="erro" class="alert alert-danger">
         {{ erro }}
       </div>
 
-      <!-- Resumo -->
       <div class="dashboard-summary">
         <div class="summary-card">
           <h3>Total de Chamados Pendentes</h3>
@@ -32,45 +29,31 @@
         </div>
       </div>
 
-      <!-- Gráficos -->
       <h2>Estatísticas Visuais</h2>
       <div class="charts-container">
-        <!-- Gráfico de Pizza -->
         <div class="chart-card">
-   
           <h3>Distribuição de Chamados por Categoria</h3>
           <div id="pieChartContainer"></div>
-          
         </div>
 
-        <!-- Gráficos Highcharts -->
         <div class="chart-card">
-     
           <h3>Chamados por Mês</h3>
           <div id="barChartContainer"></div>
-         
         </div>
 
         <div class="chart-card">
-    
           <h3>Evolução dos Chamados</h3>
           <div id="lineChartContainer"></div>
-          
         </div>
 
         <div class="chart-card">
-         
           <h3>Chamados em Degrau</h3>
-          <div id="stepChartContainer"></div>      
+          <div id="stepChartContainer"></div>
         </div>
-
       </div>
     </div>
   </div>
 </template>
-
-
-
 
 <script>
 import { ref, onMounted } from 'vue';
@@ -79,11 +62,9 @@ import Highcharts from 'highcharts';
 import * as XLSX from 'xlsx';
 import exporting from 'highcharts/modules/exporting';
 
-
 export default {
   name: 'ComponenteHome',
   setup() {
-    // Dados de resumo
     const totalPendentes = ref(0);
     const totalAndamento = ref(0);
     const totalConcluidos = ref(0);
@@ -91,7 +72,7 @@ export default {
     const problemasRecorrentes = ref('');
     const erro = ref(null);
 
-    // Função para criar gráfico de Pizza (já existente)
+    // Funções para criar gráficos
     const createOrUpdateHighchartsPie = (data) => {
       Highcharts.chart('pieChartContainer', {
         chart: { type: 'pie' },
@@ -119,90 +100,167 @@ export default {
             data: data,
           },
         ],
+        exporting: {
+          buttons: {
+            contextButton: {
+              menuItems: [
+                'downloadPNG',
+                'downloadJPEG',
+                'downloadPDF',
+                'downloadSVG',
+                {
+                  text: 'Exportar Pizza como Excel',
+                  onclick: function () { exportPieChartExcel(); }
+                },
+              ]
+            }
+          }
+        }
       });
     };
 
-    // Função para criar gráficos Highcharts
     const createHighchartsBar = (data) => {
       Highcharts.chart('barChartContainer', {
-        chart: {
-          type: 'column',
-        },
-        title: {
-          text: 'Chamados por Mês',
-        },
-        xAxis: {
-          categories: data.map((item) => item.mes),
-        },
+        chart: { type: 'column' },
+        title: { text: 'Chamados por Mês' },
+        xAxis: { categories: data.map((item) => item.mes) },
         yAxis: {
           min: 0,
-          title: {
-            text: 'Chamados',
-          },
+          title: { text: 'Chamados' }
         },
-        series: [
-          {
-            name: 'Chamados por Mês',
-            data: data.map((item) => item.total_chamados),
-          },
-        ],
+        series: [{
+          name: 'Chamados por Mês',
+          data: data.map((item) => item.total_chamados),
+        }],
+        exporting: {
+          buttons: {
+            contextButton: {
+              menuItems: [
+                'downloadPNG',
+                'downloadJPEG',
+                'downloadPDF',
+                'downloadSVG',
+                {
+                  text: 'Exportar Barra como Excel',
+                  onclick: function () { exportBarChartExcel(); }
+                },
+              ]
+            }
+          }
+        }
       });
     };
 
     const createHighchartsLine = (data) => {
       Highcharts.chart('lineChartContainer', {
-        chart: {
-          type: 'line',
-        },
-        title: {
-          text: 'Evolução dos Chamados',
-        },
-        xAxis: {
-          categories: data.map((item) => item.mes),
-        },
+        chart: { type: 'line' },
+        title: { text: 'Evolução dos Chamados' },
+        xAxis: { categories: data.map((item) => item.mes) },
         yAxis: {
-          title: {
-            text: 'Chamados',
-          },
+          min: 0,
+          title: { text: 'Chamados' }
         },
-        series: [
-          {
-            name: 'Evolução dos Chamados',
-            data: data.map((item) => item.total_chamados),
-            color: '#FF9F40',
-            marker: {
-              enabled: false,
-            },
-          },
-        ],
+        series: [{
+          name: 'Evolução dos Chamados',
+          data: data.map((item) => item.total_chamados),
+        }],
+        exporting: {
+          buttons: {
+            contextButton: {
+              menuItems: [
+                'downloadPNG',
+                'downloadJPEG',
+                'downloadPDF',
+                'downloadSVG',
+                {
+                  text: 'Exportar Linha como Excel',
+                  onclick: function () { exportLineChartExcel(); }
+                },
+              ]
+            }
+          }
+        }
       });
     };
 
     const createHighchartsStep = (data) => {
-      Highcharts.chart('stepChartContainer', {
-        chart: {
-          type: 'line',
-        },
-        title: {
-          text: 'Chamados em Degrau',
-        },
-        xAxis: {
-          categories: data.map((item) => item.data),
-        },
-        yAxis: {
-          title: {
-            text: 'Chamados',
-          },
-        },
-        series: [
-          {
-            name: 'Chamados em Degrau',
-            data: data.map((item) => item.total_chamados),
-            color: '#36A2EB',
-            step: true, // Gera o gráfico em degrau
-          },
-        ],
-      });
+  // Verifique se a estrutura dos dados é correta. Cada item de dados deve ter um valor de 'mes' e 'total_chamados'.
+  Highcharts.chart('stepChartContainer', {
+    chart: {
+      type: 'line', // Usar 'line' porque o tipo 'step' é apenas uma variante do 'line'
+      animation: true,
+    },
+    title: {
+      text: 'Chamados em Degrau',
+    },
+    xAxis: {
+      categories: data.map((item) => item.mes), // Defina as categorias com base nos meses
+      title: {
+        text: 'Meses',
+      },
+    },
+    yAxis: {
+      min: 0,
+      title: {
+        text: 'Chamados',
+      },
+    },
+    series: [{
+      name: 'Chamados em Degrau',
+      data: data.map((item) => item.total_chamados), // Mapear os dados para o eixo Y
+      step: true, // Ativar o gráfico de degrau
+    }],
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: [
+            'downloadPNG',
+            'downloadJPEG',
+            'downloadPDF',
+            'downloadSVG',
+            {
+              text: 'Exportar Degrau como Excel',
+              onclick: function () { exportStepChartExcel(); }
+            },
+          ]
+        }
+      }
+    }
+  });
+};
+
+
+    // Função de exportação para Excel
+    const exportToExcel = (data, fileName) => {
+      const ws = XLSX.utils.aoa_to_sheet([['Categoria', 'Valor'], ...data]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Dados');
+      XLSX.writeFile(wb, `${fileName}.xlsx`);
+    };
+
+    // Funções de exportação para cada gráfico
+    const exportPieChartExcel = () => {
+      const chart = Highcharts.charts[0];
+      const data = chart.series[0].data.map((point) => [point.name, point.y]);
+      exportToExcel(data, 'Grafico_Pizza');
+    };
+
+    const exportBarChartExcel = () => {
+      const chart = Highcharts.charts[1];
+      const data = chart.series[0].data.map((point) => [point.category, point.y]);
+      exportToExcel(data, 'Grafico_Barra');
+    };
+
+    const exportLineChartExcel = () => {
+      const chart = Highcharts.charts[2];
+      const data = chart.series[0].data.map((point) => [point.category, point.y]);
+      exportToExcel(data, 'Grafico_Linha');
+    };
+
+    const exportStepChartExcel = () => {
+      const chart = Highcharts.charts[3];
+      const data = chart.series[0].data.map((point) => [point.category, point.y]);
+      exportToExcel(data, 'Grafico_Degrau');
     };
 
     // Função para buscar dados e renderizar gráficos
@@ -212,114 +270,38 @@ export default {
         const baseURL = 'http://localhost:3000/home';
         const token = localStorage.getItem("token");
 
-        // Chamados pendentes
-        const resPendentes = await axios.get(`${baseURL}/total-pendentes`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        totalPendentes.value = resPendentes.data.total;
-
-        // Chamados em andamento
-        const resAndamento = await axios.get(`${baseURL}/total-andamento`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        totalAndamento.value = resAndamento.data.total;
-
-        // Chamados concluídos
-        const resConcluidos = await axios.get(`${baseURL}/total-concluidos`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        totalConcluidos.value = resConcluidos.data.total;
-
-        // Tempo médio de resolução
-        const resTempo = await axios.get(`${baseURL}/tempo-medio-resolucao`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        tempoMedioResolucao.value = `${resTempo.data.tempo_medio_resolucao_dias || 0} dias`;
-
-        // Problemas recorrentes
-        const resProblemas = await axios.get(`${baseURL}/problemas-recorrentes`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        problemasRecorrentes.value = resProblemas.data.map(item => item.nome_problema).join(', ');
-
-        // Gráfico de pizza
+        // Dados para cada gráfico
         const resDistribuicao = await axios.get(`${baseURL}/distribuicao-categoria`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const pieData = resDistribuicao.data.map(item => ({
           name: item.nome_setor,
-          y: item.total_chamados
+          y: item.total_chamados,
         }));
         createOrUpdateHighchartsPie(pieData);
 
-        // Chamados por mês (gráfico de barra)
-        const resMeses = await axios.get(`${baseURL}/chamados-por-mes`, {
+        // Gráficos de barra, linha e degrau podem ser gerados aqui
+        const resChamadosPorMes = await axios.get(`${baseURL}/chamados-por-mes`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        createHighchartsBar(resMeses.data);
+        createHighchartsBar(resChamadosPorMes.data);
 
-        // Evolução dos chamados (gráfico de linha)
         const resEvolucao = await axios.get(`${baseURL}/evolucao-chamados`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         createHighchartsLine(resEvolucao.data);
 
-        // Chamados em degrau
-        const resDegrau = await axios.get(`${baseURL}/chamados-degrau`, {
+        const resChamadosDegrau = await axios.get(`${baseURL}/chamados-degrau`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        createHighchartsStep(resDegrau.data);
-        
-      } catch (err) {
-        erro.value = 'Ocorreu um erro ao buscar os dados. Por favor, tente novamente.';
+        createHighchartsStep(resChamadosDegrau.data);
+      } catch (error) {
+        erro.value = 'Erro ao buscar os dados';
+        console.error(error);
       }
     };
 
-    onMounted(() => {
-      fetchData();
-    });
-// Função para exportar gráficos como imagem
-const exportChartAsImage = (chartId, filename) => {
-  const chart = Highcharts.charts.find(c => c.renderTo.id === chartId);
-  if (chart) {
-    chart.exportChart({
-      type: 'image/png',
-      filename: filename || 'grafico'
-    });
-  } else {
-    console.error('Gráfico não encontrado:', chartId);
-  }
-};
-
-
-// Funções específicas para cada gráfico
-const exportPieChartImage = () => exportChartAsImage('pieChartContainer', 'distribuicao_chamados');
-const exportBarChartImage = () => exportChartAsImage('barChartContainer', 'chamados_por_mes');
-const exportLineChartImage = () => exportChartAsImage('lineChartContainer', 'evolucao_chamados');
-const exportStepChartImage = () => exportChartAsImage('stepChartContainer', 'chamados_em_degrau');
-  // Função para exportar o gráfico de Pizza como Excel
-const exportPieChartExcel = () => {
-  const chart = Highcharts.charts.find(c => c.renderTo.id === 'pieChartContainer');
-  if (chart) {
-    // Extrair os dados do gráfico
-    const chartData = chart.series[0].data.map(point => ({
-      Categoria: point.name,
-      Chamados: point.y
-    }));
-
-    // Criar uma nova planilha com os dados
-    const ws = XLSX.utils.json_to_sheet(chartData);
-    
-    // Criar um novo livro de trabalho
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Distribuição de Chamados');
-
-    // Exportar o arquivo Excel
-    XLSX.writeFile(wb, 'distribuicao_chamados.xlsx');
-  } else {
-    console.error('Gráfico de pizza não encontrado');
-  }
-};
+    onMounted(fetchData);
 
     return {
       totalPendentes,
@@ -327,16 +309,12 @@ const exportPieChartExcel = () => {
       totalConcluidos,
       tempoMedioResolucao,
       problemasRecorrentes,
-      exportPieChartImage,
-      exportBarChartImage,
-      exportLineChartImage,
-      exportStepChartImage,
-
-      erro,
+      erro
     };
-  },
+  }
 };
 </script>
+
 
 
 
