@@ -1,15 +1,14 @@
-<template> 
+<template>
   <div class="dashboard-container">
-    <!-- Sidebar de navegação -->
-
-    <!-- Conteúdo Principal com cartões resumo e gráficos -->
+    <!-- Conteúdo Principal -->
     <div class="content">
       <h2>Resumo Geral</h2>
-      <!-- Exibição de erro se houver -->
+      <!-- Exibição de erro -->
       <div v-if="erro" class="alert alert-danger">
         {{ erro }}
       </div>
 
+      <!-- Resumo -->
       <div class="dashboard-summary">
         <div class="summary-card">
           <h3>Total de Chamados Pendentes</h3>
@@ -38,78 +37,44 @@
       <div class="charts-container">
         <!-- Gráfico de Pizza -->
         <div class="chart-card">
-          <div class="dropdown"> 
+          <div class="dropdown">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               Exportar Gráfico de Pizza
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
-              
               <li><a class="dropdown-item" href="#" @click="exportPieChartImage">Imagem</a></li>
             </ul>
           </div>
           <h3>Distribuição de Chamados por Categoria</h3>
-          <canvas id="pieChart"></canvas>
+          <div id="pieChartContainer"></div>
         </div>
 
-        <!-- Gráfico de Barra -->
+        <!-- Gráficos Highcharts -->
         <div class="chart-card">
-          <div class="dropdown"> 
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Exportar Gráfico de Barra
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#" @click="exportBarChartExcel">Excel</a></li>
-
-              <li><a class="dropdown-item" href="#" @click="exportBarChartImage">Imagem</a></li>
-            </ul>
-          </div>
           <h3>Chamados por Mês</h3>
-          <canvas id="barChart"></canvas>
+          <div id="barChartContainer"></div>
         </div>
-
-        <!-- Gráfico de Linha -->
         <div class="chart-card">
-          <div class="dropdown"> 
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Exportar Gráfico de Linha
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#" @click="exportLineChartExcel">Excel</a></li>
-            
-              <li><a class="dropdown-item" href="#" @click="exportLineChartImage">Imagem</a></li>
-            </ul>
-          </div>
           <h3>Evolução dos Chamados</h3>
-          <canvas id="lineChart"></canvas>
+          <div id="lineChartContainer"></div>
         </div>
-
-        <!-- Gráfico de Degrau -->
         <div class="chart-card">
-          <div class="dropdown"> 
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Exportar Gráfico de Degrau
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#" @click="exportStepChartExcel">Excel</a></li>
-             
-              <li><a class="dropdown-item" href="#" @click="exportStepChartImage">Imagem</a></li>
-            </ul>
-          </div>
           <h3>Chamados em Degrau</h3>
-          <canvas id="stepChart"></canvas>
+          <div id="stepChartContainer"></div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
+
+
+
 <script>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import Chart from 'chart.js/auto';
-import html2pdf from 'html2pdf.js';
-import * as XLSX from 'xlsx';
+import Highcharts from 'highcharts';
 
 export default {
   name: 'ComponenteHome',
@@ -120,151 +85,195 @@ export default {
     const totalConcluidos = ref(0);
     const tempoMedioResolucao = ref('dias');
     const problemasRecorrentes = ref('');
-    const erro = ref(null); // Propriedade para armazenar erros
+    const erro = ref(null);
 
-    // Gráficos
-    let pieChart, barChart, lineChart, stepChart;
-
-    const createChart = (ctx, type, data, options) => {
-      return new Chart(ctx, {
-        type,
-        data,
-        options
+    // Função para criar gráfico de Pizza (já existente)
+    const createOrUpdateHighchartsPie = (data) => {
+      Highcharts.chart('pieChartContainer', {
+        chart: { type: 'pie' },
+        title: { text: 'Distribuição de Chamados por Categoria' },
+        tooltip: {
+          headerFormat: '',
+          pointFormat: '<span style="color:{point.color}">\u25cf</span> {point.name}: <b>{point.percentage:.1f}%</b>',
+        },
+        plotOptions: {
+          pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+              enabled: true,
+              format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+            },
+            animation: { duration: 2000 },
+          },
+        },
+        series: [
+          {
+            name: 'Chamados',
+            colorByPoint: true,
+            enableMouseTracking: false,
+            data: data,
+          },
+        ],
       });
     };
 
+    // Função para criar gráficos Highcharts
+    const createHighchartsBar = (data) => {
+      Highcharts.chart('barChartContainer', {
+        chart: {
+          type: 'column',
+        },
+        title: {
+          text: 'Chamados por Mês',
+        },
+        xAxis: {
+          categories: data.map((item) => item.mes),
+        },
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Chamados',
+          },
+        },
+        series: [
+          {
+            name: 'Chamados por Mês',
+            data: data.map((item) => item.total_chamados),
+          },
+        ],
+      });
+    };
+
+    const createHighchartsLine = (data) => {
+      Highcharts.chart('lineChartContainer', {
+        chart: {
+          type: 'line',
+        },
+        title: {
+          text: 'Evolução dos Chamados',
+        },
+        xAxis: {
+          categories: data.map((item) => item.mes),
+        },
+        yAxis: {
+          title: {
+            text: 'Chamados',
+          },
+        },
+        series: [
+          {
+            name: 'Evolução dos Chamados',
+            data: data.map((item) => item.total_chamados),
+            color: '#FF9F40',
+            marker: {
+              enabled: false,
+            },
+          },
+        ],
+      });
+    };
+
+    const createHighchartsStep = (data) => {
+      Highcharts.chart('stepChartContainer', {
+        chart: {
+          type: 'line',
+        },
+        title: {
+          text: 'Chamados em Degrau',
+        },
+        xAxis: {
+          categories: data.map((item) => item.data),
+        },
+        yAxis: {
+          title: {
+            text: 'Chamados',
+          },
+        },
+        series: [
+          {
+            name: 'Chamados em Degrau',
+            data: data.map((item) => item.total_chamados),
+            color: '#36A2EB',
+            step: true, // Gera o gráfico em degrau
+          },
+        ],
+      });
+    };
+
+    // Função para buscar dados e renderizar gráficos
     const fetchData = async () => {
       erro.value = null;
       try {
         const baseURL = 'http://localhost:3000/home';
         const token = localStorage.getItem("token");
 
+        // Chamados pendentes
         const resPendentes = await axios.get(`${baseURL}/total-pendentes`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         totalPendentes.value = resPendentes.data.total;
 
+        // Chamados em andamento
         const resAndamento = await axios.get(`${baseURL}/total-andamento`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         totalAndamento.value = resAndamento.data.total;
 
+        // Chamados concluídos
         const resConcluidos = await axios.get(`${baseURL}/total-concluidos`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         totalConcluidos.value = resConcluidos.data.total;
 
+        // Tempo médio de resolução
         const resTempo = await axios.get(`${baseURL}/tempo-medio-resolucao`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        tempoMedioResolucao.value = `${resTempo.data.tempo_medio_resolucao_dias || 0} dias`;
 
-        if (resTempo.data && resTempo.data.tempo_medio_resolucao_dias !== undefined) {
-          const dias = resTempo.data.tempo_medio_resolucao_dias;
-          tempoMedioResolucao.value = `${dias} dia${dias === 1 ? '' : 's'}`;
-        } else {
-          erro.value = "Erro ao carregar o tempo médio de resolução";
-        }
-
+        // Problemas recorrentes
         const resProblemas = await axios.get(`${baseURL}/problemas-recorrentes`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         problemasRecorrentes.value = resProblemas.data.map(item => item.nome_problema).join(', ');
 
-        // Gráficos
+        // Gráfico de pizza
         const resDistribuicao = await axios.get(`${baseURL}/distribuicao-categoria`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (resDistribuicao.data) {
-          pieChart = createChart(document.getElementById('pieChart'), 'pie', {
-            labels: resDistribuicao.data.map(item => item.nome_setor),
-            datasets: [{
-              data: resDistribuicao.data.map(item => item.total_chamados),
-              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0']
-            }]
-          });
-        }
+        const pieData = resDistribuicao.data.map(item => ({
+          name: item.nome_setor,
+          y: item.total_chamados
+        }));
+        createOrUpdateHighchartsPie(pieData);
 
-        // Gráfico de Barra
+        // Chamados por mês (gráfico de barra)
         const resMeses = await axios.get(`${baseURL}/chamados-por-mes`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (resMeses.data) {
-          barChart = createChart(document.getElementById('barChart'), 'bar', {
-            labels: resMeses.data.map(item => item.mes),
-            datasets: [{
-              label: 'Chamados por Mês',
-              data: resMeses.data.map(item => item.total_chamados),
-              backgroundColor: '#4BC0C0'
-            }]
-          });
-        }
+        createHighchartsBar(resMeses.data);
 
-        // Gráfico de Linha
+        // Evolução dos chamados (gráfico de linha)
         const resEvolucao = await axios.get(`${baseURL}/evolucao-chamados`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (resEvolucao.data) {
-          lineChart = createChart(document.getElementById('lineChart'), 'line', {
-            labels: resEvolucao.data.map(item => item.mes),
-            datasets: [{
-              label: 'Evolução dos Chamados',
-              data: resEvolucao.data.map(item => item.total_chamados),
-              borderColor: '#FF9F40',
-              fill: false
-            }]
-          });
-        }
+        createHighchartsLine(resEvolucao.data);
 
-        // Gráfico de Degrau
+        // Chamados em degrau
         const resDegrau = await axios.get(`${baseURL}/chamados-degrau`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (resDegrau.data) {
-          stepChart = createChart(document.getElementById('stepChart'), 'line', {
-            labels: resDegrau.data.map(item => item.data),
-            datasets: [{
-              label: 'Chamados em Degrau',
-              data: resDegrau.data.map(item => item.total_chamados),
-              borderColor: '#36A2EB',
-              steppedLine: true
-            }]
-          });
-        }
-      } catch (error) {
-        erro.value = "Erro ao carregar os dados.";
-        console.error(error);
+        createHighchartsStep(resDegrau.data);
+        
+      } catch (err) {
+        erro.value = 'Ocorreu um erro ao buscar os dados. Por favor, tente novamente.';
       }
     };
 
-
-    const exportChartToImage = (chartId) => {
-      const chartCanvas = document.getElementById(chartId);
-      const imgData = chartCanvas.toDataURL("image/png");
-      const link = document.createElement('a');
-      link.href = imgData;
-      link.download = `grafico_${chartId}.png`;
-      link.click();
-    };
-
-    // Exportação por tipo de gráfico
-    const exportPieChartExcel = () => exportChartToExcel('pieChart');
-    const exportPieChartPDF = () => exportChartToPDF('pieChart');
-    const exportPieChartImage = () => exportChartToImage('pieChart');
-
-    const exportBarChartExcel = () => exportChartToExcel('barChart');
-    const exportBarChartPDF = () => exportChartToPDF('barChart');
-    const exportBarChartImage = () => exportChartToImage('barChart');
-
-    const exportLineChartExcel = () => exportChartToExcel('lineChart');
-    const exportLineChartPDF = () => exportChartToPDF('lineChart');
-    const exportLineChartImage = () => exportChartToImage('lineChart');
-
-    const exportStepChartExcel = () => exportChartToExcel('stepChart');
-    const exportStepChartPDF = () => exportChartToPDF('stepChart');
-    const exportStepChartImage = () => exportChartToImage('stepChart');
-
-    // Ao montar o componente, buscar os dados
-    onMounted(fetchData);
+    onMounted(() => {
+      fetchData();
+    });
 
     return {
       totalPendentes,
@@ -273,22 +282,11 @@ export default {
       tempoMedioResolucao,
       problemasRecorrentes,
       erro,
-      exportPieChartExcel,
-      exportPieChartPDF,
-      exportPieChartImage,
-      exportBarChartExcel,
-      exportBarChartPDF,
-      exportBarChartImage,
-      exportLineChartExcel,
-      exportLineChartPDF,
-      exportLineChartImage,
-      exportStepChartExcel,
-      exportStepChartPDF,
-      exportStepChartImage
     };
-  }
+  },
 };
 </script>
+
 
 
 <style scoped>
