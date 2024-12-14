@@ -39,30 +39,67 @@
         <div class="chart-card">
           <div class="dropdown">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Exportar Gráfico de Pizza
+              Exportar Gráfico 
             </button>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
-              <li><a class="dropdown-item" href="#" @click="exportPieChartImage">Imagem</a></li>
-            </ul>
+  <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
+  <li><a class="dropdown-item" href="#" @click.prevent="exportPieChartImage">Imagem</a></li>
+</ul>
+
           </div>
           <h3>Distribuição de Chamados por Categoria</h3>
           <div id="pieChartContainer"></div>
+          
         </div>
 
         <!-- Gráficos Highcharts -->
         <div class="chart-card">
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Exportar Gráfico 
+            </button>
+            <ul class="dropdown-menu">
+  <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
+  <li><a class="dropdown-item" href="#" @click.prevent="exportPieChartImage">Imagem</a></li>
+</ul>
+
+          </div>
           <h3>Chamados por Mês</h3>
           <div id="barChartContainer"></div>
+         
         </div>
+
         <div class="chart-card">
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Exportar Gráfico 
+            </button>
+            <ul class="dropdown-menu">
+  <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
+  <li><a class="dropdown-item" href="#" @click.prevent="exportPieChartImage">Imagem</a></li>
+</ul>
+
+          </div>
           <h3>Evolução dos Chamados</h3>
           <div id="lineChartContainer"></div>
+          
         </div>
+
         <div class="chart-card">
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Exportar Gráfico 
+            </button>
+            <ul class="dropdown-menu">
+  <li><a class="dropdown-item" href="#" @click="exportPieChartExcel">Excel</a></li>
+  <li><a class="dropdown-item" href="#" @click.prevent="exportPieChartImage">Imagem</a></li>
+</ul>
+
+          </div>
           <h3>Chamados em Degrau</h3>
-          <div id="stepChartContainer"></div>
+          <div id="stepChartContainer"></div>      
         </div>
+
       </div>
     </div>
   </div>
@@ -75,6 +112,8 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Highcharts from 'highcharts';
+import * as XLSX from 'xlsx';
+
 
 export default {
   name: 'ComponenteHome',
@@ -274,6 +313,47 @@ export default {
     onMounted(() => {
       fetchData();
     });
+// Função para exportar gráficos como imagem
+const exportChartAsImage = (chartId, filename) => {
+  const chart = Highcharts.charts.find(c => c.renderTo.id === chartId);
+  if (chart) {
+    chart.exportChart({
+      type: 'image/png',
+      filename: filename || 'grafico'
+    });
+  } else {
+    console.error('Gráfico não encontrado:', chartId);
+  }
+};
+
+// Funções específicas para cada gráfico
+const exportPieChartImage = () => exportChartAsImage('pieChartContainer', 'distribuicao_chamados');
+const exportBarChartImage = () => exportChartAsImage('barChartContainer', 'chamados_por_mes');
+const exportLineChartImage = () => exportChartAsImage('lineChartContainer', 'evolucao_chamados');
+const exportStepChartImage = () => exportChartAsImage('stepChartContainer', 'chamados_em_degrau');
+  // Função para exportar o gráfico de Pizza como Excel
+const exportPieChartExcel = () => {
+  const chart = Highcharts.charts.find(c => c.renderTo.id === 'pieChartContainer');
+  if (chart) {
+    // Extrair os dados do gráfico
+    const chartData = chart.series[0].data.map(point => ({
+      Categoria: point.name,
+      Chamados: point.y
+    }));
+
+    // Criar uma nova planilha com os dados
+    const ws = XLSX.utils.json_to_sheet(chartData);
+    
+    // Criar um novo livro de trabalho
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Distribuição de Chamados');
+
+    // Exportar o arquivo Excel
+    XLSX.writeFile(wb, 'distribuicao_chamados.xlsx');
+  } else {
+    console.error('Gráfico de pizza não encontrado');
+  }
+};
 
     return {
       totalPendentes,
@@ -281,6 +361,11 @@ export default {
       totalConcluidos,
       tempoMedioResolucao,
       problemasRecorrentes,
+      exportPieChartImage,
+      exportBarChartImage,
+      exportLineChartImage,
+      exportStepChartImage,
+
       erro,
     };
   },
