@@ -5,27 +5,23 @@
       <div class="charts-container">
 
         <div class="chart-card">
-          <h3>Problemas com Maior Índice de Chamados</h3>
           <div id="mostCalledIssuesChart"></div>
           <p v-if="problemasRecorrentes"></p>
           <p v-else>Carregando...</p>
         </div>
 
         <div class="chart-card">
-          <h3>Tempo Médio de Resolução</h3>
           <div id="averageResolutionTimeChart"></div>
           <p v-if="tempoMedioResolucao"> </p>
           <p v-else>Carregando...</p>
         </div>
        
         <div class="chart-card">
-          <h3>Tempo de Fechamento</h3>
           <div id="closingTimeChart"></div>
           <p v-if="tempoFechamento"></p>
           <p v-else>Carregando...</p>
         </div>
         <div class="chart-card">
-          <h3>Tempo de Primeiro Contato</h3>
           <div id="firstContactTimeChart"></div>
           <p v-if="tempoPrimeiroContato"></p>
           <p v-else>Carregando...</p>
@@ -195,7 +191,7 @@ export default {
       },
     },
     series: [{
-      name: "Tempo Médio de Primeiro Contato",
+      name: "Horas",
       data: this.tempoPrimeiroContato.map(item => parseFloat(item.tempo)), // Convertendo para número
       color: '#6495ED',
     }],
