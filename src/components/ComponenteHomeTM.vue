@@ -6,30 +6,28 @@
 
         <div class="chart-card">
           <h3>Problemas com Maior Índice de Chamados</h3>
-         
-          <canvas id="mostCalledIssuesChart"></canvas>
-          <p v-if="problemasRecorrentes">Problemas: {{ problemasRecorrentes }}</p>
+          <div id="mostCalledIssuesChart"></div>
+          <p v-if="problemasRecorrentes"></p>
           <p v-else>Carregando...</p>
         </div>
 
         <div class="chart-card">
           <h3>Tempo Médio de Resolução</h3>
-          
-          <canvas id="averageResolutionTimeChart"></canvas>
+          <div id="averageResolutionTimeChart"></div>
           <p v-if="tempoMedioResolucao">Tempo Médio: {{ tempoMedioResolucao }} horas</p>
           <p v-else>Carregando...</p>
         </div>
        
         <div class="chart-card">
           <h3>Tempo de Fechamento</h3>
-          <canvas id="closingTimeChart"></canvas>
-          <p v-if="tempoFechamento">Tempo de Fechamento: {{ tempoFechamento }} horas</p>
+          <div id="closingTimeChart"></div>
+          <p v-if="tempoFechamento"></p>
           <p v-else>Carregando...</p>
         </div>
         <div class="chart-card">
           <h3>Tempo de Primeiro Contato</h3>
-          <canvas id="firstContactTimeChart"></canvas>
-          <p v-if="tempoPrimeiroContato">Tempo: {{ tempoPrimeiroContato }} horas</p>
+          <div id="firstContactTimeChart"></div>
+          <p v-if="tempoPrimeiroContato"></p>
           <p v-else>Carregando...</p>
         </div>
       </div>
@@ -39,10 +37,9 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from "axios";
-import Chart from "chart.js/auto";
+import Highcharts from "highcharts";
 
 export default {
   name: "DashboardCharts",
@@ -53,7 +50,6 @@ export default {
       tempoFechamento: null,
       tempoPrimeiroContato: null,
       erro: null,
-      charts: [],
     };
   },
   methods: {
@@ -94,7 +90,10 @@ export default {
         const resPrimeiroContato = await axios.get(`${baseURL}/tempo-primeiro-contato`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        this.tempoPrimeiroContato = resPrimeiroContato.data.map(item => item.tempo_primeiro_contato_horas)[0]; // Pegando o primeiro valor
+        this.tempoPrimeiroContato = resPrimeiroContato.data.map(item => ({
+          setor: item.setor,
+          tempo: item.tempo_medio_primeiro_contato_horas
+        }));
         console.log("Tempo de Primeiro Contato:", this.tempoPrimeiroContato);
 
         // Criação dos gráficos
@@ -107,130 +106,109 @@ export default {
     },
 
     createCharts(resTempo, resProblemas, resFechamento, resPrimeiroContato) {
-      // Criando gráfico de Tempo Médio de Resolução
-     // Criando gráfico de Tempo Médio de Resolução
-const ctx1 = document.getElementById("averageResolutionTimeChart");
-new Chart(ctx1, {
-  type: "line", // Alterado para gráfico de linha
-  data: {
-    labels: ['Tempo Médio de Resolução'], // Rótulos do eixo X
-    datasets: [{
-      label: 'Tempo Médio de Resolução (horas)', // Legenda do gráfico
-      data: [this.tempoMedioResolucao], // Dados a serem exibidos
-      borderColor: '#42A5F5', // Cor da linha
-      backgroundColor: 'rgba(66, 165, 245, 0.2)', // Cor de preenchimento
-      borderWidth: 2, // Largura da linha
-      pointBackgroundColor: '#1E88E5', // Cor dos pontos
-      pointBorderColor: '#1E88E5', // Cor da borda dos pontos
-      pointRadius: 5, // Tamanho dos pontos
+  // Gráfico de Tempo Médio de Resolução
+  Highcharts.chart("averageResolutionTimeChart", {
+    chart: {
+      type: 'column'
+    },
+    title: {
+      text: 'Tempo Médio de Resolução por Setor'
+    },
+    xAxis: {
+      type: 'category',
+      title: {
+        text: 'Setor'
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Tempo Médio de Resolução (horas)'
+      }
+    },
+    series: [{
+      name: 'Setores',
+      data: resTempo.data.map(item => ({
+        name: item.setor,
+        y: parseFloat(item.tempo_medio_resolucao_horas) // Convertendo para número
+      }))
+    }]
+  });
+
+  // Gráfico de Problemas com Maior Índice de Chamados
+  Highcharts.chart("mostCalledIssuesChart", {
+    chart: {
+      type: "pie",
+    },
+    title: {
+      text: "Problemas com Maior Índice de Chamados",
+    },
+    series: [{
+      name: 'Chamados',
+      data: resProblemas.data.map(item => ({
+        name: item.problema,
+        y: item.total_chamados,
+      })),
+      colorByPoint: true,
     }],
-  },
-  options: {
-    responsive: true,
-    scales: {
-      y: { 
-        beginAtZero: true, 
-        title: {
-          display: true,
-          text: 'Horas',
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: 'Indicador',
-        },
-      },
-    },
-    plugins: {
-      legend: {
-        display: true,
-        position: 'top', // Posição da legenda
-      },
-    },
-  },
-});
+  });
 
-// Criando gráfico de Problemas com Maior Índice de Chamados
-const ctx2 = document.getElementById("mostCalledIssuesChart");
-new Chart(ctx2, {
-  type: "pie",
-  data: {
-    labels: resProblemas.data.map(item => item.problema),
-    datasets: [{
-      data: resProblemas.data.map(item => item.total_chamados),
-      backgroundColor: [
-        '#6495ED', // Azul cobalto
-        '#808080', // Cinza elegante
-        '#708090', // Azul acinzentado
-        '#DCDCDC', // Cinza claro
-        '#B0E0E6', // Azul gelo
-        '#4682B4', // Azul aço
-      ],
+  // Gráfico de Tempo de Fechamento
+  Highcharts.chart("closingTimeChart", {
+    chart: {
+      type: "line",
+    },
+    title: {
+      text: "Tempo de Fechamento (horas)",
+    },
+    xAxis: {
+      categories: ['Tempo de Fechamento'],
+    },
+    yAxis: {
+      title: {
+        text: 'Horas',
+      },
+    },
+    series: [{
+      name: 'Tempo de Fechamento',
+      data: [parseFloat(this.tempoFechamento)], // Garantir que o valor seja numérico
+      color: '#5F9EA0',
     }],
-  },
-  options: {
-    responsive: true,
-  },
-});
+  });
 
-
-      // Criando gráfico de Tempo de Fechamento
-      const ctx3 = document.getElementById("closingTimeChart");
-      new Chart(ctx3, {
-        type: "line",
-        data: {
-          labels: ['Tempo de Fechamento'],
-          datasets: [{
-            label: 'Tempo de Fechamento (horas)',
-            data: [this.tempoFechamento],
-            borderColor: '#5F9EA0	',
-            backgroundColor: '#2F4F4F',
-            fill: false,
-          }],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: { beginAtZero: true },
-          },
-        },
-      });
-
-      // Criando gráfico de Tempo de Primeiro Contato
-      const ctx4 = document.getElementById("firstContactTimeChart");
-      new Chart(ctx4, {
-        type: "bar",
-        data: {
-          labels: ['Tempo de Primeiro Contato'],
-          datasets: [{
-            label: 'Tempo de Primeiro Contato (horas)',
-            data: [this.tempoPrimeiroContato],
-            backgroundColor: '#6495ED',
-            borderColor: '#708090	',
-            borderWidth: 1,
-          }],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: { beginAtZero: true },
-          },
-        },
-      });
+  // Gráfico de Tempo de Primeiro Contato
+  Highcharts.chart("firstContactTimeChart", {
+    chart: {
+      type: "bar",
     },
+    title: {
+      text: "Tempo Médio de Primeiro Contato por Setor (horas)",
+    },
+    xAxis: {
+      categories: this.tempoPrimeiroContato.map(item => item.setor),
+      title: {
+        text: "Setor",
+      },
+    },
+    yAxis: {
+      title: {
+        text: "Tempo Médio de Primeiro Contato (horas)",
+      },
+    },
+    series: [{
+      name: "Tempo Médio de Primeiro Contato",
+      data: this.tempoPrimeiroContato.map(item => parseFloat(item.tempo)), // Convertendo para número
+      color: '#6495ED',
+    }],
+  });
+}
+
   },
   mounted() {
     this.fetchData();
   },
-  beforeUnmount() {
-    // Destruir os gráficos antes de desmontar o componente
-    this.charts.forEach((chart) => {
-      if (chart) chart.destroy();
-    });
-  },
 };
 </script>
+
 
 
 <style scoped>
@@ -454,4 +432,3 @@ h2 {
   display: inline-block;
 }
 </style>
-

@@ -16,6 +16,8 @@
     "chart.js": "^4.4.4",
     "cors": "^2.8.5",
     "highcharts": "^12.0.2",
+    "highcharts-more": "^0.1.7",
+    "highcharts-vue": "^2.0.1",
     "html2pdf.js": "^0.10.2",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.3",
