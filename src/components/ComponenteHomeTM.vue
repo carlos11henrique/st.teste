@@ -126,7 +126,7 @@ export default {
       }
     },
     series: [{
-      name: 'Setores',
+      name: 'Horas',
       data: resTempo.data.map(item => ({
         name: item.setor,
         y: parseFloat(item.tempo_medio_resolucao_horas) // Convertendo para número
