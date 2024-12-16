@@ -32,22 +32,18 @@
       <h2>Estatísticas Visuais</h2>
       <div class="charts-container">
         <div class="chart-card">
-          <h3>Distribuição de Chamados por Categoria</h3>
           <div id="pieChartContainer"></div>
         </div>
 
         <div class="chart-card">
-          <h3>Chamados por Mês</h3>
           <div id="barChartContainer"></div>
         </div>
 
         <div class="chart-card">
-          <h3>Evolução dos Chamados</h3>
           <div id="lineChartContainer"></div>
         </div>
 
         <div class="chart-card">
-          <h3>Chamados em Degrau</h3>
           <div id="stepChartContainer"></div>
         </div>
       </div>
