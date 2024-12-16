@@ -73,14 +73,12 @@ export default {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.problemasRecorrentes = resProblemas.data.map(item => item.problema).join(', ');
-        console.log("Problemas Recorrentes:", this.problemasRecorrentes);
 
         // Tempo de Fechamento
         const resFechamento = await axios.get(`${baseURL}/tempo-fechamento`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.tempoFechamento = resFechamento.data.map(item => item.tempo_total_resolucao_horas)[0]; // Pegando o primeiro valor
-        console.log("Tempo de Fechamento:", this.tempoFechamento);
 
         // Tempo de Primeiro Contato
         const resPrimeiroContato = await axios.get(`${baseURL}/tempo-primeiro-contato`, {
@@ -90,7 +88,6 @@ export default {
           setor: item.setor,
           tempo: item.tempo_medio_primeiro_contato_horas
         }));
-        console.log("Tempo de Primeiro Contato:", this.tempoPrimeiroContato);
 
         // Criação dos gráficos
         this.createCharts(resTempo, resProblemas, resFechamento, resPrimeiroContato);
@@ -157,7 +154,6 @@ export default {
       text: "Tempo de Fechamento (horas)",
     },
     xAxis: {
-      categories: ['Tempo de Fechamento'],
     },
     yAxis: {
       title: {
@@ -186,9 +182,7 @@ export default {
       },
     },
     yAxis: {
-      title: {
-        text: "Tempo Médio de Primeiro Contato (horas)",
-      },
+   
     },
     series: [{
       name: "Horas",
