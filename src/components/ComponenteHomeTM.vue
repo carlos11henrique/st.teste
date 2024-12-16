@@ -14,7 +14,7 @@
         <div class="chart-card">
           <h3>Tempo Médio de Resolução</h3>
           <div id="averageResolutionTimeChart"></div>
-          <p v-if="tempoMedioResolucao">Tempo Médio: {{ tempoMedioResolucao }} horas</p>
+          <p v-if="tempoMedioResolucao"> </p>
           <p v-else>Carregando...</p>
         </div>
        
