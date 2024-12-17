@@ -151,7 +151,7 @@ export default {
     type: "column", // Mudar para colunas para melhor comparação
   },
   title: {
-    text: "Tempo de Fechamento por Setor (horas)",
+    text: "Tempo de Fechamento por Setor",
   },
   xAxis: {
     categories: resFechamento.data.map(item => item.setor), // Setores como categorias no eixo X
