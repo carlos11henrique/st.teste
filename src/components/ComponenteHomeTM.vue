@@ -19,7 +19,6 @@
         <div class="chart-card">
           <div id="closingTimeChart"></div>
           <p v-if="tempoFechamento"></p>
-          <p v-else>Carregando...</p>
         </div>
         <div class="chart-card">
           <div id="firstContactTimeChart"></div>
@@ -78,6 +77,7 @@ export default {
         const resFechamento = await axios.get(`${baseURL}/tempo-fechamento`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        console.log("Tempo de Fechamento:", resFechamento.data);
         this.tempoFechamento = resFechamento.data.map(item => item.tempo_total_resolucao_horas)[0]; // Pegando o primeiro valor
 
         // Tempo de Primeiro Contato
@@ -147,25 +147,40 @@ export default {
 
   // Gráfico de Tempo de Fechamento
   Highcharts.chart("closingTimeChart", {
-    chart: {
-      type: "line",
-    },
+  chart: {
+    type: "column", // Mudar para colunas para melhor comparação
+  },
+  title: {
+    text: "Tempo de Fechamento por Setor (horas)",
+  },
+  xAxis: {
+    categories: resFechamento.data.map(item => item.setor), // Setores como categorias no eixo X
     title: {
-      text: "Tempo de Fechamento (horas)",
+      text: "Setores",
     },
-    xAxis: {
+  },
+  yAxis: {
+    title: {
+      text: "Horas",
     },
-    yAxis: {
-      title: {
-        text: 'Horas',
+  },
+  series: [{
+    name: "Tempo de Fechamento",
+    data: resFechamento.data.map(item => parseFloat(item.media_tempo_resolucao_horas)), // Valores de tempo em float
+    color: "#5F9EA0",
+  }],
+  plotOptions: {
+    column: {
+      dataLabels: {
+        enabled: true,
+        format: "{y} h", // Mostra valores com "h"
       },
     },
-    series: [{
-      name: 'Tempo de Fechamento',
-      data: [parseFloat(this.tempoFechamento)], // Garantir que o valor seja numérico
-      color: '#5F9EA0',
-    }],
-  });
+  },
+  tooltip: {
+    valueSuffix: " horas", // Tooltip com unidade
+  },
+});
 
   // Gráfico de Tempo de Primeiro Contato
   Highcharts.chart("firstContactTimeChart", {
@@ -173,7 +188,7 @@ export default {
       type: "bar",
     },
     title: {
-      text: "Tempo Médio de Primeiro Contato por Setor (horas)",
+      text: "Tempo Médio de Primeiro Contato por Setor",
     },
     xAxis: {
       categories: this.tempoPrimeiroContato.map(item => item.setor),

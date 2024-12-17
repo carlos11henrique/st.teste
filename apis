@@ -2,6 +2,7 @@ http://localhost:3000/setores
 http://localhost:3000/usuarios
 http://localhost:3000/blocos
 http://localhost:3000/salas
+http://localhost:3000/home
 http://localhost:3000/maquinas
 http://localhost:3000/problemas
 http://localhost:3000/chamados
