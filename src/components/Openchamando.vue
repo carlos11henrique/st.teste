@@ -28,7 +28,7 @@
           <div class="circle">🏃🏻‍♂️</div>
           <span>Em Andamento</span>
         </div>
-        <div class="progress-step" :class="{ completed: currentStep >= 4 }">
+        <div class="progress-step" :class="{ completed: currentStep >= 4 || chamado.status === 'Finalizado' }">
           <div class="circle">✅</div>
           <span>Concluído</span>
         </div>
@@ -89,7 +89,7 @@ import { ROLES } from "../util/roles";
 export default {
   data() {
     return {
-      currentStep: 1,
+      currentStep: 1 ,
       chamado: null,
       ROLES,
       chamados: [],
@@ -134,10 +134,10 @@ export default {
     },
     definirEtapa(status) {
       const etapas = {
-        "Em Análise": 1,
+        "Análise": 1,
         Pendentes: 2,
         "Em Andamento": 3,
-        Concluído: 4,
+        Concluido: 4,
         Finalizado: 5, // Define o estado de Finalizado
       };
       return etapas[status] || 1;
