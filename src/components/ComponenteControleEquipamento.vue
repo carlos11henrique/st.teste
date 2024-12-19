@@ -38,8 +38,8 @@
             />
           </th>
           <th>Nome do Equipamento</th>
-          <th>ID</th>
           <th>Localização</th>
+          <th>Descrição</th>
           <th>Ações</th>
         </tr>
       </thead>
@@ -53,8 +53,9 @@
             />
           </td>
           <td>{{ equipamento.numero_maquina }}</td>
-          <td>{{ equipamento.id }}</td>
           <td>{{ equipamento.numero_sala || 'Sem localização' }}</td>
+          <td>{{ equipamento.descricao }}</td>
+
           <td>
             <button class="btn btn-warning btn-sm" @click="editarEquipamento(equipamento)">Editar</button>
             <button class="btn btn-danger btn-sm" @click="removerEquipamento(equipamento.id)">Remover</button>
@@ -147,9 +148,11 @@ export default {
       return this.equipamentos.filter((equipamento) => {
         const nome = equipamento.numero_maquina ? String(equipamento.numero_maquina) : "";
         const id = equipamento.id ? String(equipamento.id) : "";
+        const descricao = equipamento.descricao ? String(equipamento.descricao) : "";
         return (
           nome.toLowerCase().includes(this.filtroPesquisa.toLowerCase()) ||
-          id.toLowerCase().includes(this.filtroPesquisa.toLowerCase())
+          id.toLowerCase().includes(this.filtroPesquisa.toLowerCase())||
+          descricao.toLowerCase().includes(this.filtroPesquisa.toLowerCase())
         );
       });
     },
