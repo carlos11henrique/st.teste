@@ -125,7 +125,7 @@ export default {
           title: { text: 'Chamados' }
         },
         series: [{
-          name: 'Chamados por Mês',
+          name: 'Chamados nesse Mês',
           data: data.map((item) => item.total_chamados),
         }],
         exporting: {
@@ -155,6 +155,12 @@ export default {
         yAxis: {
           min: 0,
           title: { text: 'Chamados' }
+        },
+        xAxis: {
+          title: {
+        text: 'Dias',
+      },
+          
         },
         series: [{
           name: 'Evolução dos Chamados',
@@ -192,7 +198,7 @@ export default {
     xAxis: {
       categories: data.map((item) => item.mes), // Defina as categorias com base nos meses
       title: {
-        text: 'Meses',
+        text: 'Dias',
       },
     },
     yAxis: {
