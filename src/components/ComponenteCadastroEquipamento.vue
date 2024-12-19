@@ -4,13 +4,13 @@
     <form @submit.prevent="cadastrarEquipamento">
       <!-- Número da Máquina -->
       <div class="form-group">
-        <label for="numero_maquina">Número da Máquina:</label>
+        <label for="numero_maquina">Código da Máquina:</label>
         <input
           v-model="novoEquipamento.numero_maquina"
           type="text"
           id="numero_maquina"
           required
-          placeholder="Ex: MAQ-001"
+          placeholder="Ex: MAQ"
         />
       </div>
 
@@ -24,7 +24,7 @@
           <option value="Ar-condicionado">Ar-condicionado</option>
           <option value="Teclado">Teclado</option>
           <option value="Mouse">Mouse</option>
-          <option value="CaixadeSom">Caixa de Som</option>
+          <option value="Caixa de Som">Caixa de Som</option>
           <option value="Projetores">Projetores</option>
         </select>
       </div>
@@ -53,6 +53,19 @@
         </select>
       </div>
 
+      <!-- Campo de Quantidade -->
+      <div class="form-group">
+        <label for="quantidade">Quantidade:</label>
+        <input
+          v-model="quantidade"
+          id="quantidade"
+          type="number"
+          min="1"
+          class="form-control"
+          required
+        />
+      </div>
+
       <button type="submit" class="btn btn-primary" :disabled="isLoading || !isFormValid">Cadastrar</button>
     </form>
   </div>
@@ -66,7 +79,8 @@ export default {
   data() {
     return {
       mostrarFormulario: true,
-      isLoading: false, // Flag de carregamento
+      isLoading: false,
+      quantidade: 1, // Quantidade para cadastro em massa
       novoEquipamento: {
         numero_maquina: "",
         tipo_equipamento: "",
@@ -84,7 +98,8 @@ export default {
         this.novoEquipamento.numero_maquina &&
         this.novoEquipamento.tipo_equipamento &&
         this.novoEquipamento.descricao &&
-        this.novoEquipamento.sala_id
+        this.novoEquipamento.sala_id &&
+        this.quantidade > 0
       );
     },
   },
@@ -123,53 +138,50 @@ export default {
     },
 
     async cadastrarEquipamento() {
-      if (
-        !this.novoEquipamento.numero_maquina ||
-        !this.novoEquipamento.tipo_equipamento ||
-        !this.novoEquipamento.descricao ||
-        !this.novoEquipamento.sala_id
-      ) {
+      if (!this.isFormValid) {
         Swal.fire("Erro", "Preencha todos os campos obrigatórios.", "error");
         return;
       }
 
-      // Validação de número da máquina
-      const numeroMaquinaRegex = /^[A-Za-z0-9\-]+$/; // Validação alfanumérica
-      if (!numeroMaquinaRegex.test(this.novoEquipamento.numero_maquina)) {
-        Swal.fire("Erro", "Número da máquina inválido. Deve conter apenas letras, números e hífens.", "error");
-        return;
+      const numeroBase = this.novoEquipamento.numero_maquina;
+      const cadastros = [];
+
+      for (let i = 1; i <= this.quantidade; i++) {
+        const numeroSequencial = `${numeroBase}-${i}`;
+        cadastros.push({
+          numero_maquina: numeroSequencial,
+          tipo_equipamento: this.novoEquipamento.tipo_equipamento,
+          descricao: this.novoEquipamento.descricao,
+          sala_id: this.novoEquipamento.sala_id,
+        });
       }
 
-      this.isLoading = true; // Inicia o carregamento
+      this.isLoading = true;
 
       try {
         const token = localStorage.getItem("token");
-        const resposta = await axios.post(
-          "http://localhost:3000/maquinas",
-          {
-            numero_maquina: this.novoEquipamento.numero_maquina,
-            tipo_equipamento: this.novoEquipamento.tipo_equipamento,
-            descricao: this.novoEquipamento.descricao,
-            sala_id: this.novoEquipamento.sala_id,
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        if (resposta.status === 201) {
-          Swal.fire("Sucesso", "Equipamento cadastrado com sucesso!", "success");
-          this.novoEquipamento = {
-            numero_maquina: "",
-            tipo_equipamento: "",
-            descricao: "",
-            sala_id: "",
-            bloco: "", // Resetando o bloco também
-          };
-          this.salasFiltradas = [];
+        for (const equipamento of cadastros) {
+          await axios.post(
+            "http://localhost:3000/maquinas",
+            equipamento,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
         }
+
+        Swal.fire("Sucesso", "Todos os equipamentos foram cadastrados com sucesso!", "success");
+        this.novoEquipamento = {
+          numero_maquina: "",
+          tipo_equipamento: "",
+          descricao: "",
+          sala_id: "",
+          bloco: "",
+        };
+        this.quantidade = 1;
+        this.salasFiltradas = [];
       } catch (error) {
-        Swal.fire("Erro", "Erro ao cadastrar o equipamento. Tente novamente mais tarde.", "error");
+        Swal.fire("Erro", "Erro ao cadastrar os equipamentos. Tente novamente mais tarde.", "error");
       } finally {
-        this.isLoading = false; // Finaliza o carregamento
+        this.isLoading = false;
       }
     },
   },
@@ -178,6 +190,9 @@ export default {
   },
 };
 </script>
+
+
+
 
 <style scoped>
 .form-container {
